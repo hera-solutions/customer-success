@@ -509,9 +509,17 @@ Repeatable scripts, cached query outputs, and one-time analysis reports go under
 
 This directory is a clone of a GitHub repository.
 
-- **Work directly on `main`. Do not create feature branches, and do not use git worktrees for this project.** Make changes on `main`, commit, and push.
-- **Auto-commit and push.** After making meaningful changes during a conversation, commit and push to `main` automatically without waiting to be asked. "Meaningful" means any file creation, edit, or deletion that we discussed and agreed on. Do not commit scratch work, temporary debugging, or changes the user explicitly said to hold off on.
+### John (john@hera.app)
+
+- **Work directly on `main`.** Do not create feature branches or git worktrees.
+- **Auto-commit and push.** After making meaningful changes during a conversation, commit and push to `main` automatically without waiting to be asked. "Meaningful" means any file creation, edit, or deletion that was discussed and agreed on. Do not commit scratch work, temporary debugging, or changes John explicitly said to hold off on.
 - Commit changes with sensible, descriptive commit messages that explain *why* the change was made.
 - Push commits to GitHub so the remote history stays current and changes are preserved.
 - Do not bundle unrelated changes into a single commit.
-- **PRs are the exception, not the default.** Only create a pull request when the user specifically asks for one. The normal flow is commit and push to `main`.
+- **PRs are the exception, not the default.** Only create a pull request when John specifically asks for one. The normal flow is commit and push to `main`.
+
+### All other users (including Abram)
+
+- **Always use a feature branch and pull request.** Do not commit directly to `main`.
+- Create a branch with a descriptive name, commit changes there, push the branch, and open a PR against `main`.
+- After the PR is created, ask the user if they want to merge it into `main` now or leave it for review.
