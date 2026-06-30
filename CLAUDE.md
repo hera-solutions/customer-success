@@ -510,6 +510,8 @@ Repeatable scripts, cached query outputs, and one-time analysis reports go under
 This directory is a clone of a GitHub repository.
 
 - **Work directly on `main`. Do not create feature branches, and do not use git worktrees for this project.** Make changes on `main`, commit, and push.
+- **Auto-commit and push.** After making meaningful changes during a conversation, commit and push to `main` automatically without waiting to be asked. "Meaningful" means any file creation, edit, or deletion that we discussed and agreed on. Do not commit scratch work, temporary debugging, or changes the user explicitly said to hold off on.
 - Commit changes with sensible, descriptive commit messages that explain *why* the change was made.
 - Push commits to GitHub so the remote history stays current and changes are preserved.
 - Do not bundle unrelated changes into a single commit.
+- **PRs are the exception, not the default.** Only create a pull request when the user specifically asks for one. The normal flow is commit and push to `main`.
