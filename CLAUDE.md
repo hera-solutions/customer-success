@@ -520,6 +520,5 @@ This directory is a clone of a GitHub repository.
 
 ### All other users (including Abram)
 
-- **Always use a feature branch and pull request.** Do not commit directly to `main`.
-- Create a branch with a descriptive name, commit changes there, push the branch, and open a PR against `main`.
+- **Work from `main` but use a pull request to merge.** Make changes on a branch created from `main`, push the branch, and open a PR against `main`.
 - After the PR is created, ask the user if they want to merge it into `main` now or leave it for review.
