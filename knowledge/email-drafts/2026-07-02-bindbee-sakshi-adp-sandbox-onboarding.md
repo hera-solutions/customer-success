@@ -9,7 +9,8 @@
 ## Context
 
 - Replied to Sakshi's June 26 welcome/onboarding email
-- Provided points of contact: John (Project Owner), Andy (Technical Lead)
+- Provided points of contact: John (Project Owner), Andy Rogers (Technical Lead)
+- NOTE: Email sent with "Andy Mack" in error. Correct last name is Rogers. Email address (andy@hera.app) was correct.
 - Deferred kickoff call to next week (finishing critical internal initiative)
 - Asked whether Bindbee has their own ADP sandbox and has signed a similar ADP agreement, since Bindbee will be the middleware between Hera and ADP
 - Flagged that Paycom will likely need a similar setup later
