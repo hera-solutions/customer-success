@@ -481,6 +481,16 @@ Final output should be ready to use or very close to ready.
 
 When converting Hera Solutions data exports (DynamoDB CSVs, attendance logs, scorecards, communications, Netradyne events, etc.) into formatted PDF reports — Communication Exports or Personnel Records — follow the process documented in [`reporting/pdf-generation-process.md`](reporting/pdf-generation-process.md). It covers field mappings, data-cleaning rules, color palette, layout specs, section structure, DynamoDB key references, and ReportLab patterns. Treat that file as the source of truth for these report formats; update it when conventions change so future runs stay consistent.
 
+## Customer onboarding imports
+
+When converting a new customer's onboarding data (HRIS export from ADP, Paycom, or Uzio; Amazon Logistics Associates export; Amazon DSP vehicle export) into Hera's import CSVs, follow the process documented in [`knowledge/onboarding/`](knowledge/onboarding/):
+
+- [`import-templates.md`](knowledge/onboarding/import-templates.md) — canonical column definitions and global rules for the Devices, Staff, and Vehicles templates.
+- [`staff-import-mapping.md`](knowledge/onboarding/staff-import-mapping.md) — HRIS + Amazon Associates → Hera Staff mapping, join logic, and the reusable converter script.
+- [`vehicles-amazon-dsp-mapping.md`](knowledge/onboarding/vehicles-amazon-dsp-mapping.md) — Amazon DSP vehicle export → Hera Vehicles mapping and converter.
+
+Treat these files as the source of truth. Update them when conventions change so future imports stay consistent. Per-customer pre-import notes go in [`knowledge/onboarding/runs/`](knowledge/onboarding/runs/).
+
 ## AWS access
 
 Hera production data lives in AWS account `530079012632`, region `us-east-2`. Read access for this project is granted through the SSO profile `hera-readonly`. **Always pass `--profile hera-readonly` on every AWS CLI call.**
