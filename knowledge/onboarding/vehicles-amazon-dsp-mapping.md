@@ -116,8 +116,9 @@ Hera's full Vehicle Type taxonomy: Standard Parcel Small, Standard Parcel, Stand
 | `U Haul` | U-Haul |
 | `Zeeba` | Zeeba |
 | `Kingbee` | Kingbee |
+| `Ryder` | Ryder |
 
-Note: `U-Haul` and `Kingbee` are not in Hera's currently-documented allowed list. Hera will add them; do not block the import on this.
+Note: `U-Haul`, `Kingbee`, and `Ryder` are not in Hera's currently-documented allowed list. Hera will add them; do not block the import on this.
 
 For Amazon-owned vehicles, populate Company from `vehicleProvider` anyway (these are usually `LP`, `ELEMENT`, `MERCHANTS`, etc. — Amazon's fleet manager partner).
 

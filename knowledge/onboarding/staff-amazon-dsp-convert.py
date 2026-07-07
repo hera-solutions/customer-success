@@ -4,9 +4,9 @@ Convert paired DSP onboarding files into the Hera Staff import CSV.
 
 Inputs:
   - AMZL Associates export (csv) — the master roster
-  - HRIS export — supports Uzio (xlsx) and ADP (csv).
+  - HRIS export — supports Uzio (xlsx), ADP (csv), and Paycom (csv).
     Format is auto-detected from extension + headers, or forced with
-    --hris-format {uzio,adp}.
+    --hris-format {uzio,adp,paycom}.
 
 Mapping rules are documented in staff-import-mapping.md. Keep both files
 in sync if Amazon, an HRIS vendor, or Hera changes their schema.
@@ -17,9 +17,10 @@ Rules:
 - For each AMZL row, try to find an HRIS match: name (first+last, drop
   middles and suffixes) -> email -> phone. Manual overrides via
   --merge "AMZL_TID=HRIS_PERSONAL_EMAIL".
-- Matched rows pull First/Last from HRIS, Email from HRIS, Hire Date
-  from HRIS. Email mismatches between HRIS and AMZL are flagged but HRIS
-  wins.
+- Matched rows pull First/Last from HRIS, Hire Date from HRIS, and
+  Email from AMZL (company-issued email is the source of truth as of
+  2026-06-05; fall back to HRIS personal email only when AMZL email is
+  blank). Email mismatches between AMZL and HRIS are flagged.
 - Unmatched AMZL rows pull First/Last by parsing 'Name and ID' (first
   token + last token after dropping suffixes); Email and Phone come from
   AMZL; Hire Date stays blank.
@@ -114,6 +115,35 @@ def parse_amzl_name(full_name):
 
 def norm_email(e):
     return str(e).strip().lower() if e else ""
+
+
+def title_case_name(s):
+    """Title-case a name while preserving Mc/Mac prefixes and apostrophes.
+
+    Used for Paycom, which exports names in ALL CAPS. Handles hyphens,
+    spaces, and apostrophes as word separators. Not perfect for every
+    edge case (e.g., van der Berg, MacDonough vs Macdonald), but covers
+    the common patterns cleanly. Non-fatal edge cases can be corrected
+    in Hera after import.
+    """
+    if not s:
+        return s
+    s = str(s).strip()
+    # If the string has any lowercase already, assume it's mixed-case and
+    # leave it alone — we only reshape all-caps input.
+    if not s.isupper():
+        return s
+
+    def _cap_token(tok):
+        low = tok.lower()
+        if len(low) >= 3 and low.startswith("mc"):
+            return "Mc" + low[2:].capitalize()
+        if len(low) >= 4 and low.startswith("mac") and low[3] not in "aeiou":
+            return "Mac" + low[3:].capitalize()
+        return low.capitalize()
+
+    parts = re.split(r"([-\s'])", s)
+    return "".join(_cap_token(p) if p and p not in "-'\t \n" else p for p in parts)
 
 
 def norm_phone(p):
@@ -218,6 +248,14 @@ ADP_HEADERS_EXPECTED = {
     "Personal Contact: Personal Email",
 }
 
+# Paycom Advanced Report Writer column names.
+PAYCOM_HEADERS_EXPECTED = {
+    "Legal_Firstname",
+    "Legal_Lastname",
+    "Personal_Email",
+    "Hire_Date",
+}
+
 
 def load_adp(path):
     """Read an ADP staff export CSV. Dedupe on Personal Email (case-insensitive).
@@ -261,6 +299,38 @@ def load_adp(path):
     return rows
 
 
+def load_paycom(path):
+    """Read a Paycom Advanced Report Writer CSV export.
+
+    Column structure (LOCKED):
+      Legal_Firstname, Legal_Lastname, Employee_Status, Primary_Phone,
+      Personal_Email, Birth_Date_(MM/DD/YYYY), Hire_Date
+
+    Names arrive ALL CAPS — apply title_case_name() so they land in Hera
+    with normal casing. Phone arrives as an 11-digit E.164-ish string
+    like '12179741311'; norm_phone() strips it to the last 10 digits.
+    Dates already arrive as MM/DD/YYYY.
+    """
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        raw = list(csv.DictReader(f))
+
+    rows = []
+    for r in raw:
+        first = title_case_name(r.get("Legal_Firstname"))
+        last_full = title_case_name(r.get("Legal_Lastname"))
+        rows.append(_hris_record(
+            first=first,
+            last_full=last_full,
+            personal_email=r.get("Personal_Email"),
+            hire=to_mdy(r.get("Hire_Date")),
+            phone_primary=r.get("Primary_Phone"),
+            phone_secondary=None,
+            dob=to_mdy(r.get("Birth_Date_(MM/DD/YYYY)")),
+            gender="",  # Paycom export does not include gender in this template
+        ))
+    return rows
+
+
 def detect_hris_format(path, forced):
     if forced:
         return forced
@@ -268,7 +338,7 @@ def detect_hris_format(path, forced):
     if suffix in (".xlsx", ".xlsm"):
         return "uzio"
     if suffix == ".csv":
-        # Sniff the header row for ADP markers.
+        # Sniff the header row for ADP / Paycom markers.
         with open(path, newline="", encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             try:
@@ -277,11 +347,13 @@ def detect_hris_format(path, forced):
                 headers = set()
         if ADP_HEADERS_EXPECTED.issubset(headers):
             return "adp"
+        if PAYCOM_HEADERS_EXPECTED.issubset(headers):
+            return "paycom"
         sys.exit(
             f"Cannot auto-detect HRIS format for {path}. "
-            "Pass --hris-format adp|uzio to force."
+            "Pass --hris-format adp|uzio|paycom to force."
         )
-    sys.exit(f"Unsupported HRIS file type: {suffix}. Use .csv (ADP) or .xlsx (Uzio).")
+    sys.exit(f"Unsupported HRIS file type: {suffix}. Use .csv (ADP/Paycom) or .xlsx (Uzio).")
 
 
 def load_hris(path: Path, fmt: str):
@@ -289,6 +361,8 @@ def load_hris(path: Path, fmt: str):
         return load_uzio(path)
     if fmt == "adp":
         return load_adp(path)
+    if fmt == "paycom":
+        return load_paycom(path)
     sys.exit(f"Unknown HRIS format: {fmt}")
 
 
@@ -345,12 +419,18 @@ def build(amzl_path, hris_path, hris_format, output_path, manual_pairs):
             used_hris_keys.add(u["_name_key"])
             first = u["_first"]
             last = u["_last_full"]
-            email = u["Personal Email"]
+            # AMZL wins on email by default (2026-06-05 rule); fall back to HRIS if AMZL blank.
+            if a.get("Email"):
+                email = a["Email"]
+            else:
+                email = u["Personal Email"]
+                if u.get("Personal Email"):
+                    flags.append(f"EMAIL_FALLBACK_to_HRIS: {first} {last} (AMZL email blank)")
             hire = u["Hire Date"]
             dob = u.get("DOB", "")
             gender = u.get("Gender", "")
             if u["_email_key"] and a["_email_key"] and u["_email_key"] != a["_email_key"]:
-                flags.append(f"EMAIL_MISMATCH: {first} {last} | HRIS={u['Personal Email']} | AMZL={a['Email']}")
+                flags.append(f"EMAIL_MISMATCH: {first} {last} | AMZL={a['Email']} (kept) | HRIS={u['Personal Email']} (dropped)")
         else:
             first, last = parse_amzl_name(a["Name and ID"])
             email = a["Email"]
@@ -453,7 +533,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--amzl", required=True, type=Path)
     p.add_argument("--hris", required=True, type=Path)
-    p.add_argument("--hris-format", choices=["uzio", "adp"], default=None,
+    p.add_argument("--hris-format", choices=["uzio", "adp", "paycom"], default=None,
                    help="Force HRIS format. Default: auto-detect by file extension + headers.")
     p.add_argument("--output", required=True, type=Path)
     p.add_argument("--merge", action="append", default=[],

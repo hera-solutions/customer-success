@@ -184,9 +184,41 @@ Filename pattern (typical): `Hera Staff Report.csv`. CSV with a single header ro
 - `Gender for Compliance Reporting` carried through when populated. Blank rows stay blank. (Process change 2026-06-05: no longer blanked by default.)
 - Phone falls back to ADP `Home Phone` when AMZL has no phone and ADP `Personal Mobile` is also blank.
 
-### Paycom
+### Paycom — Advanced Report Writer (LOCKED)
 
-**TBD — to be filled in when we work through a real Paycom export.** Expected fields per the Intercom article: Legal Firstname, Legal Lastname, Employee Status, Primary Phone, Personal Email, Birth Date (`MM/DD/YYYY`), Hire Date. Paycom should expose DOB; gender support unknown.
+Filename pattern (typical): `YYYYMMDDHHMMSS_Advanced_Report_Writer_<hash>.csv`. CSV with a single header row. Dates arrive already formatted as `MM/DD/YYYY`. Names arrive in **ALL CAPS**.
+
+**Column structure:**
+
+| # | Column | Format | Notes |
+|---|---|---|---|
+| 1 | `Legal_Firstname` | text (all caps) | Title-case on load. |
+| 2 | `Legal_Lastname` | text (all caps) | Title-case on load. `Mc`/`Mac` prefixes and hyphenated names are handled by the converter's smart title-caser. Edge cases (e.g., unusual prefixes) can be corrected in Hera post-import. |
+| 3 | `Employee_Status` | `Active` / (other) | Not used — status is driven by AMZL. |
+| 4 | `Primary_Phone` | 11-digit E.164-ish string, e.g., `12179741311` | Normalized to last 10 digits. |
+| 5 | `Personal_Email` | email | Source of truth for HRIS-side Email (AMZL still wins by the AMZL-vs-HRIS email rule above). |
+| 6 | `Birth_Date_(MM/DD/YYYY)` | `MM/DD/YYYY` | Pulled into Hera `DOB`. Watch for driver DOBs that imply age under 18 at hire — flag in pre-import. |
+| 7 | `Hire_Date` | `MM/DD/YYYY` | Pulled into Hera `Hire Date`. |
+
+**Mapping to Hera Staff fields (Paycom side):**
+
+| Paycom column | Hera Staff field | Transform |
+|---|---|---|
+| `Legal_Firstname` | First Name | `title_case_name()` |
+| `Legal_Lastname` | Last Name | `title_case_name()` |
+| `Personal_Email` | Email | direct |
+| `Primary_Phone` | Phone (HRIS primary) | normalize to 10 digits |
+| `Hire_Date` | Hire Date | passes through; already `MM/DD/YYYY` |
+| `Birth_Date_(MM/DD/YYYY)` | DOB | passes through; already `MM/DD/YYYY` |
+| *(not in export)* | Gender | left blank — this Paycom template does not include Gender |
+| *(none)* | Status | Driven by AMZL only (`ACTIVE`→`Active`, `INACTIVE`→`Inactive - Misc`) |
+
+**Pre-import flags Paycom commonly produces:**
+
+- All names arrive as ALL CAPS. Converter title-cases automatically. Spot-check `Mc`, `Mac`, `O'`, and hyphenated surnames in the output.
+- DOB populated for all rows. Carry through per the DOB-always-through rule (2026-06-05 process change).
+- Gender always blank — this template does not include gender.
+- Driver DOBs implying age under 18 at Hire Date should be flagged for customer confirmation.
 
 ---
 

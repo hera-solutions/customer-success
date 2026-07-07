@@ -77,6 +77,7 @@ PROVIDER_MAP = {
     "MERCHANTS": "Merchants Fleet",
     "Zeeba": "Zeeba",
     "Kingbee": "Kingbee",
+    "Ryder": "Ryder",
 }
 
 OWNERSHIP_MAP = {
