@@ -61,6 +61,40 @@ Shipped defaults. Customers can rename, add, or hide them.
 | Splitting Route |
 | Load Balancing |
 
+## Card render reference (developer-facing)
+
+Mockup frame: `Linked as {WORD} to {driver}`. Directional links show a different word on each card; mutual links show the same word on both. The receiving-side frame is not final (see Open items): the uniform frame matches the mockup, the flip frame reads more naturally. The word choices are identical in both frames; only the receiving line's surrounding text differs.
+
+### Directional
+
+| Link type | Initiating card | Receiving card (uniform) | Receiving card (flip) |
+|---|---|---|---|
+| Sweeper | Linked as Sweeper to {driver} | Linked as Swept to {driver} | Swept by {driver} |
+| Rescuing | Linked as Rescuer to {driver} | Linked as Rescued to {driver} | Rescued by {driver} |
+| Helping | Linked as Helper to {driver} | Linked as Helped to {driver} | Helped by {driver} |
+| Supporting | Linked as Supporter to {driver} | Linked as Supported to {driver} | Supported by {driver} |
+| Assisting | Linked as Assister to {driver} | Linked as Assisted to {driver} | Assisted by {driver} |
+| Relieving | Linked as Reliever to {driver} | Linked as Relieved to {driver} | Relieved by {driver} |
+| Covering | Linked as Coverer to {driver} | Linked as Covered to {driver} | Covered by {driver} |
+| Taking Over | Linked as Took Over to {driver} | Linked as Taken Over to {driver} | Taken over by {driver} |
+| Training | Linked as Trainer to {driver} | Linked as Trainee to {driver} | Trained by {driver} |
+| Shadowing | Linked as Shadower to {driver} | Linked as Shadowed to {driver} | Shadowed by {driver} |
+| Ride Along | Linked as Rider to {driver} | Linked as Host to {driver} | Hosting {driver} * |
+| Escorting | Linked as Escort to {driver} | Linked as Escorted to {driver} | Escorted by {driver} |
+| Auditing | Linked as Auditor to {driver} | Linked as Audited to {driver} | Audited by {driver} |
+
+\* Ride Along is the one exception. The receiving driver (Host) is not acted upon, so the passive "by" form does not fit. In the flip frame the host card reads "Hosting {driver}" instead.
+
+### Mutual
+
+Both cards show the same word. These read naturally with "with," not "to":
+
+| Link type | Both cards |
+|---|---|
+| Paired With | Paired With {driver} |
+| Splitting Route | Splitting Route with {driver} |
+| Load Balancing | Load Balancing with {driver} |
+
 ## Custom labels
 
 A customer adding their own label provides:
