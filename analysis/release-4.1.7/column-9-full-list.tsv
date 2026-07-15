@@ -1,0 +1,230 @@
+Key	Type	Priority	Assignee	fixVersions	Summary
+AI-228	New Feature/Story	None	Unassigned		Support Chrome Plugin Access with Shifts-Only Feature Flag (Without Hera AI)
+HAPP-376	New Feature/Story	Urgent - Stop Other Work	Unassigned		Enable Messaging Feature in Associate App - Read Credentials from DynamoDB instead of RDS
+HAPP-407	New Feature/Story	Urgent - Stop Other Work	Unassigned		Mobile App - Show Tenant/Company Name in Single Associate Chat
+HAPP-413	New Feature/Story	Urgent - Stop Other Work	Unassigned		Mobile App - Show group cover image in channel list and group channel header
+HAPP-421	New Feature/Story	Urgent - Stop Other Work	Unassigned		Read receipt indicators + notification title shows company name for 1:1 channels
+HAPP-338	New Feature/Story	Priority (See Target Release)	Unassigned	1.0.1	Associate App: Use locale settings for numerical values (times, dates, etc)
+HAPP-377	Bug	Priority (See Target Release)	Unassigned		Investigate why associates are redirecting to associate app if magic link is expired and app is not enabled.
+HAPP-402	Bug	Priority (See Target Release)	Unassigned		Turn off the Leave Channel feature on Long press In Messenger 
+HAPP-403	New Feature/Story	Priority (See Target Release)	Unassigned	4.1.7	Add tenants status check to permissions middleware 
+HAPP-404	New Feature/Story	Priority (See Target Release)	Unassigned		Associate App - Block Messages feature when Messenger V2 is disabled for tenant
+HAPP-406	Bug	Priority (See Target Release)	Unassigned		Hide member count in group conversations on mobile
+HAPP-408	New Feature/Story	Priority (See Target Release)	Unassigned		Mobile App - Hide Member Count from Conversation List
+HAPP-409	New Feature/Story	Priority (See Target Release)	Unassigned		Mobile App - Company Message Avatar in Chat (Company Icon vs Associate Avatar)
+HAPP-411	New Feature/Story	Priority (See Target Release)	Unassigned		Mobile – Messenger: Update the text on the "Application Disabled" screen
+HAPP-412	New Feature/Story	Priority (See Target Release)	Unassigned	4.1.7	Login Screen: Consent language for sending message to phone number / email address
+HAPP-352	Bug	None	Unassigned	1.0.1	The "Please download our App" banner should only appear when Associate App feature flags are enabled for the Tenant
+HAPP-378	New Feature/Story	None	Mohsan Majeed	4.1.7	Document signing using Documenso
+HAPP-410	New Feature/Story	None	Unassigned		Mobile App - Clickable Links in Announcement/System Messages with Styled Frame
+HAPP-414	Bug	None	Unassigned	4.1.7	VPC configuration wiped on Lambda deployment causing RDS connectivity failures
+HAPP-416	New Feature/Story	None	Unassigned		Associate App MVP: Schedule Feature
+HA-2303	New Feature/Story	Urgent - Stop Other Work	Unassigned		Add IAM-Protected Internal Route for Associate Lambda to Access Messenger APIs for Associate App 
+HA-2368	Bug	Urgent - Stop Other Work	Unassigned		Fix Responsiveness Issues in Messenger 
+HA-2385	New Feature/Story	Urgent - Stop Other Work	Unassigned		Upload onboarding documentation for Messenger module (Frontend & Backend)
+HA-2388	Bug	Urgent - Stop Other Work	Unassigned		Messenger: Remove unnecessary counseling permission check from New group button
+HA-2408	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Enlarge avatar size in group info associate list
+HA-2412	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Show "Group Conversation" label in group chat header
+HA-2413	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Redesign template dropdown — button style with inline search
+HA-2414	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Update icons — message-sms, message-lines, message-waveform
+HA-2416	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Bidirectional lazy loading for conversation list and message view
+HA-2417	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger - System Announcement Styling, Clickable URLs 
+HA-2419	Bug	Urgent - Stop Other Work	Unassigned		Messenger: Fix attachment drawer labels — remove misleading "Click or drop image" text
+HA-2425	Bug	Urgent - Stop Other Work	Unassigned		Athena Messenger: Add startTyping/endTyping to CustomMessageInput
+HA-2426	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Add/remove group members via Athena overlay bridge
+HA-2428	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Redesign group creation flow using Athena overlay bridge
+HA-2435	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Show sender's display name instead of module name for user-triggered system messages
+HA-2452	New Feature/Story	Urgent - Stop Other Work	Unassigned		Update UI Components of Associate Match Review Screen of Gen AI
+HA-2495	Bug	Urgent - Stop Other Work	Shahzaib Bashir		Fix InvItemTypes image UPDATE row lock contention causing 2s-29s slow queries in production RDS
+HA-2315	New Feature/Story	Priority (See Target Release)	Hamza Umar Farooq		Phase 2: Role-Permission Linking, Public API Reporting Chain, Built-in Role Defaults [Athena]
+HA-2369	New Feature/Story	Priority (See Target Release)	Unassigned		Messenger: Add read receipt indicators for outgoing messages
+HA-2399	New Feature/Story	Priority (See Target Release)	Unassigned		fix stale dqa env vars (VITE_MESSENGER_APP_URL, SENDBIRD_WEBHOOK_URL)
+HA-2405	New Feature/Story	Priority (See Target Release)	Unassigned		Messenger: Show group avatar/icon in conversation list and chat view
+HA-2406	New Feature/Story	Priority (See Target Release)	Unassigned		Messenger: Group management — edit group name, icon, and members
+HA-2463	New Feature/Story	Priority (See Target Release)	Unassigned		Messenger: Replace classifyGroup() member iteration with channelCategory metadata read for O(1) channel classification
+HA-27	New Feature/Story	None	Unassigned		Associates: Use displayName instead of firstName and lastName when displaying the Associate's name in the UI
+HA-858	New Feature/Story	None	Unassigned	4.1.7	Integrate Documenso Document Signature Tool
+HA-915	Bug	None	Unassigned		Issue Creating New Entry in “Phone Tree Details” Card
+HA-1615	Bug	None	Unassigned		The "Remote" options don't work when a device that exists in Miradore is added manually using IMEI
+HA-1975	New Feature/Story	None	Unassigned		Phase 2 — BaseIcon component: add new icons for Checklists/VPL actions
+HA-2037	New Feature/Story	None	Unassigned		Add prop to optionally hide DELETE confirmation section in BaseDeleteConfirmationDialog
+HA-2194	New Feature/Story	None	Mohsan Majeed	4.1.7	Manage Contacts
+HA-2221	New Feature/Story	None	Unassigned		Phase 2 — BaseFilter component: fix sizing/layout in VPL window
+HA-2222	New Feature/Story	None	Unassigned		CLONE - BUGS TO FIX - Adding company devices in Hera creates a user in SendBird
+HA-2300	Bug	None	Shahzaib Bashir		Wrong selection menu
+HA-2312	New Feature/Story	None	Unassigned		Phase 1: Public API Permissions Sync [Athena]
+HA-2317	New Feature/Story	None	Muhammad Ahsan Subhani		Phase 1: Reporting Chain API, Data Model, Downline Service [Athena]
+HA-2318	Bug	None	Hamza Umar Farooq		Bug: Role permission locks API returns HTML on DQA — endpoints not reachable
+HA-2320	New Feature/Story	None	Unassigned		Add feature flags for Hierarchical Permissions to Tenant model (featureAccess, featureEnabled, permission)
+HA-2341	New Feature/Story	None	Unassigned		Auto-Join Channel on Notification Dismiss
+HA-2353	Bug	None	Unassigned		Phase 2 — Public API: DailyLog duplicate vehicle alias crashes entire Lambda
+HA-2389	New Feature/Story	None	Unassigned		E2E (Playwright) & Unit Test Steering Instructions & skill development
+HA-2398	New Feature/Story	None	Unassigned		Phase 0 — Env cleanup: add missing messenger/IVR env vars and fix placeholders
+HA-2407	New Feature/Story	None	Unassigned		Messenger: Replace single-user icon with device icon in device chats
+HA-2410	Bug	None	Unassigned		Messenger: Disable click on avatar in chat conversation view
+HA-2411	Bug	None	Unassigned		Messenger: Fix search in individual and group conversations, update drawer title
+HA-2415	New Feature/Story	None	Unassigned		Messenger: Show sender display name with bullet separator next to message labels
+HA-2431	New Feature/Story	None	Unassigned		Scheduler Planning Table: Export Selected Shifts to CSV
+HA-2441	New Feature/Story	None	Unassigned		Messenger: Update steering files to align with Hera/Athena guidelines
+HA-2451	New Feature/Story	None	Shahzaib Bashir	4.1.7	Billing: Ensure access to athena is treated the same as access to vue when a trial expired or tenant is churned/unpaid/unpaid (grace)
+HA-2453	New Feature/Story	None	Unassigned		Scheduling & Rostering Athena Code Base
+HA-2455	Bug	None	Fahad Ameen	4.1.7	Associate Management: When Messenger V2 is enabled the "Message" option redirects to Messenger V1
+HA-2464	Bug	None	Unassigned		Athena auth guard strips intended URL when bouncing unauthenticated users to Hera login
+HA-2474	Bug	None	Unassigned		Assign Checklist Manually drawer: search, pagination, back button, drawer-on-drawer overlap, and UUID leak (Athena side)
+HA-2479	New Feature/Story	None	Unassigned		Hera Messenger V2: Adding Users or Changing User permissions and honor user permissions
+HA-2480	New Feature/Story	None	Unassigned		hera messenger v2: hide info icon in group conversations & add associate and user count
+HA-2496	New Feature/Story	None	Unassigned		Custom List: Add Support for alternate import values
+HA-2497	New Feature/Story	None	Unassigned		Athena: Enable In-App channelType handling in messenger DynamoDB stream handler
+HA-2499	New Feature/Story	None	Unassigned		Configure and deploy Messenger to RQA and Production environments
+HA-2541	New Feature/Story	None	Unassigned		Scheduling & Rostering: Create Vehicle Photo Log Flow
+HA-2549	New Feature/Story	None	Unassigned		Scheduler: Generic Messages Module with EventBridge-Scheduled Dispatch
+HA-2550	Bug	None	Unassigned		 User redirected to the login page instead of displaying an access denied message.
+HA-2576	New Feature/Story	None	Unassigned		Scheduling & Rostering: Associate Request document upload
+HA-2579	New Feature/Story	None	Unassigned		Consolidate all shift card variants into BaseShiftCard in uilib
+HA-2582	Bug	None	Unassigned		Device Management: "Not Connected" devices contain remote actions in Device Detail action menu
+HA-2583	Bug	None	Unassigned		Inventory Management: Filters don't work on the Manage Item Types page
+HA-2628	Bug	None	Haseeb Ghaffar		Inventory Management: Inactive Items only have View History as an action menu option
+HA-2630	New Feature/Story	None	Unassigned		Scheduler: Migrate useToastStore imports from inventory module to core store
+HA-2635	New Feature/Story	None	Unassigned		Hide recurring-shift UI/code across all Scheduler views for MVP
+HA-2640	New Feature/Story	None	Unassigned		Update Associate/Vehicle details view links
+HA-2643	Bug	None	Muhammad Ahsan Subhani		Inventory Management: Add/Edit Order drawer item count disappears
+HA-2656	New Feature/Story	None	Unassigned		Scheduler: migrate all storybook components to uilib and remove dead code
+HA-2658	New Feature/Story	None	Unassigned		Daily Roster: optimistic shift reassignment across all groupings + timeline/announcements UI fixes
+HA-2669	Bug	None	Unassigned		Fix Athena MQA Amplify backend TypeScript validation failure
+HA-2670	Bug	None	Unassigned		Fix Eligible Route Types in Create/Edit Shift Drawers
+HA-2671	Bug	None	Unassigned		Device Management > Show "No Phone Number Assigned" message for devices without an assigned phone number.
+HA-2676	Bug	None	Unassigned		Fix MQA associate list 500: counter query references missing ReplaceByRoute
+HA-2677	Bug	None	Unassigned		MQA - Instability due to Checklist Template Code merged to MQA.
+HA-2421	New Feature/Story	Less Important	Unassigned		Add Kiro spec docs, steering files, and hooks to messenger repo
+MSG-1	New Feature/Story	None	Unassigned		Set up Playwright E2E + .kiro testing steering for messenger micro-frontend
+MSG-4	New Feature/Story	None	Unassigned		Playwright E2E coverage for conversation pane + composer (AT-1.3 Web Chat)
+MSG-5	New Feature/Story	None	Unassigned		Playwright E2E coverage for system messages rendering (AT-1.4)
+MSG-6	New Feature/Story	None	Unassigned		Playwright E2E coverage for channel-list search debounce + New Group entry (AT-1.3 partial)
+MSG-7	New Feature/Story	None	Unassigned		Playwright E2E coverage for conversation header (group label, click-to-call, in-chat search) — AT-1.3 partial
+MSG-8	New Feature/Story	None	Unassigned		MSG-8 Add AT-1.3 composer templates dropdown + emoji picker Playwright suite
+MSG-9	New Feature/Story	None	Unassigned		MSG-9 Add AT-1.3 channel preview content rendering Playwright suite
+MSG-10	New Feature/Story	None	Unassigned		MSG-10 Default Playwright runs to headless mode (HEADED=1 to opt into headed)
+MSG-12	New Feature/Story	None	Unassigned		Configure Messenger env files for RQA and Production deployment
+MSG-23	New Feature/Story	None	Unassigned		Per-channel read receipt indicators and Message Info drawer
+MSG-33	New Feature/Story	None	Unassigned		Implement Kiro PR Review Skill in messenger
+HERA-8630	Bug	Emergency - Fix Today	Unassigned		Roster Checklists: Error with "Save & Submit" for VPL checklist items
+HERA-8253	New Feature/Story	Urgent - Stop Other Work	Unassigned	4.1.7	Company Settings - Add Associate App On/Off Toggle for Company-Level Control
+HERA-8270	New Feature/Story	Urgent - Stop Other Work	Unassigned		Implement Schema for Bindbee Integration
+HERA-8408	New Feature/Story	Urgent - Stop Other Work	Unassigned		Messenger: Enable in-app messaging for individual/bulk associates and devices
+HERA-8125	New Feature/Story	Priority (See Target Release)	Shahzaib Bashir		Implement Audit Logging for CompanySoreCard and StaffScoreCard tables
+HERA-8142	New Feature/Story	Priority (See Target Release)	Hamza Umar Farooq		Phase 1: Frontend — Schema, Reporting Chain UI, Org Chart, Visibility Filtering [Hera]
+HERA-8143	New Feature/Story	Priority (See Target Release)	Hamza Umar Farooq		Scope-based visibility filtering for person-oriented features
+HERA-8144	New Feature/Story	Priority (See Target Release)	Unassigned		Phase 2: Role-Permission UI, Scope-Aware GraphQL Resolvers [Hera]
+HERA-8159	Bug	Priority (See Target Release)	Hisham Javed		Notifications: Exports expired after one day
+HERA-8257	Bug	Priority (See Target Release)	Muhammad Ahsan Subhani		Fix Failed QA issues: displayUserError, reactive columns, feature flag gating [Hera]
+HERA-8506	Bug	Priority (See Target Release)	Unassigned		Daily Roster: Sending roster assignments doesn't send incomplete roster checklists links
+HERA-8534	Bug	Priority (See Target Release)	Hamza Umar Farooq		Daily Roster: Reloads when Standup, General, or Fleet notes is edited
+HERA-8575	Bug	Priority (See Target Release)	Unassigned		MQA - Daily Report tab displays Unknown error and shows no data
+HERA-8594	Bug	Priority (See Target Release)	Unassigned		MQA - Roster Checklist Drawer — Missing Assigned To, Completion Frequency, and Checklist Items
+HERA-8596	Bug	Priority (See Target Release)	Unassigned		MQA - Error "CreateTenantInput" when creating a new tenant with feature flags selected
+HERA-8601	Bug	Priority (See Target Release)	Unassigned		MQA - Company & Settings > Scheduling & Rostering are accessible even with FFs off.
+HERA-8602	Bug	Priority (See Target Release)	Unassigned		MQA - Uploaded photo to a single VPL updates multiple VPLs
+HERA-8613	Bug	Priority (See Target Release)	Unassigned		Vehicle Photo Log — Newly created record not visible in filtered list despite successful creation.
+HERA-4314	New Feature/Story	None	Unassigned		Vehicle Management: New DashboardCard and Report - Expirations & Renewals
+HERA-4643	New Feature/Story	None	Unassigned		Phase 3 — Daily Report: Add "Checklist Completed" and "Checklist Item Completed" as Daily Report entries and filter options
+HERA-4790	New Feature/Story	None	Unassigned		Update the Infraction RDS tables with the new types
+HERA-5059	New Feature/Story	None	Shahzaib Bashir		RDS TableCards: Update page counter to indicate the filtered data set vs total data set
+HERA-5338	New Feature/Story	None	Unassigned		weekly dashboard import: move logic from the frontend to the backend to avoid error scenarios
+HERA-5609	Bug	None	Unassigned		resourceUsage: Login Token Expiration 
+HERA-6640	New Feature/Story	None	Unassigned		Lambda - addCounselingSignature (Upgrade)
+HERA-6642	New Feature/Story	None	Shahzaib Bashir		Lambda - handleSNSResponse (Upgrade)
+HERA-6644	New Feature/Story	None	Unassigned		Lambda - ParsePerformanceData (Upgrade)
+HERA-6645	New Feature/Story	None	Unassigned		Lambda - sendRecurringMessages (Upgrade)
+HERA-6646	New Feature/Story	None	Unassigned		Lambda - handleTelnyxResponse (Upgrade)
+HERA-6647	New Feature/Story	None	Unassigned		Lambda - handleTelnyxData (Upgrade)
+HERA-6649	New Feature/Story	None	Unassigned		Lambda - executeMutation (Upgrade)
+HERA-6650	New Feature/Story	None	Unassigned		Lambda - sendMessage (Upgrade)
+HERA-6651	New Feature/Story	None	Unassigned		Lambda - updateStaffsLatestScorecard (Upgrade)
+HERA-6652	New Feature/Story	None	Unassigned		Lambda - dashboard (Upgrade)
+HERA-6653	New Feature/Story	None	Unassigned		Lambda - stripeSetup (Upgrade)
+HERA-6656	New Feature/Story	None	Unassigned		Lambda - vehiclePhotoLogsPublic (Upgrade)
+HERA-6658	New Feature/Story	None	Unassigned		Lambda - GetShortenUrlData (Upgrade)
+HERA-6659	New Feature/Story	None	Unassigned		Lambda - ImportRecords (Upgrade)
+HERA-6660	New Feature/Story	None	Unassigned		Lambda - trackAuditLog (Upgrade)
+HERA-6661	New Feature/Story	None	Shahzaib Bashir		Lambda - stripeChargeTenant (Upgrade)
+HERA-6667	New Feature/Story	None	Unassigned		Lambda - auditLogTTLTrigger (Upgrade)
+HERA-6668	New Feature/Story	None	Unassigned		Lambda - sendCoachingFeedback (Upgrade)
+HERA-6669	New Feature/Story	None	Unassigned		Lambda - zohoCRMIntegration (Upgrade)
+HERA-6670	New Feature/Story	None	Unassigned		Lambda - ManageNotificationPreferences (Upgrade)
+HERA-6671	New Feature/Story	None	Unassigned		Lambda - updateIntercom (Upgrade)
+HERA-6675	New Feature/Story	None	Unassigned		Lambda - HeraErrorLog (Upgrade)
+HERA-6676	New Feature/Story	None	Unassigned		Lambda - SendInternalMessage (Upgrade)
+HERA-6679	New Feature/Story	None	Unassigned		Lambda - ScheduleNotifications (Upgrade)
+HERA-6680	New Feature/Story	None	Unassigned		Lambda - GetTelnyxData (Upgrade)
+HERA-6757	New Feature/Story	None	Haseeb Ghaffar		Odometer Readings: add validation for new odometer readings
+HERA-6764	Bug	None	Unassigned		Phase 4 — Roster Checklists: Send checklists to Hera Users (not just Associates)
+HERA-7045	New Feature/Story	None	Unassigned		Lambda - handleTrialExpired (Upgrade)
+HERA-7049	New Feature/Story	None	Unassigned		Lambda - rdsApi (Upgrade)
+HERA-7077	New Feature/Story	None	Unassigned		Lambda - tenantChangePlanToNone (Upgrade)
+HERA-7086	New Feature/Story	None	Unassigned		Lambda - userNotificationProcess (Upgrade)
+HERA-7182	New Feature/Story	None	Unassigned		Add Messenger tab to Company Settings
+HERA-7214	New Feature/Story	None	Muhammad Ahmad Baig		Update Hera UI to read from displayName field wherever we show the Associate’s name in the UI
+HERA-7269	Bug	None	Unassigned		Phase 2 — Roster Checklists: If an Associate is rostered twice on the same day, their route's checklists are doubled
+HERA-7319	New Feature/Story	None	Unassigned		Phase 0 — RosterChecklist: Add review status, template, and instance fields to schema + RDS
+HERA-7387	New Feature/Story	None	Muhammad Ahsan Subhani		User Permissions: Add a User Permission for "Module: Inventory Management"
+HERA-7504	Bug	None	Shahzaib Bashir		Rescue Reports: Missing Data
+HERA-7520	Bug	None	Unassigned		Roster Checklist: Issues saving and submitting
+HERA-7612	Bug	None	Mohsan Majeed		Counselings: Document isn't updated when marked as refused to sign from selection menu 
+HERA-7781	Bug	None	Shahzaib Bashir		Messenger: Delivery Status Updates 
+HERA-7900	New Feature/Story	None	Unassigned		Migrate specificPhotos field and its data from DailyLog table to RDS
+HERA-7922	New Feature/Story	None	Unassigned	4.1.7	Investigate invalid/missing groups
+HERA-7936	New Feature/Story	None	Unassigned		Performance & Coaching: Updated coaching message template for DSB Count column
+HERA-7961	New Feature/Story	None	Hamza Umar Farooq	4.1.7	Optimize Messenger Initial Load Performance
+HERA-8047	New Feature/Story	None	Unassigned		Add Kiro specs, vibe coding guidelines, steering files, and prompt + analysis configurations
+HERA-8067	New Feature/Story	None	Mohsan Majeed	4.1.7	Update Magic Link generation to support all recipient types
+HERA-8149	New Feature/Story	None	Unassigned		Add feature flags for Hierarchical Permissions (featureAccess, featureEnabled, permission)
+HERA-8157	New Feature/Story	None	Unassigned		E2E (Playwright) & Unit Test Steering Instructions & skill development
+HERA-8158	New Feature/Story	None	Mohsan Majeed	4.1.7	Manage Contact Menu
+HERA-8160	New Feature/Story	None	Unassigned	4.1.7	Enable Messenger's feature for associate app from company settings In main hera app 
+HERA-8178	Bug	None	Unassigned		Phone Automation Tab Visible in IVR Path but Missing in Company Settings
+HERA-8202	Bug	None	Mohsan Majeed		Hierarchical Permissions visible in Feature Access but missing in Features Enabled section on Edit Tenant
+HERA-8203	New Feature/Story	None	Unassigned		HERA - Scheduling & Rostering Company Settings 
+HERA-8206	Technical Debt	None	Unassigned		Roster Checklist: Default templates should be DISABLED when first given to a tenant
+HERA-8212	New Feature/Story	None	Shahzaib Bashir	4.1.7	Update the Document signing webhook in HERA for signing documents too
+HERA-8219	New Feature/Story	None	Unassigned		DB Schema Changes for Scheduling (Associate) Requests Module — Hera Repo
+HERA-8231	Bug	None	Shahzaib Bashir		Notification Settings: Browser Notifications are only sent if Sms or Email notifications are enabled
+HERA-8234	New Feature/Story	None	Unassigned		Smoke Test Automation
+HERA-8267	New Feature/Story	None	Shahzaib Bashir	4.1.7	Add tenant-level feature flag for Signature Requests permission
+HERA-8378	Bug	None	Unassigned	4.1.7	Associate App: PermissionAssociateApp flag not set to true during tenant creation when Associate App is enabled
+HERA-8379	Bug	None	Fahad Ameen	4.1.7	Associate Management: When Messenger V2 is enabled, the "Message" option will redirect to Messenger V2
+HERA-8381	New Feature/Story	None	Unassigned		Add new SchShiftViewed table and Schedule Assigments permission in Associate App settings
+HERA-8409	Bug	None	Unassigned		Counselings: Email and Text for a scheduled counseling that was deleted are still sent 
+HERA-8411	New Feature/Story	None	Unassigned		Integrate scheduling ETL workflow with UI
+HERA-8446	Bug	None	Muhammad Ahsan Subhani		Tenant Plan Selection
+HERA-8454	Bug	None	Unassigned		Associate Record page: Go back to Associate List button reverts the chosen filters
+HERA-8455	Bug	None	Unassigned		Custom List Alternate Import Values — hera (Vue 2 chip editor + fragments + stream schema)
+HERA-8459	New Feature/Story	None	Unassigned		Lambda Upgrade: Minor fixes for AdminQueriesad20795a, remove test, change nodejs version streamStaffNetradyneAlert
+HERA-8463	New Feature/Story	None	Unassigned		Lambda Upgrade: processBulkExport
+HERA-8465	New Feature/Story	None	Unassigned		Lambda Upgrade: schedulerTaskTrigger
+HERA-8466	New Feature/Story	None	Unassigned		Lambda Upgrade: websocketApiHandler
+HERA-8467	New Feature/Story	None	Unassigned		Lambda Upgrade: ProcessHeraAIPhotoLogEvaluation
+HERA-8469	New Feature/Story	None	Unassigned		Lambda Upgrade: dispatcherSQS
+HERA-8470	New Feature/Story	None	Unassigned		Lambda Upgrade: documentSignService
+HERA-8471	New Feature/Story	None	Shahzaib Bashir		Lambda Upgrade: handleEmailSuppression
+HERA-8472	New Feature/Story	None	Unassigned		Lambda Upgrade: magicLink
+HERA-8487	Bug	None	Unassigned		Import table truncates names and shift types with ellipsis
+HERA-8502	Bug	None	Unassigned		Inventory Management: Marking Orders Recieved from action menu doesn't add the items
+HERA-8505	Bug	None	Unassigned		Automated Coaching messages not being triggered in web app and mobile app messenger
+HERA-8507	Bug	None	Mohsan Majeed		Edit Driving Info dialog crashes with TypeError: Cannot read properties of null (reading 'id')
+HERA-8509	New Feature/Story	None	Unassigned		Show "Imported from" badge in shift import review UI (Chrome Plugin vs Spreadsheet)
+HERA-8519	Bug	None	Mohsan Majeed		Associate Record: Counseling tableCard: Counseling Issued By column is empty
+HERA-8538	New Feature/Story	None	Unassigned		Write import-wizard shift types to RDS via Athena custom-lists API (Hera Vue 2)
+HERA-8541	Bug	None	Unassigned		"Scheduling & Rostering" feature flag missing from Tenant company settings feature dropdowns
+HERA-8542	Bug	None	Rana Taqveem		User permissions: "Manage Scheduling & Rostering Settings" defaults to OFF when Full Admin Access is disabled
+HERA-8569	New Feature/Story	None	Unassigned		Create and Deploy Scheduling & Rostering RDS Table Migrations 
+HERA-8572	Bug	None	Unassigned		Email logging not working on MQA/RQA — hlayerutil layer not attached to sender Lambdas
+HERA-8574	Bug	None	Andy Rogers		MQA - Cannot create Associate Issue
+HERA-8576	Bug	None	Muhammad Ahsan Subhani		MQA - Unable to create Injury record
+HERA-8579	Bug	None	Hamza Umar Farooq		Users not visible on Settings > Users page — ReferenceError: phoneNumberMask is not defined (MQA)
+HERA-8581	Bug	None	Unassigned		MQA - Save button on Permission Locks modal is obscured by the Intercom chat icon
+HERA-8585	Bug	None	Hamza Umar Farooq		"Reports To" field displays user UUID instead of user name after saving
+HERA-8587	Bug	None	Fahad Ameen		Company Settings: Coaching: DC DPMO settings are disabled
+HERA-8588	Bug	None	Unassigned		Associate Management: Update Conflict error when editing Personal Info
+HERA-8592	Bug	None	Unassigned		When attempting to send VPL links to the partner, several issues arise that directly affect the functionality of Daily Roster.  
+HERA-8603	Bug	None	Unassigned		Remove the Company Settings > Users > Service Users Menu
+HERA-8627	Bug	None	Unassigned		Do not show "empty" Standby Associates when replacing a Rostered Associate
