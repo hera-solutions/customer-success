@@ -104,12 +104,21 @@ def fmt_local(dt: datetime, tz: str) -> str:
 # --------------------------------------------------------------------------- #
 
 def clean_phone(raw: str) -> str:
+    """Normalize any stored phone format to (xxx) xxx-xxxx.
+
+    Source data is inconsistent: some rows store "+17605905980", some
+    "7605905980", some already "(760) 590-5980". Strip to digits, drop a
+    leading US country code, then reformat. If the result is not a standard
+    10-digit US number, fall back to the raw value untouched.
+    """
     if not raw:
         return ""
-    s = raw.strip().lstrip("'")
-    if s.startswith("+1"):
-        s = s[2:]
-    return s
+    digits = re.sub(r"\D", "", raw)
+    if len(digits) == 11 and digits.startswith("1"):
+        digits = digits[1:]
+    if len(digits) == 10:
+        return f"({digits[0:3]}) {digits[3:6]}-{digits[6:10]}"
+    return raw.strip().lstrip("'")
 
 
 def clean_body(text: str) -> str:

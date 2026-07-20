@@ -38,7 +38,7 @@ A formatted, printable log of all SMS and email communications sent to and recei
 
 #### Data Cleaning Rules
 - **Incoming messages** (`channelType = RESPONSE`): Fill Number, SMS Status, Email, Email Status all with `Incoming`
-- **Phone numbers**: Strip `+1` prefix (e.g., `+12135886546` → `2135886546`)
+- **Phone numbers**: Normalize any stored format to `(xxx) xxx-xxxx` (e.g., `+12135886546`, `2135886546`, and `(213) 588-6546` all render as `(213) 588-6546`). Strip to digits, drop a leading `1` country code, then reformat; if the result is not a standard 10-digit US number, leave the raw value untouched.
 - **Line breaks**: Replace `\n` and `\\n` with ` *line break* ` inline in message text
 - **Sort**: All rows sorted chronologically by `createdAt`
 - **No-wrap rule**: Only the Text Message column wraps — all other columns are single-line
