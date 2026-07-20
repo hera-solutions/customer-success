@@ -69,6 +69,7 @@ A formatted, printable log of all SMS and email communications sent to and recei
 | Jodi Lee Montoya | Merica Delivery Service | Eastern | `Jodi_Montoya_Communications.pdf` |
 | Arthur Meyer | Merica Delivery Service | Eastern | `Arthur_Meyer_Communications.pdf` |
 | Detronai Rigmaiden | HK Logistics LLC | Pacific | `Detronai_Rigmaiden_Communications.pdf` |
+| Bryant Gober | HK Logistics LLC | Pacific | `Bryant_Gober_Communications.pdf` |
 
 ---
 
