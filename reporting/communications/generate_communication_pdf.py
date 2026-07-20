@@ -342,7 +342,9 @@ def build_pdf(rows, out_path, associate, dsp, tz):
         style_cmds.append(("TEXTCOLOR", (0, i), (-1, i), HERA_BLUE_DARK))
         style_cmds.append(("FONTNAME", (0, i), (-1, i), "Helvetica-Oblique"))
 
-    table = Table(table_data, colWidths=col_widths, repeatRows=1)
+    # splitInRow=1 lets an oversized message cell break across pages; without it
+    # a single row taller than the frame raises a LayoutError.
+    table = Table(table_data, colWidths=col_widths, repeatRows=1, splitInRow=1)
     table.setStyle(TableStyle(style_cmds))
 
     story = [table]
