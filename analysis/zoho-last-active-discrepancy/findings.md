@@ -12,7 +12,7 @@ Zoho's "Last Active" and the Hera Users-page login date measure different things
 
 | Signal | Value (2026-07-27) | Source of truth |
 |---|---|---|
-| Zoho custom field `Last_Active1` | 7/24 (was 7/22 when Liz looked) | Last **activity/action** on the tenant, i.e. max AuditLog `createdAt`. Written by the Hera -> Zoho sync. |
+| Zoho custom field `Last_Active1` (display label "Last Hera Activity" as of 2026-07-27, was "Last Active") | 7/24 (was 7/22 when Liz looked) | Last **activity/action** on the tenant, i.e. max AuditLog `createdAt`. Written by the Hera -> Zoho sync. API name `Last_Active1` unchanged by the label rename, verified still resolving. |
 | Zoho native `Last_Activity_Time` | 7/27 07:01 | Last touch of the **CRM record itself**, including our own automated sync (Modified_By = Hera Solutions / no-reply@hera.app). Not a usage signal. Ignore. |
 | Hera Users page `User.lastLogin` | 7/17 (Jose Latorraca); all others Jan 2026 or never | Last **fresh authentication**. Does not update during an active session. |
 | Hera AuditLog activity | 7/17, 7/22, 7/24 (Jose Latorraca) | Real in-app UI actions. |
