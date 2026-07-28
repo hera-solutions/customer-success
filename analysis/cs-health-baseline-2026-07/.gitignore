@@ -1,0 +1,4 @@
+# Cached DynamoDB query output. Kept locally so the analysis survives a reboot
+# (it was originally only in /tmp), but not versioned: tenant_scan.json alone is
+# 2.7 MB and it is all reproducible from a fresh scan.
+data/
