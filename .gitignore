@@ -56,3 +56,6 @@ Thumbs.db
 
 # Claude Code working files
 .claude/
+
+# Third-party plugin repos cloned for /install
+plugins/
