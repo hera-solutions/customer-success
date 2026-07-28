@@ -1,43 +1,76 @@
 # Customer Success Health Baseline
 
-**Date:** 2026-07-28
+**Revision 2, 2026-07-28.** Revision 1 published earlier the same day.
 **Source:** live queries against production DynamoDB (AWS `530079012632`, `us-east-2`, profile `hera-readonly`)
-**Author:** produced during `/csm:cold-start-interview` setup
 **Cached query output:** `data/` in this folder
 
-Every number here came from a live query, not an estimate. Where a figure is derived or carries a caveat, it says so.
+Every number here came from a live query. Where a figure is derived or carries a caveat, it says so.
+
+---
+
+## 0. What changed in revision 2
+
+John pointed out that **only ACTIVE associates count for billing**, and that associate figures should only ever be read that way. Chasing that down turned out to be the most consequential correction of the whole analysis, because it led to the `Invoice` table, which I had not opened in revision 1.
+
+### The discovery
+
+`Invoice` carries a field called **`averageActiveDriverCount`**, alongside `variableTotal` and `flatMonthlyBillingAmount`. Billing is a per-active-driver charge. That means the field I used for every revenue figure in revision 1, `Tenant.averageMonthlyInvoiceTotal`, is a **lifetime average**, and for any account that has grown or shrunk it reports what they used to pay rather than what they pay now.
+
+### Numbers that changed
+
+| Figure | Revision 1 | Revision 2 | Why |
+|---|---|---|---|
+| Total ARR | $2,097,712 | **$1,987,326** | Latest actual invoice, not lifetime average. 5.3% overstated |
+| ARR at stake, at-risk accounts | $249,584 | **$141,271** | **43% overstated** |
+| Accounts at genuine churn risk | 31 | **12** | 7 of the 31 are growing, 10 are flat |
+| GRR, all causes | 77.1% | **70.3%** | Real invoices, and survivor shrinkage is now visible |
+| GRR, addressable | 85.7% | **77.2%** | My earlier formula was wrong, see section 6 |
+| Cost of reaching 90% addressable GRR | ~$105,000/yr | **$295,734/yr** | Follows from the corrected baseline |
+| Rate per active driver | not known | **$7.83/month** | New |
+| Survivor shrinkage | "invisible to this calculation" | **-$134,889 (-7.0%)** | Now measured |
+
+### Conclusions that changed
+
+1. **Driver-count trend replaces roster horizon as the primary health signal.** Driver count *is* the revenue. It comes from `Invoice`, updates monthly, and is available for 251 of 253 accounts.
+2. **Roster lapse does not mean churn risk.** Seven accounts flagged in revision 1 are growing their driver count and their bill while ignoring the roster feature. One has not rostered in 445 days and is still growing. Those are feature-adoption gaps, and treating them as churn risk would waste effort.
+3. **Shrinkage inside surviving accounts is a separate problem from churn**, worth $134,889 a year, and revision 1 could not see it at all.
+4. **The 90% retention target is far more aggressive than it looked** when set against a 77.2% baseline instead of 85.7%.
+
+### What did not change
+
+Book composition (253 active accounts), the homogeneity finding, the churn-reason analysis, the roster-versus-login divergence as a real phenomenon, and the data quality register. Sections carrying material changes are marked **[REVISED]**.
 
 ---
 
 ## 1. Glossary
 
-I used a lot of abbreviations during this analysis. Here is what all of them mean.
-
 ### Money
 
 | Term | What it means | Your number |
 |---|---|---|
-| **ARR** | Annual Recurring Revenue. What one customer pays across a year. Monthly invoice times 12 | Median customer: $668/mo, so $8,014 ARR. Whole book: $2.10M |
-| **GRR** | Gross Revenue Retention. Of the money you had at the start of the year from customers you already had, how much you still have. Ignores new customers and ignores upsells. Can never go above 100% | 77.1% |
-| **NRR** | Net Revenue Retention. Same thing but it counts upgrades, so it can exceed 100% | Not measurable yet |
-| **AR** | Accounts Receivable. Money billed but not yet collected | 3 accounts, $3,053 |
+| **ARR** | Annual Recurring Revenue. What one customer pays across a year | Median customer: $649/mo, so about $7,800 ARR. Whole book: $1.99M |
+| **GRR** | Gross Revenue Retention. Of the money you had at the start of the year from customers you already had, how much you still have. Ignores new customers and upsells. Never above 100% | 70.3% |
+| **NRR** | Net Revenue Retention. Same but it counts upgrades, so it can exceed 100% | Not set as a target, see section 14 |
+| **Run rate** | What you are billing right now, projected forward a year. Different from what you billed on average historically | |
+| **Contraction / shrinkage** | An existing customer paying you less than before, without leaving | -$134,889 this year |
+| **AR** | Accounts Receivable. Money billed but not collected | 3 accounts, $3,053 |
 
 ### Roles
 
 | Term | What it means |
 |---|---|
-| **CS** | Customer Success. The function that keeps customers using the product and paying for it |
+| **CS** | Customer Success. The function that keeps customers using the product and paying |
 | **CSM** | Customer Success Manager. Owns the relationship for a set of customers |
 | **CSS** | Customer Success Specialist. Your two team members |
-| **AE** | Account Executive. A salesperson. Hera does not have one, which is why expansion signals currently have nowhere to route |
+| **AE** | Account Executive. A salesperson. Hera does not have one, which is why expansion signals have nowhere to route |
 
 ### Process
 
 | Term | What it means |
 |---|---|
-| **QBR** | Quarterly Business Review. A scheduled meeting where you show a customer the value they received and plan the next quarter. Usually a slide deck |
-| **SLA** | Service Level Agreement. A promised response time. "At Risk accounts get worked within 5 business days" is an SLA |
-| **Health score** | A rating (Healthy, Developing, At Risk, Critical) computed from signals, used to decide which customers need attention |
+| **QBR** | Quarterly Business Review. A scheduled meeting where you show a customer the value they received and plan the next quarter |
+| **SLA** | Service Level Agreement. A promised response time |
+| **Health score** | A rating (Healthy, Developing, At Risk, Critical) computed from signals, to decide who needs attention |
 | **Churn** | A customer leaving |
 | **Whitespace** | Something a customer could buy but has not. Your 221 accounts without HeraAi |
 | **Expansion** | Selling more to a customer you already have |
@@ -46,40 +79,68 @@ I used a lot of abbreviations during this analysis. Here is what all of them mea
 
 | Term | What it means |
 |---|---|
-| **p50, p75, p90** | Percentiles. p50 is the middle value, also called the median. p90 means 90 percent of accounts fall below that number |
-| **r = 0.535** | Correlation, on a scale from -1 to 1. How strongly two things move together. 0.535 is a moderate positive relationship |
-| **Cohort** | A fixed group of accounts tracked over time. Used here to measure retention honestly, by following the same accounts rather than mixing in new ones |
+| **p50, p75, p90** | Percentiles. p50 is the middle value, the median. p90 means 90 percent of accounts fall below it |
+| **r = 0.963** | Correlation, from -1 to 1. How strongly two things move together. 0.963 is near-lockstep |
+| **Cohort** | A fixed group of accounts followed over time, so new customers do not mask churn |
 
-### Hera domain terms, recorded so the config uses them correctly
+### Hera domain terms
 
-**DSP** is Delivery Service Partner, your customer. **DA** is Delivery Associate, a driver. Amazon scorecard metrics referenced in the product: FICO, DCR, DC DPMO, DAR, DNR.
+**DSP** is Delivery Service Partner, your customer. **DA** is Delivery Associate, a driver. Amazon scorecard metrics in the product: FICO, DCR, DC DPMO, DAR, DNR.
 
 ---
 
-## 2. What the book actually looks like
+## 2. How billing actually works (new in revision 2)
+
+This section did not exist in revision 1 and it reframes everything after it.
+
+| | |
+|---|---|
+| Correlation, `averageActiveDriverCount` to `invoiceTotal` | **r = 0.963** |
+| Accounts with a variable, per-driver component | 242 of 243 |
+| Accounts with any flat monthly fee | **4** of 243 |
+| Rate per active driver per month | p25 $7.56, **median $7.83**, p75 $7.84 |
+| Invoice records available | 25,773, going back years |
+| Age of the most recent invoice | median 26 days, maximum 26 days for every account |
+
+**Your revenue is active drivers times about $7.83 a month.** Only active drivers count, which is what John flagged, and the billing system already works that way: the four accounts with zero active drivers are billing $0.
+
+### Three things follow from this
+
+**Driver count is not a usage metric, it is the invoice.** A customer losing 20 drivers has already reduced your revenue by about $156 a month. There is no lag and no renewal event where you could intervene, because Hera is month-to-month (see section 12).
+
+**`Invoice` is a monthly time series of driver count per account.** This is the single most useful dataset for health scoring and I missed it in revision 1.
+
+**You have almost no pricing lever inside an account.** Revenue per driver is fixed at about $7.83 and only 4 accounts have a flat fee. So Hera grows when your customers hire drivers, and shrinks when they do not. The only way to increase revenue per driver is to sell something that is not priced per driver, and HeraAi sits at 13 percent adoption.
+
+### Reconciliation note
+
+Point-in-time `Staff` count gives 22,888 active drivers. Summing `averageActiveDriverCount` across the latest invoices gives about 21,150. The difference is expected: the invoice figure is a monthly average and the Staff count is a snapshot on 2026-07-28. Use the invoice figure for revenue and the Staff figure for operational size.
+
+---
+
+## 3. What the book looks like **[REVISED]**
 
 | | |
 |---|---|
 | Total tenant records | 953 |
-| Test and temporary accounts (excluded from everything below) | 81 |
+| Test and temporary (excluded throughout) | 81 |
 | **Active paying accounts** | **253** (243 Bundle, 10 Premium) |
 | Trials in flight | 68 |
 | Lapsed trials | 54 |
 | Churned | 497 |
-| **Total ARR, annualized** | **$2,097,712** |
+| **Total ARR, from latest actual invoices** | **$1,987,326** |
+| (Revision 1 figure, lifetime averages) | ($2,097,712, 5.3% high) |
 | Median tenure | 40 months paid (p25 26, p75 56, longest 64) |
 | Customer type | 100 percent Amazon DSP |
 | Sub-type | 802 ZL, 68 XL, 2 Lite |
 
-Your coverage book is **321 accounts**: 253 paying plus 68 trials.
-
-Earlier in the session I estimated 230 accounts per person based on Intercom's 693 company records. That was wrong. Many of those records are archived or test accounts. The real active book is 253.
+Coverage book is **321 accounts**: 253 paying plus 68 trials.
 
 ---
 
-## 3. Why revenue-based tiering does not work for you
+## 4. Why revenue-based tiering does not work for you
 
-Most customer success advice assumes you have a few large customers worth protecting and a long tail worth automating. You do not have that shape.
+Most customer success advice assumes a few large customers worth protecting and a long tail worth automating. You do not have that shape.
 
 | Percentile | Monthly invoice | ARR |
 |---|---|---|
@@ -88,374 +149,450 @@ Most customer success advice assumes you have a few large customers worth protec
 | **p50 (median)** | **$668** | **$8,014** |
 | p75 | $831 | $9,973 |
 | p90 | $990 | $11,874 |
-| p95 | $1,095 | $13,142 |
 | Largest | $1,348 | $16,179 |
 
-**Your largest account is 2.0 times your median.** For comparison:
+*(Percentiles above are from the lifetime-average field. Directionally correct; the shape is what matters here, not the exact cents.)*
 
-| | Share of your total ARR |
+**Your largest account is 2.0 times your median.**
+
+| | Share of total ARR |
 |---|---|
-| Top 10 accounts | 7.1 percent |
-| Top 20 accounts | 13.1 percent |
-| Top 50 accounts | 29.3 percent |
+| Top 10 accounts | 7.1% |
+| Top 20 accounts | 13.1% |
+| Top 50 accounts | 29.3% |
 
-In a typical business-to-business software company, the top 10 percent of accounts carry 40 to 60 percent of revenue. Yours carry about 13 percent.
-
-**What this means practically.** "Give the biggest accounts white-glove treatment" has no financial justification here, because the biggest account is worth $16,179 and the median is worth $8,014. Any tier you built on revenue would contain accounts that behave identically. This is why the health model is built on engagement instead, which is covered in section 7.
+In a typical business-to-business software company the top 10 percent of accounts carry 40 to 60 percent of revenue. Yours carry about 13 percent. Any tier built on revenue would contain accounts that behave identically. That is why health is built on engagement and revenue direction instead.
 
 ---
 
-## 4. Associates under management
+## 5. Associates, counting only ACTIVE status **[REVISED]**
+
+Only `status = 'Active'` associates are counted anywhere in this document, because that is the billing basis.
 
 | | |
 |---|---|
-| **Total active drivers across all accounts** | **22,888** |
+| **Total active drivers** | **22,888** |
 | Median per account | 89 |
-| p25 | 69 |
-| p75 | 112 |
-| p90 | 138 |
-| p95 | 158 |
+| p25 / p75 | 69 / 112 |
+| p90 / p95 | 138 / 158 |
 | Largest | 338 (JDW Logistics) |
-| Smallest | 0 (see section 8) |
+| Smallest | 0 (see section 9) |
 
-Driver count varies more than revenue does (3.8 times median versus 2.0 times), but not enough to build tiers on either. **86 percent of your accounts run between 50 and 199 active drivers.**
+Driver count varies more than revenue (3.8 times median versus 2.0), but **86 percent of accounts run between 50 and 199 active drivers**, so this is not a tiering variable either.
 
-| Size band | Accounts | Share | ARR | Drivers |
-|---|---|---|---|---|
-| Under 20 drivers | 22 | 8.7% | $174,494 | 59 |
-| 20 to 49 | 9 | 3.6% | $47,986 | 377 |
-| 50 to 99 | 125 | 49.4% | $886,858 | 9,664 |
-| 100 to 199 | 93 | 36.8% | $941,733 | 11,710 |
-| 200 or more | 4 | 1.6% | $46,640 | 1,078 |
+| Size band | Accounts | Share | Drivers |
+|---|---|---|---|
+| Under 20 | 22 | 8.7% | 59 |
+| 20 to 49 | 9 | 3.6% | 377 |
+| 50 to 99 | 125 | 49.4% | 9,664 |
+| 100 to 199 | 93 | 36.8% | 11,710 |
+| 200 or more | 4 | 1.6% | 1,078 |
 
-Correlation between monthly invoice and active driver count is **r = 0.535**, a moderate positive relationship. Your pricing already tracks operational size to a degree, which is another reason a separate size tier would add little.
+**Status vocabulary, for reference.** `Active`, `Onboarding`, `Inactive - Terminated`, `Inactive - Misc`, `Inactive - Medical Leave`, `Inactive - Personal Time/Vacation`, `Inactive - Failed Onboarding`. Only `Active` bills. `Onboarding` is worth watching separately as a leading indicator of driver growth.
 
 ---
 
-## 5. Retention, measured properly
+## 6. Retention, recomputed from real invoices **[HEAVILY REVISED]**
 
-I measured this as a cohort: the accounts that were already paying you on 2025-07-28, followed forward. New customers acquired during the year are excluded, because including them hides churn.
+Measured as a cohort: the 302 accounts already paying on 2025-07-28, followed forward. New customers acquired during the year are excluded. Revision 1 used lifetime-average ARR for this, which hid one entire loss category.
 
-| | |
-|---|---|
-| Cohort on 2025-07-28 | 302 accounts, $2,458,146 ARR |
-| Still active on 2026-07-28 | 226 accounts, $1,895,460 |
-| Churned during the year | 76 accounts, $562,686 |
-| of which: Amazon DSP program closure | 30 accounts, $210,062 |
-| of which: addressable | 46 accounts, $352,624 |
-| New customers added during the year (excluded) | 26 accounts, $189,824 |
+### Full decomposition
+
+| | Amount | Accounts |
+|---|---|---|
+| Cohort ARR at 2025-07-28 | **$2,530,140** | 302 |
+| Lost, Amazon DSP program closure | -$225,236 | 30 |
+| Lost, addressable churn | -$391,335 | 46 |
+| **Shrinkage inside surviving accounts** | **-$134,889** | 226 |
+| **ARR today from that cohort** | **$1,778,680** | 226 |
+
+Surviving accounts shrank **7.0 percent** in revenue. Revision 1 stated this was "invisible to this calculation." It is now measured, and it is the third-largest loss category.
+
+### Retention, and a correction to my formula
 
 | Measure | Result |
 |---|---|
-| **Gross retention, all causes** | **77.1 percent** |
-| **Gross retention, addressable only** | **85.7 percent** |
-| Logo retention (count, not dollars) | 74.8 percent |
-| Program-closure drag | 8.5 percent |
+| **GRR, all causes** | **70.3%** |
+| **GRR, addressable (correct)** | **77.2%** |
+| GRR, addressable (revision 1 method) | 84.5%, **wrong** |
+| Program-closure drag | 8.9% |
 
-**Why the split matters.** 30 of the 76 accounts you lost went out of business or left the Amazon DSP program. Your own records label this "DSP Closed." Nobody on your team could have saved them. If you set a retention target that counts those against your team, they will chase unwinnable accounts and miss the ones they could actually keep.
+**Why revision 1 was wrong.** I computed addressable GRR as (start minus addressable churn) divided by start. That subtracts churn but silently treats survivor shrinkage as if it never happened, and it leaves program-closed accounts in the denominator. The correct calculation removes program closures from **both** sides, then measures what remains:
 
-**Caveat, stated plainly.** This uses each account's current average monthly invoice as its ARR, because the database keeps no historical price snapshots. Any price increases or downgrades inside surviving accounts are invisible to this calculation.
+```
+addressable base = $2,530,140 - $225,236 = $2,304,904
+addressable GRR  = $1,778,680 / $2,304,904 = 77.2%
+```
+
+### Loss as a share of what your team could influence
+
+| | Share of addressable base | Amount |
+|---|---|---|
+| Addressable churn | 17.0% | $391,335 |
+| Survivor shrinkage | 5.9% | $134,889 |
+| **Total** | **22.8%** | **$526,224** |
+
+### What the target actually costs
+
+| Target | Annual recovery required |
+|---|---|
+| 80% addressable GRR | $65,243 |
+| 85% | $180,488 |
+| **90% (currently set)** | **$295,734** |
+
+Revision 1 described the 90% target as worth about $105,000 against an 85.7% baseline. Against the corrected 77.2% baseline it requires recovering **$295,734 a year**, which is a 12.8 point improvement. **That target should probably be revisited.** 85% is already a substantial ask.
 
 ---
 
-## 6. Why customers leave
+## 7. Why customers leave
 
-`accountCanceledReason` is populated on 430 of 497 churned accounts, and `accountCanceledNotes` on 312. This is real loss data, not speculation.
+Unchanged from revision 1. `accountCanceledReason` is populated on 430 of 497 churned accounts and `accountCanceledNotes` on 312.
 
 ### All 469 paid churns, lifetime
 
-| Reason | Accounts | Share | Can CS prevent it? |
+| Reason | Accounts | Share | Preventable by CS? |
 |---|---|---|---|
-| **DSP Closed** | 181 | 38.7% | **No.** Customer went out of business |
+| **DSP Closed** | 181 | 38.7% | **No.** Went out of business |
 | **Didn't Fully Utilize or Find Value** | 92 | 19.7% | **Yes** |
 | (blank) | 60 | 12.8% | Unknown |
-| Cost Savings | 48 | 10.3% | Partly, through value justification |
+| Cost Savings | 48 | 10.3% | Partly |
 | Switched to Competitor (all) | 56 | 12.0% | Yes |
 | Internal processes, built their own | 9 | 1.9% | Partly |
-| Reduced routes, dropped drivers to zero, site closure | 12 | 2.6% | No, business contraction |
+| Reduced routes, dropped drivers to zero, site closure | 12 | 2.6% | No |
 | Stopped Using, No Explanation | 6 | 1.3% | Yes |
 
-**About 41 percent of your churn is the Amazon DSP program churning, not Hera. About 45 percent is addressable.**
+About 41 percent of churn is the Amazon DSP program churning rather than Hera. About 45 percent is addressable.
 
-### The trailing 12 months tell a different story
+### Trailing 12 months tells a different story
 
 | Reason | Accounts | ARR lost |
 |---|---|---|
 | **Switched to competitor (all)** | **20** | **$148,097** |
 | Didn't Fully Utilize or Find Value | 10 | $84,226 |
 | Cost Savings | 7 | $54,988 |
-| Internal processes, built their own | 5 | $37,201 |
+| Internal processes | 5 | $37,201 |
 | Stopped Using, No Explanation | 3 | $19,218 |
 | Pause Subscription | 1 | $8,994 |
 
-**Competitive loss is now your largest addressable bucket.** Lifetime, underutilization dominated at 92 accounts. In the last year, competitor switching cost you more.
+**Competitive loss is now your largest addressable bucket.**
 
-### Named competitors, from your own loss records
+### Named competitors, from your own records
 
-| Competitor | Lifetime losses | Last 12 months |
+| Competitor | Lifetime | Last 12 months |
 |---|---|---|
 | DSPworkplace | 23 | 5 |
 | LMDmax | 17 | 6 |
-| **"Other," unnamed** | **13** | **11 ($82,472)** |
+| **"Other", unnamed** | **13** | **11 ($82,472)** |
 | Manage my DSP | 1 | 2 |
 | Lokiteck | 2 | 1 |
 
-**The largest single competitive bucket this year is a competitor nobody recorded the name of.** 11 accounts and $82,472 lost to "Switched to Competitor - Other." That is a gap in your own tracking, and it is worth closing before the next loss.
+**Your largest single competitive loss this year is to a competitor nobody recorded the name of.** 11 accounts, $82,472.
 
 ### When customers leave
 
-| | |
-|---|---|
-| Median tenure at churn | 18 months |
-| p10 | 5 months |
-| p25 | 10 months |
-| **Churned inside 12 months** | **29 percent (138 of 469)** |
-
-Surviving accounts have a 40-month median tenure. So you either lose an account early or you keep it for years. **Intervention is worth most in the first year.**
+Median tenure at churn is 18 months (p10 5, p25 10). **29 percent churned inside 12 months.** Survivors have a 40-month median. You lose accounts early or keep them for years, so intervention is worth most in year one.
 
 ---
 
-## 7. How to tell a healthy account from a dying one
+## 8. How to tell a healthy account from a dying one **[HEAVILY REVISED]**
 
-### The signal that works: roster horizon
+### Primary signal: driver-count trend
 
-`DailyRoster.notesDate` is the date a roster is built *for*, and customers schedule ahead. So a healthy account's most recent roster date is in the **future**. I measure "roster horizon" as the most recent roster date minus today.
+This replaces roster horizon as the primary signal. It comes from consecutive `Invoice` records and it is the revenue itself.
 
-| Band | Rule | Accounts | ARR | Share of ARR |
-|---|---|---|---|---|
-| **Healthy** | Scheduling today or ahead | 173 | $1,408,907 | 67.2% |
-| **Developing** | Stopped 1 to 30 days ago | 35 | $312,373 | 14.9% |
-| **At Risk** | Stopped 31 to 90 days ago | 17 | $155,082 | 7.4% |
-| **Critical** | Stopped over 90 days ago | 8 | $45,355 | 2.2% |
-| **Unclassified** | No roster record (21) or corrupt date (8) | 29 | needs investigation | |
+Across all 251 accounts with a computable trend, comparing the earliest and latest of the last four invoices:
 
-### The signal that fails: logins
+| Direction | Accounts | Run-rate change, annualized |
+|---|---|---|
+| Growing more than 10% | 90 | +$78,428 |
+| Stable, within 10% | 122 | -$156,134 |
+| Shrinking 10 to 25% | 26 | -$51,682 |
+| Shrinking 25 to 50% | 4 | -$11,760 |
+| Collapsing more than 50% | 8 | -$59,310 |
+| **Net** | **251** | **-$193,298** |
 
-This is the most important finding in the whole analysis.
+**Do not act on that net figure yet.** It comes from only 2 to 4 invoice months in mid-summer. Amazon delivery volume is seasonal, so this could be a normal summer trough or a real contraction. Separating the two requires a year-over-year comparison, which `Invoice` can support with 25,773 records. See section 13, item 1.
 
-Of the 25 accounts that have not built a roster in 30 or more days, **10 logged in within the last 7 days**, and 4 logged in today. A health score built on login activity, or on seat counts, would rate every one of them healthy.
+Note also that "stable" accounts still moved $156,134 in run rate. On a base of 22,888 drivers, a 5 percent wobble is real money.
 
-| Account | Roster stopped | Last login | Active drivers | Monthly |
-|---|---|---|---|---|
-| Clark Courier Service LLC | 86 days ago | **today** | 155 | $1,095 |
-| Last Mile Logistics LLC | 83 days ago | **today** | 140 | $1,031 |
-| Express Package System Inc | 82 days ago | **today** | 186 | $877 |
-| Motaur Express | 94 days ago | yesterday | 1 | $796 |
-| On-demand Logistics Service Llc | 52 days ago | yesterday | 62 | $330 |
-| Active Transportation Services LLC | 41 days ago | **today** | 71 | $327 |
-| EZ Logistix LLC | 54 days ago | 6 days ago | 95 | $538 |
-| PacTrack, Inc | 36 days ago | 6 days ago | 79 | $740 |
-| MTSL | 55 days ago | 7 days ago | 42 | $541 |
-| Spears Enterprises LLC | 31 days ago | 7 days ago | 115 | $998 |
+### Secondary signal: roster horizon
 
-Those 10 accounts are worth **$87,291 in ARR**.
+`DailyRoster.notesDate` is the date a roster is built *for*, and customers schedule ahead, so a healthy account's most recent roster date is in the **future**. Roster horizon is that date minus today.
 
-These customers still log in almost daily. They abandoned the core daily workflow while continuing to use something else in the product. That pattern is invisible to conventional health scoring, and it maps directly onto your single largest addressable churn reason: "Didn't Fully Utilize or Find Value," 92 lifetime losses. Add "Dropped Associates to 0" (3) and "Stopped Using, No Explanation" (6) and that is **101 historical losses to exactly the pattern roster horizon detects.**
+| Band | Rule | Accounts |
+|---|---|---|
+| Scheduling today or ahead | horizon >= 0 | 173 |
+| Stopped 1 to 30 days ago | -1 to -30 | 35 |
+| Stopped 31 to 90 days ago | -31 to -90 | 17 |
+| Stopped over 90 days ago | < -90 | 8 |
+| No roster record or corrupt date | | 29 |
 
-For completeness, the reverse case is rare: only 5 accounts are rostering normally but have not logged in for over 14 days. Login recency is not useless, it is just far weaker on its own.
+**What roster horizon actually measures is feature adoption, not churn risk.** That is the significant reinterpretation in revision 2, and section 9 shows why.
+
+### Login recency: still the weakest signal
+
+Of the 25 accounts lapsed 30 or more days on rostering, **10 logged in within the last 7 days** and 4 logged in the same day. A login-based or seat-based health score would rate all 10 healthy.
+
+| Account | Roster stopped | Last login | Drivers |
+|---|---|---|---|
+| Clark Courier Service LLC | 86 days ago | **today** | 153 |
+| Last Mile Logistics LLC | 83 days ago | **today** | 135 |
+| Express Package System Inc | 82 days ago | **today** | 198 |
+| Motaur Express | 94 days ago | yesterday | 1 |
+| Active Transportation Services LLC | 41 days ago | **today** | 68 |
+
+The reverse case is rare: only 5 accounts roster normally but have not logged in for over 14 days.
 
 ---
 
-## 8. Accounts needing attention right now
+## 9. Accounts needing attention **[HEAVILY REVISED]**
 
-### 25 accounts have not built a roster in 30 or more days
+Revision 1 listed 31 accounts and $249,584 in ARR. Splitting those same 31 by whether their driver count, and therefore their revenue, is actually moving changes the picture completely.
 
-**$200,436 in ARR.**
+| Group | Accounts | Current ARR |
+|---|---|---|
+| **Shrinking drivers, real churn risk** | **12** | **$34,516** |
+| Flat | 10 | $54,894 |
+| **Growing drivers, adoption gap only** | **7** | **$51,861** |
+| No trend available, already at $0 | 2 | $0 |
+| Total | 31 | $141,271 |
 
-| Account | Roster stopped | Last login | Active drivers | Users | Monthly |
+### The real churn list: 12 accounts, $34,516 ARR
+
+| Account | Roster stopped | Drivers now | Change | % | Monthly |
 |---|---|---|---|---|---|
-| DBE Logistics, Inc. | 445 days ago | 15 days ago | 94 | 4 | $369 |
-| Prolific Logistics | 376 days ago | 181 days ago | 1 | 27 | $546 |
-| Double Iron Car Care LLC | 292 days ago | 34 days ago | 18 | 5 | $25 |
-| Black Nile Logistics | 216 days ago | 12 days ago | 75 | 5 | $526 |
-| New Deal Logistics | 207 days ago | 277 days ago | 3 | 10 | $676 |
-| Divine Package LLC | 183 days ago | 99 days ago | 43 | 5 | $301 |
-| Shandy Holdings | 173 days ago | 180 days ago | 2 | 30 | $539 |
-| Motaur Express | 94 days ago | yesterday | 1 | 15 | $796 |
-| Clark Courier Service LLC | 86 days ago | today | 155 | 6 | $1,095 |
-| Last Mile Logistics LLC | 83 days ago | today | 140 | 9 | $1,031 |
-| Express Package System Inc | 82 days ago | today | 186 | 25 | $877 |
-| Pure Logistics USA LLC | 58 days ago | 64 days ago | 95 | 7 | $828 |
-| Supreme Delivery | 58 days ago | 10 days ago | 1 | 15 | $814 |
-| Ursa Logistics LLC | 56 days ago | 12 days ago | 2 | 27 | $590 |
-| Your Express Solutions LLC | 55 days ago | 13 days ago | 0 | 24 | $1,203 |
-| MTSL | 55 days ago | 7 days ago | 42 | 8 | $541 |
-| Probyn Inc | 55 days ago | 55 days ago | 41 | 21 | $855 |
-| EZ Logistix LLC | 54 days ago | 6 days ago | 95 | 16 | $538 |
-| On-demand Logistics Service Llc | 52 days ago | yesterday | 62 | 3 | $330 |
-| K&K Solomon Logistics | 50 days ago | 50 days ago | 0 | 6 | $840 |
-| Infinite Delivery OPS LLC | 45 days ago | 70 days ago | 0 | 7 | $263 |
-| Active Transportation Services LLC | 41 days ago | today | 71 | 7 | $327 |
-| Bison Peak LLC | 41 days ago | 9 days ago | 121 | 15 | $1,053 |
-| PacTrack, Inc | 36 days ago | 6 days ago | 79 | 20 | $740 |
-| Spears Enterprises LLC | 31 days ago | 7 days ago | 115 | 4 | $998 |
+| Infinite Delivery OPS LLC | 45d | 0 | -18 | -100% | $0 |
+| DnA Logistics Inc. | none | 0 | -59 | -100% | $0 |
+| Supreme Delivery | 58d | 1 | -83 | -99% | $8 |
+| Ursa Logistics LLC | 56d | 2 | -151 | -99% | $8 |
+| SkyHook 2 LLC | 11d | 21 | -104 | -83% | $172 |
+| Focus Logistics | 7d | 31 | -29 | -49% | $249 |
+| Globalteq Logisitcs LLC | 10d | 47 | -28 | -38% | $381 |
+| Deliver2U LLC | 6d | 81 | -27 | -25% | $439 |
+| Sarkat Logistics, LLC | 7d | 48 | -9 | -16% | $352 |
+| Active Transportation Services LLC | 41d | 68 | -12 | -15% | $531 |
+| EZ Logistix LLC | 54d | 91 | -8 | -8% | $396 |
+| MTSL | 55d | 44 | -4 | -8% | $341 |
 
-### 9 accounts have zero active drivers
+Four of these are effectively gone already, billing $0 or $8. Ursa Logistics lost **151 drivers**, from 153 down to 2. SkyHook 2 lost 104. Those are business events, not engagement problems, and worth understanding before they repeat.
 
-**$76,815 in ARR.** These accounts are paying you while having no driver in `Active` status.
+Note that six of these accounts rostered within the last 11 days. **They are engaged and shrinking at the same time**, which is exactly why roster horizon alone would have missed them.
 
-| Account | Roster | Last login | Users (never logged in) | Monthly |
+### Growing, not at risk: 7 accounts, $51,861 ARR
+
+These were flagged in revision 1. They should not have been.
+
+| Account | Roster stopped | Drivers now | Change | % | Monthly |
+|---|---|---|---|---|---|
+| **Express Package System Inc** | 82d | 198 | **+35** | **+21%** | **$1,556** |
+| Bison Peak LLC | 41d | 123 | +22 | +21% | $929 |
+| Probyn Inc | 55d | 40 | +14 | +55% | $309 |
+| Pure Logistics USA LLC | 58d | 95 | +12 | +14% | $735 |
+| On-demand Logistics Service Llc | 52d | 69 | +11 | +19% | $361 |
+| **DBE Logistics, Inc.** | **445d** | 93 | +5 | +5% | $406 |
+| Double Iron Car Care LLC | 292d | 17 | +3 | +24% | $25 |
+
+Express Package System has grown 21 percent and now bills $1,556 a month, against an $877 lifetime average, while not touching the roster in 82 days. DBE Logistics has not rostered in **445 days** and is still growing. These accounts use Hera for staff records and billing but not for rostering. **The correct play is a feature-adoption conversation, not a save.**
+
+### Flat: 10 accounts, $54,894 ARR
+
+| Account | Roster stopped | Drivers now | Change | Monthly |
 |---|---|---|---|---|
-| Your Express Solutions LLC | 55 days ago | 13 days ago | 24 (1) | $1,203 |
-| SkyHook 2 LLC | 11 days ago | 12 days ago | 26 (2) | $1,014 |
-| K&K Solomon Logistics | 50 days ago | 50 days ago | 6 (3) | $840 |
-| Focus Logistics | 7 days ago | 12 days ago | 9 (2) | $708 |
-| DnA Logistics Inc. | no record | 6 days ago | 31 (1) | $704 |
-| Globalteq Logisitcs LLC | 10 days ago | 10 days ago | 12 (4) | $667 |
-| Deliver2U LLC | 6 days ago | 7 days ago | 10 (3) | $558 |
-| Sarkat Logistics, LLC | 7 days ago | 10 days ago | 19 (1) | $445 |
-| Infinite Delivery OPS LLC | 45 days ago | 70 days ago | 7 (3) | $263 |
+| Clark Courier Service LLC | 86d | 153 | -6 (-4%) | $1,176 |
+| Last Mile Logistics LLC | 83d | 135 | -4 (-3%) | $1,057 |
+| Spears Enterprises LLC | 31d | 112 | +0 | $874 |
+| PacTrack, Inc | 36d | 79 | -2 (-2%) | $619 |
+| Black Nile Logistics | 216d | 77 | +1 (+1%) | $604 |
+| Divine Package LLC | 183d | 43 | +0 | $193 |
+| New Deal Logistics | 207d | 3 | +0 | $24 |
+| Shandy Holdings | 173d | 2 | +0 | $16 |
+| Motaur Express | 94d | 1 | +0 | $8 |
+| Prolific Logistics | 376d | 1 | +0 | $4 |
 
-**This was verified, not assumed.** Every driver at these accounts sits in an `Inactive` status. To rule out a status-vocabulary problem I checked a control account: JDW Logistics shows 338 drivers in `Active` against the same status set, so the field is being used consistently and these zeros are real.
+The bottom four have already collapsed to 1 to 3 drivers and are billing under $25 a month. They are dormant shells, not accounts to save. The top three are large, stable, and simply not using the roster.
 
-**Two of these are rebuilding, not dying.** DnA Logistics has 69 drivers in `Onboarding` status and Globalteq has 2. They are restaffing. The other seven have no onboarding pipeline at all.
+### Zero active drivers: 9 accounts
 
-**Six of them are an odd case worth a look.** Focus Logistics, Sarkat, SkyHook 2, DnA, Deliver2U, and Globalteq are all rostering within the last 11 days while showing zero active drivers. Building rosters with no active drivers should not really happen. Most likely they stopped maintaining driver status and are rostering against people marked Inactive, which is a data-hygiene and training problem rather than a churn signal. Worth one call to find out which.
+Verified, not assumed. Every associate at these accounts sits in an `Inactive` status. Control check: JDW Logistics shows 338 in `Active` against the same status set, so the field is used consistently.
 
-### Combined
+Of these, **4 already bill $0**: K&K Solomon Logistics, Your Express Solutions, Infinite Delivery OPS, and DnA Logistics. Billing has already caught up. They are revenue-churned while still marked `Active` in `customerStatus`.
 
-Removing the 3 accounts that appear on both lists:
-
-**31 unique accounts need attention, worth $249,584 in ARR, which is 11.9 percent of your book.**
+**Two are rebuilding, not dying.** DnA Logistics has 69 associates in `Onboarding` status and Globalteq has 2. They are restaffing.
 
 ---
 
-## 9. Every factor that could feed a health score
+## 10. Every factor that could feed a health score **[REVISED]**
 
-This is the section that got cut off in the terminal.
+For each factor: what it tells you, where it comes from, and whether it is measured, measurable, or ruled out. "Measurable" means the database has the right index to compute it cheaply per account, roughly 253 fast queries, but it has not been run.
 
-For each factor: what it tells you, where it comes from, and whether it is measured, measurable, or ruled out. "Measurable" means the database has the right index to compute it cheaply per account, roughly 253 fast queries, but I have not run it yet.
-
-### Group A: Are they doing the daily work?
-
-This is what your team can actually influence.
+### Group A: Revenue and operational scale (new priority in revision 2)
 
 | Factor | What it tells you | Source | Status |
 |---|---|---|---|
-| **Roster horizon** | Have they scheduled drivers for upcoming days | `DailyRoster`, index `byGroupAndNotesDate` | **Measured.** 173 healthy, 80 lapsed |
-| **Messaging volume** | Are they texting and emailing drivers through Hera, or have they gone back to personal phones | `Message`, index `byGroup` = group + createdAt | Measurable |
-| **Daily log volume** | Are they recording what happened each day | `DailyLog`, index `byDate` = group + date | Measurable |
+| **Active driver count** | The billing basis. This is the revenue | `Invoice.averageActiveDriverCount` | **Measured** |
+| **Driver-count trend** | **Primary health signal.** Revenue direction | Consecutive `Invoice` records, `byGroup` = group + createdAt | **Measured**, 251 of 253 |
+| **Onboarding pipeline** | Associates in `Onboarding` status, a leading indicator of driver growth | `Staff`, index `byGroupStatus` | Partly measured |
+| Year-over-year driver change | Separates seasonal dips from real decline | `Invoice`, 25,773 records | **Not yet measured. Highest priority** |
 
-### Group B: Are they using what they pay for?
+### Group B: Are they doing the daily work?
 
 | Factor | What it tells you | Source | Status |
 |---|---|---|---|
-| **Scorecard upload freshness** | Are they still uploading their weekly Amazon scorecard. This is a weekly ritual, so a gap is a loud signal | `CompanyScoreCard`, index `byGroup` = group + yearWeek | Measurable |
-| **Coaching activity** | Are they logging counselings, infractions, and kudos on drivers | `Counseling`, `Infraction`, `Kudo`, all indexed `byGroupAndDate` | Measurable |
-| **Feature adoption** | Which optional modules they have turned on | `Tenant` flags | **Measured**, see below |
+| **Roster horizon** | Whether they use the rostering feature. **Adoption, not churn risk** | `DailyRoster`, index `byGroupAndNotesDate` | **Measured** |
+| Messaging volume | Are they messaging drivers through Hera or back on personal phones | `Message`, index `byGroup` = group + createdAt | Measurable |
+| Daily log volume | Are they recording what happened each day | `DailyLog`, index `byDate` = group + date | Measurable |
 
-Feature adoption as it stands today, across 253 active accounts:
+### Group C: Are they using what they pay for?
 
-| Feature | Accounts using it | Share |
+| Factor | What it tells you | Source | Status |
+|---|---|---|---|
+| Scorecard upload freshness | Still uploading the weekly Amazon scorecard. A weekly ritual, so a gap is loud | `CompanyScoreCard`, index `byGroup` = group + yearWeek | Measurable |
+| Coaching activity | Logging counselings, infractions, kudos | `Counseling`, `Infraction`, `Kudo`, all `byGroupAndDate` | Measurable |
+| Feature adoption | Which optional modules are on | `Tenant` flags | **Measured** |
+
+Feature adoption across 253 active accounts:
+
+| Feature | Using it | Share |
 |---|---|---|
 | `featureEnabledCounselings` | 233 | 92% |
 | `featureEnabledAssociateApp` | 146 | 58% |
 | `permissionHeraAi` | **32** | **13%** |
-| InventoryManagement, RosterChecklist | ~253 | ~100%, no useful signal |
+| InventoryManagement, RosterChecklist | ~253 | ~100%, no signal |
 
-**HeraAi at 13 percent is your clearest expansion opportunity: 221 accounts have not turned it on.**
+**HeraAi at 13 percent is your clearest expansion opportunity**, and per section 2 it is one of the only ways to raise revenue per driver.
 
-### Group C: Is their business shrinking?
-
-You cannot fix these, but you can see them coming, and that matters because 38.7 percent of your churn is customers going out of business.
+### Group D: Is their business shrinking? (viability, not fixable by CS)
 
 | Factor | What it tells you | Source | Status |
 |---|---|---|---|
-| **Route volume trend** | How many delivery routes they run. If Amazon cuts their routes, they are shrinking | `Route`, index `byGroupAndTime` | Measurable |
-| **Driver headcount trend** | Are their active drivers growing or falling | `Staff`, index `byGroupStatus` | **Measured** as a snapshot. Trend not yet measured |
-| **Driver turnover** | How fast drivers churn inside their operation | `StaffStatus`, index `byGroup` = group + date | Measurable |
+| **Route volume trend** | Whether Amazon is cutting their routes | `Route`, index `byGroupAndTime` | Measurable. **See section 13, item 5** |
+| Driver turnover | How fast drivers churn inside their operation | `StaffStatus`, index `byGroup` = group + date | Measurable |
+| Amazon scorecard tier and trend | Whether Amazon may terminate them | `CompanyScoreCard`, 88,580 records | Measurable |
 
-### Group D: Are the right people still showing up?
+### Group E: Are the right people showing up?
 
 | Factor | What it tells you | Source | Status |
 |---|---|---|---|
-| **Login recency** | When anyone last logged in | `User`, index `gsi-TenantUsers` | **Measured.** Weak on its own, see section 7 |
-| **Active user count** | How many of their people actually use it, versus just having an account | `User` | Partly measured |
-| **Never-logged-in seats** | Accounts created but never used, an onboarding gap | `User` | **Measured.** 622 of 3,672 user records, 17 percent, have never logged in once |
+| Login recency | When anyone last logged in. **Weak on its own** | `User`, index `gsi-TenantUsers` | **Measured** |
+| Active user count | How many of their people actually use it | `User` | Partly measured |
+| Never-logged-in seats | An onboarding gap | `User` | **Measured.** 622 of 3,672 records, 17% |
 
-### Group E: Commercial
+### Group F: Commercial
 
 | Factor | What it tells you | Status |
 |---|---|---|
-| **Discount depth** | Heavily discounted accounts predict your "Cost Savings" churn reason, 10.3 percent of losses | Measurable |
-| **Unpaid balance** | Money owed | **Measured.** Only 3 accounts, $3,053 total. Not a meaningful risk signal for you |
-| **Tenure** | Months paid. Under 12 months is your danger zone, 29 percent of losses | **Measured** |
+| Discount depth | Predicts the "Cost Savings" churn reason, 10.3% of losses | Measurable |
+| Unpaid balance | Money owed | **Measured.** 3 accounts, $3,053. Not a meaningful signal for you |
+| Tenure | Under 12 months is the danger zone, 29% of losses | **Measured** |
+| Support volume and sentiment | Standard health input | **Not pulled.** Intercom connector works. See section 13, item 8 |
 
 ### Ruled out
 
-**Overall app activity from the audit log.** `AuditLog` is indexed on group plus `email#createdAt`, so there is no way to range-query by date across all users of an account. Counting it per account would mean reading roughly 27,000 rows per customer. Too expensive to run on a schedule. Recording it here so nobody rediscovers it later and assumes it was overlooked.
+**Overall app activity from the audit log.** `AuditLog` is indexed on group plus `email#createdAt`, so there is no date range query across all users of an account. Counting it per account means reading roughly 27,000 rows per customer. Too expensive to schedule. Recorded here so nobody assumes it was overlooked.
 
 ---
 
-## 10. Proposed band definitions
+## 11. Proposed band definitions **[REVISED]**
 
 ### Count red flags, do not weight percentages
 
-Weighted scoring ("usage 40 percent, support 20 percent, engagement 20 percent") is standard advice, but it is hard to explain, hard to tune, and produces a number nobody can reason about. Counting red flags is closer to how you would actually think about an account.
+Weighted scoring is standard advice but hard to explain, hard to tune, and produces a number nobody can reason about. Counting red flags is closer to how you would actually think about an account.
 
-| Band | Rule |
+### Two separate scores, and the split moved
+
+**Health** answers "is there something we can do here."
+**Viability** answers "is this customer's business going to survive."
+
+Revision 2 moves driver-count trend to the top of Health, because it is the revenue, and demotes roster horizon to an adoption signal.
+
+| Band | Proposed rule |
 |---|---|
-| **Critical** | Roster stopped over 90 days ago, OR zero active drivers, OR 3 or more red factors |
-| **At Risk** | Roster stopped 31 to 90 days ago, OR 2 red factors |
-| **Developing** | Roster stopped 1 to 30 days ago, OR 1 red factor |
-| **Healthy** | No red factors |
+| **Critical** | Drivers down more than 50%, OR zero active drivers, OR 3+ red factors |
+| **At Risk** | Drivers down 10 to 50%, OR 2 red factors |
+| **Developing** | Drivers down 5 to 10%, OR 1 red factor |
+| **Healthy** | Drivers flat or growing, no red factors |
+| **Adoption gap** (new) | Drivers flat or growing, but a core feature unused. **Not a risk band.** Route to an adoption conversation, not a save |
 
-Individual factor thresholds are not set yet. They should be set the same way the roster bands were: measure the factor across all 253 accounts, look at where the natural break falls in the distribution, then draw the line. Setting them by intuition first would defeat the point.
+That last band is new and it exists because of the 7 growing accounts in section 9.
 
-### Keep two separate scores
+**The driver-trend thresholds above are placeholders.** They cannot be finalized until the seasonality question in section 13 is answered, because a 10 percent summer decline may be normal. Do not treat them as set.
 
-**Health** uses Groups A, B, D, and E. It answers "is there something we can do here."
-
-**Viability** uses Group C on its own. It answers "is this customer's business going to survive."
-
-**Do not blend them.** 38.7 percent of your churn is customers losing their Amazon contract or closing. Folding that into a health score makes the score unactionable and sends a two-person team after accounts nobody can save. Viability exists to forecast revenue and to decide where *not* to spend effort.
-
-### The highest-value thing you are not yet using
-
-You hold every customer's weekly Amazon scorecard in `CompanyScoreCard`, 88,580 records indexed by tenant and week. That means your single largest churn bucket, customers losing their Amazon contract, is **forecastable** even though it is not preventable. No customer success platform you could buy would give you that, because it depends on data only Hera has.
+**Do not blend Health and Viability.** 38.7 percent of your churn is customers losing their Amazon contract or closing. Folding that into a health score makes it unactionable and sends a small team after accounts nobody can save.
 
 ---
 
-## 11. Data quality register
+## 12. Data quality register **[REVISED]**
 
-These are traps that produce confidently wrong answers. Two of them caught me during this session.
+Traps that produce confidently wrong answers. Three of them caught me during this analysis.
 
 | Field | Problem | What to do |
 |---|---|---|
-| `DailyRoster.notesDate` | It is the date a roster is built **for**, scheduled in advance, not a creation timestamp. Healthy accounts have a future date | Never compute "days since last roster." Use horizon: most recent date minus today. **This bug hit me first time through** |
-| `User.lastLogin` | Can hold the literal string `NOT_YET_LOGGED`, which sorts above real ISO timestamps because "N" is greater than "2" | Filter it out before any `max()`. **This bug hit me too, and silently dropped 118 of 253 accounts** |
-| `firstChurnedDateTime` | Missing on 267 of 497 churned accounts | Use `customerStatus` instead |
-| `firstConvertedToPaidDateTime` | Sparsely populated. Using it, I calculated 78 paid churns. The real figure is 468 | Use `totalNumberOfMonthsPaidByTenant > 0` |
-| `numberOfSeats` | Absent on 198 of 253 active accounts | Seat-based health or expansion math is not possible |
+| **`Tenant.averageMonthlyInvoiceTotal`** | A **lifetime average**, not current billing. Overstated total ARR by 5.3% and at-risk ARR by 43% | Use the latest `Invoice.invoiceTotal`. **This produced every wrong number in revision 1** |
+| `DailyRoster.notesDate` | The date a roster is built **for**, scheduled ahead, not a creation timestamp. Healthy accounts have a future date | Never compute "days since last roster." Use horizon: latest date minus today. **Caught me first time through** |
+| `User.lastLogin` | Can hold the literal string `NOT_YET_LOGGED`, which sorts above real ISO timestamps because "N" > "2" | Filter before any `max()`. **Silently dropped 118 of 253 accounts** |
+| Associate status | Only `status = 'Active'` bills. Total staff records include years of terminations, up to 2,102 on one account | Always filter to `Active` for anything billing or size related |
+| `firstChurnedDateTime` | Missing on 267 of 497 churned accounts | Use `customerStatus` |
+| `firstConvertedToPaidDateTime` | Sparse. Using it I calculated 78 paid churns. The real figure is 468 | Use `totalNumberOfMonthsPaidByTenant > 0` |
+| `numberOfSeats` | Absent on 198 of 253 active accounts | Seat-based math is not possible. Irrelevant anyway, since billing is per driver |
 | `accountType` | Null on 502 of 872. `PARENT` and `CHILD` never populated | Multi-entity rollup does not work despite schema support |
-| `featureAccessX` vs `featureEnabledX` | Access is not a superset of enabled. `featureAccessAssociateApp` is 0 on all 253 accounts while `featureEnabledAssociateApp` is 146 | Do not compute "access minus enabled" as an adoption gap. **I asserted this early in the session and it was wrong** |
-| `cost*` fields | `costBundle`, `costStandard`, `costPerformance`, `costRostering`, `costStaff`, `costVehicles` are nonzero on all 253 accounts. `costMessaging` is 0 on all | These are price-list fields, not entitlement markers |
-| `DailyRoster.notesDate` range | 8 accounts have values far outside any plausible range | Clamp to roughly -2000 to +400 days from today |
-| No roster record | 21 active accounts have no `DailyRoster` row at all | Treat as unclassified, not healthy |
-| Contract and renewal dates | **No contract, term, renewal, or expiration field exists anywhere on `Tenant`** | Hera is month-to-month. There is no renewal event and no 90/60/30 day runway. Retention is continuous |
-| `Invoice.year#month` | Documented in repo `CLAUDE.md`: December is stored as `<next-year>#0` rather than `<year>#12` | Filter on `createdAt` for month-based queries |
+| `featureAccessX` vs `featureEnabledX` | Access is not a superset of enabled. `featureAccessAssociateApp` is 0 on all 253 while `featureEnabledAssociateApp` is 146 | Do not compute "access minus enabled" as an adoption gap. **I asserted this early and it was wrong** |
+| `cost*` fields | Nonzero on all 253 accounts. `costMessaging` is 0 on all | Price-list fields, not entitlement markers |
+| `DailyRoster.notesDate` range | 8 accounts have values far outside any plausible range | Clamp to roughly -2000 to +400 days |
+| No roster record | 21 active accounts have no `DailyRoster` row | Unclassified, not healthy |
+| Contract and renewal dates | **No contract, term, renewal, or expiration field exists on `Tenant`** | Hera is month-to-month. No renewal event, no 90/60/30 runway. Retention is continuous, and a driver loss hits revenue immediately |
+| `Invoice.year#month` | Documented in repo `CLAUDE.md`: December stored as `<next-year>#0` | Filter on `createdAt`, not `year#month` |
 
 ---
 
-## 12. What is decided and what is still open
+## 13. What we have not uncovered (new in revision 2)
+
+Ordered by how much each would change the plan.
+
+**1. Seasonality, and it undermines every threshold here.** Everything was measured on a single snapshot on 2026-07-28, and the driver trends span only 2 to 4 months of mid-summer. If Amazon volume dips in summer and peaks in Q4, a July driver decline is normal and the "shrinking" bucket is partly noise. `Invoice` holds 25,773 records going back years, so year-over-year is computable. **Do this before finalizing any threshold.**
+
+**2. How "DSP Closed" actually gets recorded.** The entire target structure, the addressable/program split, and CSS 1's retention bonus all rest on that one field. Who fills it in, and how do they know the DSP closed rather than just left? If it is an assumption made at cancellation, 38.7 percent is softer than it has been treated.
+
+**3. Is Amazon growing or culling the DSP program?** That external fact drives 38.7 percent of churn and appears nowhere in the database. Regional consolidation would produce churn nobody can prevent, which should be forecast rather than staffed against.
+
+**4. Is $7.83 per driver above or below market?** Competitive switching is the largest addressable loss at $148,097 and "Cost Savings" adds 10.3 percent. What DSPworkplace and LMDmax charge is unknown. That single fact determines whether this is a pricing problem or a value-communication problem.
+
+**5. Driver decline versus route cuts.** When an account loses drivers, is Amazon cutting their routes (viability, unfixable) or is the customer failing to retain drivers (operational, and something Hera's coaching tools directly address)? `Route` has `byGroupAndTime`, so this is measurable, and it separates "forecast the loss" from "sell them the fix." Ursa Logistics losing 151 drivers is the case to test it on.
+
+**6. The 68 trials, entirely unexamined.** Nothing has been measured about trial-to-paid conversion, and 54 have already lapsed. At $7.83 per driver against a median 89 drivers, one converted trial is worth roughly $8,400 a year. This may be a larger lever than saving the 12 shrinking accounts, which together hold $34,516.
+
+**7. Onboarding, given 29 percent of churn happens in year one.** The onboarding plugin is installed but never configured. Early churn is the biggest addressable pattern and onboarding quality drives it, and none of that process is in the data.
+
+**8. Support signal.** Intercom holds conversation history and sentiment per company and none of it was pulled. The connector is verified working.
+
+**9. Nobody records what worked.** There is no log of interventions and outcomes, so it is not yet knowable whether calling a lapsed account saves it. Worth starting now, because in six months it turns this model from a guess into something calibrated.
+
+**One strategic observation.** Because revenue equals drivers times a fixed rate, Hera grows only when customers hire drivers. There is no pricing lever inside an account except modules, and HeraAi is at 13 percent. So the NRR problem is not a missing sales process, it is that revenue is a pass-through on a headcount base Hera does not control. That reframes expansion from "sell more seats" to "sell things that are not priced per driver."
+
+---
+
+## 14. What is decided and what is open **[REVISED]**
 
 ### Decided and written into the plugin config
 
-- Motion is hybrid and segmented, with the segmentation axis being **engagement state, not revenue**
-- Health bands set on roster horizon, per section 7
+- Motion is hybrid and segmented, with the axis being **engagement state, not revenue**
 - Team is roughly 1.5 effective account owners, not 3. John covers the full book, CSS 1 is building toward an owned book with a retention bonus, CSS 2 is a detection layer with no book
 - CSS 1's retention bonus must exclude Amazon DSP program closures
-- Retention targets: **90 percent addressable GRR** for the team, 80 percent all-causes reported to the CEO, HeraAi attach from 13 to 25 percent standing in for an NRR target
-- Escalation goes to John as a Zoho task, with the weekly CEO management meeting as the second tier
+- Escalation goes to John as a Zoho task, with the weekly CEO management meeting as second tier
 - Primary value metric is operational time saved, with the explicit caveat that it is **not instrumented**, so no skill may state a time-saved figure as fact
+
+### Needs revisiting because of revision 2
+
+- **The 90% addressable GRR target.** Set against a baseline I reported as 85.7%. The real baseline is 77.2%, so 90% now requires recovering $295,734 a year. 85% requires $180,488. Recommend revisiting.
+- **The health model's primary signal.** Config records roster horizon as primary. It should be driver-count trend, with roster horizon demoted to an adoption signal.
+- **Escalation response times**, still unset, and now they depend on the driver-trend bands rather than the roster bands.
 
 ### Still open
 
-1. **Escalation response times.** Stalled because they depend on how many accounts each band contains once the bands are multi-factor
-2. **The 9 measurable factors in section 9.** Measure them, look at the distributions, then set thresholds
-3. **QBR format.** At 107 accounts per person, month-to-month, with no renewal event, standing per-account QBRs may not be viable at all
-4. **The unnamed competitor.** 11 accounts and $82,472 lost this year to "Switched to Competitor - Other." Worth finding out who that is
-5. **Outcome catalog.** Marked pending. Probably worth waiting until the time-saved metric has a real proxy
+1. Seasonality (section 13, item 1). Blocks every threshold
+2. Escalation response times
+3. QBR format. At 107 accounts per person, month-to-month, with no renewal event, standing per-account QBRs may not be viable
+4. The unnamed competitor: $82,472 lost this year to "Switched to Competitor - Other"
+5. Outcome catalog, marked pending. Probably wait until the time-saved metric has a real proxy
 
 ### Config file locations
 
