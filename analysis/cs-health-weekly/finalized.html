@@ -1,0 +1,368 @@
+<title>Hera CS Health: Finalized Model and Baseline</title>
+
+<style>
+  :root {
+    --blue: #0067bc;
+    --blue-dark: #00509a;
+    --blue-light: #e8f2fb;
+    --pink: #f9d2d9;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --amber: #e67e22;
+    --amber-light: #fef9f0;
+    --green: #1a7a3c;
+    --green-light: #edf7f1;
+    --grey-light: #f7f8fa;
+    --grey-mid: #e2e6ea;
+    --grey-dark: #6c757d;
+    --ink: #1c2b3a;
+
+    --bg: #ffffff;
+    --surface: var(--grey-light);
+    --rule: var(--grey-mid);
+    --text: var(--ink);
+    --muted: var(--grey-dark);
+    --accent: var(--blue);
+    --accent-soft: var(--blue-light);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1720;
+      --surface: #16202b;
+      --rule: #2a3846;
+      --text: #e6edf3;
+      --muted: #92a2b3;
+      --accent: #4da3e8;
+      --accent-soft: #16293b;
+      --red: #f0776a;
+      --red-light: #2c1a18;
+      --amber: #f0a24a;
+      --amber-light: #2c2318;
+      --green: #5cc487;
+      --green-light: #15291f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1720; --surface: #16202b; --rule: #2a3846; --text: #e6edf3;
+    --muted: #92a2b3; --accent: #4da3e8; --accent-soft: #16293b;
+    --red: #f0776a; --red-light: #2c1a18; --amber: #f0a24a;
+    --amber-light: #2c2318; --green: #5cc487; --green-light: #15291f;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --surface: #f7f8fa; --rule: #e2e6ea; --text: #1c2b3a;
+    --muted: #6c757d; --accent: #0067bc; --accent-soft: #e8f2fb;
+    --red: #c0392b; --red-light: #fdecea; --amber: #e67e22;
+    --amber-light: #fef9f0; --green: #1a7a3c; --green-light: #edf7f1;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Aglet Slab", Rockwell, "Roboto Slab", Bitter, ui-serif, Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  .prose { max-width: 68ch; }
+
+  header.top { border-bottom: 3px solid var(--accent); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 0.5rem;
+  }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.15; margin: 0 0 0.6rem; text-wrap: balance; font-weight: 700; }
+  .sub { color: var(--muted); margin: 0; font-size: 1rem; }
+
+  h2 {
+    font-size: 1.3rem; margin: 3rem 0 0.4rem; font-weight: 700; text-wrap: balance;
+    padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
+  }
+  h3 { font-size: 1.02rem; margin: 1.9rem 0 0.4rem; font-weight: 700; }
+  p { margin: 0.7rem 0; }
+  strong { font-weight: 700; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em; background: var(--surface); padding: 0.1em 0.35em;
+    border-radius: 3px; border: 1px solid var(--rule);
+  }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 2rem 0; }
+  .kpi { background: var(--bg); padding: 1.1rem 1rem; }
+  .kpi .n { font-size: 1.65rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; display: block; }
+  .kpi .l { font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 0.3rem; display: block; }
+  .kpi.crit .n { color: var(--red); }
+  .kpi.warn .n { color: var(--amber); }
+
+  .scroll { overflow-x: auto; margin: 1.1rem 0; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--rule); }
+  th { background: var(--surface); font-weight: 700; font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: var(--surface); }
+
+  tr.sev-crit td:first-child { box-shadow: inset 4px 0 0 var(--red); }
+  tr.sev-warn td:first-child { box-shadow: inset 4px 0 0 var(--amber); }
+  tr.sev-ok  td:first-child { box-shadow: inset 4px 0 0 var(--green); }
+  tr.sev-mute td:first-child { box-shadow: inset 4px 0 0 var(--grey-dark); }
+
+  .chip { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.12rem 0.45rem; border-radius: 3px; white-space: nowrap; }
+  .chip.crit { background: var(--red-light); color: var(--red); }
+  .chip.warn { background: var(--amber-light); color: var(--amber); }
+  .chip.ok { background: var(--green-light); color: var(--green); }
+  .chip.mute { background: var(--surface); color: var(--muted); }
+
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 0.9rem 1.1rem; margin: 1.3rem 0; }
+  .callout.red { border-color: var(--red); background: var(--red-light); }
+  .callout.amber { border-color: var(--amber); background: var(--amber-light); }
+  .callout p:first-child { margin-top: 0; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  ul, ol { padding-left: 1.3rem; max-width: 68ch; }
+  li { margin: 0.35rem 0; }
+  .note { font-size: 0.86rem; color: var(--muted); }
+  hr { border: none; border-top: 1px solid var(--rule); margin: 3rem 0; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Hera Solutions &middot; Customer Success</p>
+  <h1>Finalized health model and baseline</h1>
+  <p class="sub">As of 29 July 2026. Scored from live production data, 252 paying tenants. Model, thresholds and code are committed and repeatable.</p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><span class="n">245</span><span class="l">Customers</span></div>
+  <div class="kpi"><span class="n">$2.33M</span><span class="l">ARR</span></div>
+  <div class="kpi"><span class="n">22,720</span><span class="l">Active associates</span></div>
+  <div class="kpi crit"><span class="n">6</span><span class="l">Critical accounts</span></div>
+  <div class="kpi warn"><span class="n">$53,510</span><span class="l">Revenue already gone</span></div>
+</div>
+
+<h2>What was finalized</h2>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Decision</th><th>Outcome</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Billing model</strong></td><td>$9.00 per active associate per month, charged $0.30/associate/day, billed one month in arrears. Verified against invoice line items and <code>knowledge/billing-overview.md</code>.</td></tr>
+    <tr><td><strong>Health model</strong></td><td>Two independent axes, never a single blended score. Engagement and revenue direction are measured separately.</td></tr>
+    <tr><td><strong>Segmentation axis</strong></td><td>Engagement state, explicitly <em>not</em> ARR. Largest account is 3.8x the median, so revenue tiers would behave identically.</td></tr>
+    <tr><td><strong>Customer count</strong></td><td>245 customers across 252 tenants. Seven customers run secondary sites that appear as separate tenants.</td></tr>
+    <tr><td><strong>Scoring cadence</strong></td><td>Manual weekly for now, via the <code>cs-health-weekly</code> skill. Automatable later with no VPN dependency.</td></tr>
+    <tr><td><strong>Data source</strong></td><td>DynamoDB only. The five tables the model depends most on are not synced to the RDS mirror, and the mirror has drifted silently before.</td></tr>
+    <tr><td><strong>Team shape</strong></td><td>About 1.5 effective account owners, not 3. John carries the book; CSS 1 is building toward an owned book with a retention bonus; CSS 2 is a detection layer.</td></tr>
+    <tr><td><strong>Bonus fairness</strong></td><td>Any per-book retention figure strips Amazon DSP program closures. A DSP closing is not a CS failure.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>The model</h2>
+
+<p class="prose"><strong>Engagement does not predict revenue decline.</strong> This was tested, not assumed. In a 20-account pilot, 6 of 15 declining accounts scored <em>above</em> the healthy average on engagement, the single most engaged account was losing 15% of its associates, and the least engaged healthy account was growing 20%. A blended score hides both failure modes.</p>
+
+<ul class="prose">
+  <li><strong>Engagement</strong> answers <em>will they stay at all</em>. Human-sent messages, message reads, scorecard uploads, and staffed rosters.</li>
+  <li><strong>Revenue direction</strong> answers <em>how much will they pay</em>. Active-associate trend across the last four closed invoices.</li>
+</ul>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Bucket</th><th class="num">Tenants</th><th class="num">ARR</th><th class="num">Share</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr class="sev-crit"><td><span class="chip crit">CRITICAL</span></td><td class="num">6</td><td class="num">$55,263</td><td class="num">2.4%</td><td>Declining and disengaged. Work first.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">ADOPTION RISK</span></td><td class="num">39</td><td class="num">$412,126</td><td class="num">17.7%</td><td>Paying, not declining, not using the core workflow. Adoption conversation, never a save.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">STRATEGIC RISK</span></td><td class="num">32</td><td class="num">$308,819</td><td class="num">13.3%</td><td>Comms current, no scorecard in 60+ days. The workflow left Hera. Ask, do not sell.</td></tr>
+    <tr class="sev-crit"><td><span class="chip crit">BILLING RECONCILIATION</span></td><td class="num">2</td><td class="num">$0</td><td class="num">0.0%</td><td>Dark with zero associates. Confirm or cancel.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">CONTRACTION</span></td><td class="num">30</td><td class="num">$256,785</td><td class="num">11.0%</td><td>Declining but engaged. Their operation is shrinking. Forecast, do not chase.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">WATCH</span></td><td class="num">5</td><td class="num">$49,020</td><td class="num">2.1%</td><td>One soft signal. Review next week.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">DATA HYGIENE</span></td><td class="num">12</td><td class="num">$28,982</td><td class="num">1.2%</td><td>Associate drop is a bulk roster cleanup. Billing self-corrected. No action.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">NOT ENTITLED</span></td><td class="num">5</td><td class="num">$21,635</td><td class="num">0.9%</td><td>No rostering module. Score on coaching and scorecard only.</td></tr>
+    <tr class="sev-ok"><td><span class="chip ok">HEALTHY</span></td><td class="num">121</td><td class="num">$1,192,527</td><td class="num">51.3%</td><td>No flags.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note"><strong>Disengaged</strong> means both-dark or roster-dark. It does not mean messaging-only, which is a scorecard gap while comms continue and has its own bucket. An earlier cut conflated the two, which put an account that rostered that morning into CRITICAL and inflated adoption risk to 30% of ARR.</p>
+
+<h3>Engagement patterns</h3>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Pattern</th><th class="num">Tenants</th><th class="num">Associates</th><th class="num">Monthly</th><th class="num">Share of MRR</th></tr></thead>
+  <tbody>
+    <tr class="sev-ok"><td>Healthy both</td><td class="num">141</td><td class="num">13,707</td><td class="num">$114,784</td><td class="num">59.2%</td></tr>
+    <tr class="sev-warn"><td>Messaging only</td><td class="num">79</td><td class="num">7,635</td><td class="num">$65,355</td><td class="num">33.7%</td></tr>
+    <tr class="sev-warn"><td>Scorecard only</td><td class="num">7</td><td class="num">653</td><td class="num">$5,329</td><td class="num">2.8%</td></tr>
+    <tr class="sev-crit"><td>Both dark</td><td class="num">25</td><td class="num">725</td><td class="num">$8,296</td><td class="num">4.3%</td></tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<h2>Work queues</h2>
+
+<h3>Critical: declining and disengaged</h3>
+<div class="scroll">
+<table>
+  <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Assoc change</th><th>Pattern</th><th class="num">Last staffed roster</th></tr></thead>
+  <tbody>
+    <tr class="sev-crit"><td>DC1 Transport</td><td class="num">144</td><td class="num">$1,234</td><td class="num">-6%</td><td>Messaging only</td><td class="num">none in 14</td></tr>
+    <tr class="sev-crit"><td>SURF Logistics</td><td class="num">110</td><td class="num">$927</td><td class="num">-11%</td><td>Healthy both</td><td class="num">78d</td></tr>
+    <tr class="sev-crit"><td>Platinum Transport Services</td><td class="num">119</td><td class="num">$920</td><td class="num">-8%</td><td>Messaging only</td><td class="num">31d</td></tr>
+    <tr class="sev-crit"><td>Add Logistics, LLC</td><td class="num">88</td><td class="num">$787</td><td class="num">-15%</td><td>Messaging only</td><td class="num">none in 14</td></tr>
+    <tr class="sev-crit"><td>PacTrack, Inc</td><td class="num">79</td><td class="num">$711</td><td class="num">-6%</td><td>Both dark</td><td class="num">52d</td></tr>
+    <tr class="sev-crit"><td>Road Runners Enterprises</td><td class="num">3</td><td class="num">$27</td><td class="num">-95%</td><td>Both dark</td><td class="num">129d</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout red">
+  <p><strong>Revenue that has already stopped, not at risk: $53,510 a year.</strong></p>
+  <p>Six accounts are under 10 active associates now but their last closed invoice was over $100. Their next invoice will be near zero. Presenting this as recoverable ARR overstates what any save could return.</p>
+</div>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Account</th><th class="num">Peak associates</th><th class="num">Now</th><th class="num">Days under 10</th><th class="num">Last closed invoice</th></tr></thead>
+  <tbody>
+    <tr class="sev-crit"><td>SkyHook 2 LLC</td><td class="num">125</td><td class="num">0</td><td class="num">23</td><td class="num">$1,035</td></tr>
+    <tr class="sev-crit"><td>Globalteq Logisitcs LLC</td><td class="num">106</td><td class="num">0</td><td class="num">11</td><td class="num">$900</td></tr>
+    <tr class="sev-crit"><td>Merica Delivery Service</td><td class="num">93</td><td class="num">5</td><td class="num">15</td><td class="num">$681</td></tr>
+    <tr class="sev-crit"><td>Deliver2U LLC</td><td class="num">122</td><td class="num">0</td><td class="num">7</td><td class="num">$671</td></tr>
+    <tr class="sev-crit"><td>Focus Logistics</td><td class="num">71</td><td class="num">0</td><td class="num">15</td><td class="num">$610</td></tr>
+    <tr class="sev-crit"><td>Envizion Logistics LLC</td><td class="num">96</td><td class="num">1</td><td class="num">28</td><td class="num">$562</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Adoption risk: paying more every month, not using it</h3>
+<p class="prose">Top eight by revenue, of 39. These grow their associate count, so your revenue rises while they get little from the product. Each is a renewal that dies quietly the first time somebody asks what they are paying for.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Assoc change</th><th class="num">Last staffed roster</th></tr></thead>
+  <tbody>
+    <tr class="sev-warn"><td>Express Package System Inc</td><td class="num">185</td><td class="num">$1,750</td><td class="num">+25%</td><td class="num">83d</td></tr>
+    <tr class="sev-warn"><td>Wilx Logistics</td><td class="num">126</td><td class="num">$1,613</td><td class="num">+24%</td><td class="num">none in 14</td></tr>
+    <tr class="sev-warn"><td>Clark Courier Service LLC</td><td class="num">155</td><td class="num">$1,471</td><td class="num">+8%</td><td class="num">none in 14</td></tr>
+    <tr class="sev-warn"><td>Distant Winds Logistics</td><td class="num">157</td><td class="num">$1,386</td><td class="num">+27%</td><td class="num">130d</td></tr>
+    <tr class="sev-warn"><td>Last Mile Logistics LLC</td><td class="num">140</td><td class="num">$1,316</td><td class="num">+15%</td><td class="num">288d</td></tr>
+    <tr class="sev-warn"><td>Sinaro Logistics</td><td class="num">151</td><td class="num">$1,279</td><td class="num">+5%</td><td class="num">none in 14</td></tr>
+    <tr class="sev-warn"><td>Delco Deadline Deliveries, LLC</td><td class="num">122</td><td class="num">$1,191</td><td class="num">+6%</td><td class="num">none in 14</td></tr>
+    <tr class="sev-warn"><td>Timestamp Logistics LLC</td><td class="num">119</td><td class="num">$1,159</td><td class="num">+25%</td><td class="num">none in 14</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Strategic risk: the scorecard workflow left Hera</h3>
+<p class="prose">Top eight by revenue, of 32 worth $308,819. Messaging is current but no scorecard has been uploaded in 60+ days, so performance management is happening somewhere else. This band can leave together, which makes it worth more attention than its size suggests.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Days since scorecard</th></tr></thead>
+  <tbody>
+    <tr class="sev-warn"><td>Tala Logistics</td><td class="num">132</td><td class="num">$1,164</td><td class="num">679</td></tr>
+    <tr class="sev-warn"><td>G Logistics LLC</td><td class="num">129</td><td class="num">$1,152</td><td class="num">447</td></tr>
+    <tr class="sev-warn"><td>Zuniga Logistics LLC</td><td class="num">120</td><td class="num">$1,177</td><td class="num">294</td></tr>
+    <tr class="sev-warn"><td>Cleveland Logistics Company</td><td class="num">163</td><td class="num">$1,574</td><td class="num">241</td></tr>
+    <tr class="sev-warn"><td>Town and Country Couriers</td><td class="num">197</td><td class="num">$1,648</td><td class="num">195</td></tr>
+    <tr class="sev-warn"><td>Task Force Delivery LLC</td><td class="num">135</td><td class="num">$1,468</td><td class="num">84</td></tr>
+    <tr class="sev-warn"><td>Delivering Delights</td><td class="num">132</td><td class="num">$1,151</td><td class="num">76</td></tr>
+    <tr class="sev-warn"><td>Bruiser Trucking LLC</td><td class="num">129</td><td class="num">$1,033</td><td class="num">76</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Explicitly not problems</h2>
+
+<div class="callout">
+  <p><strong>13 roster cleanups.</strong> Their associate count fell, but the drop is concentrated on a single day, which is a customer tidying stale records rather than losing drivers. Billing corrected itself. Running a save play here would confuse the customer.</p>
+  <p><strong>30 contraction accounts, $256,785.</strong> Losing associates while fully engaged. Their operation is shrinking, which is not a CS failure. Forecast the loss rather than chasing it.</p>
+  <p><strong>14 empty-shell accounts.</strong> Half or more of their rosters are opened with no routes in them. Note that most tenants have the odd empty roster, so only the ratio means anything.</p>
+</div>
+
+<h2>Retention</h2>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Measure</th><th class="num">Result</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr class="sev-ok"><td>Addressable GRR</td><td class="num">95.0%</td><td>The 90% target set at setup is already exceeded by $110,292 and needs replacing.</td></tr>
+    <tr><td>All-causes GRR</td><td class="num">85.5%</td><td>Figure for the CEO meeting.</td></tr>
+    <tr class="sev-mute"><td>Program-closure drag</td><td class="num">10.0%</td><td>Amazon DSP closures. Not a CS outcome, report separately.</td></tr>
+    <tr class="sev-ok"><td>Expansion in surviving accounts</td><td class="num">+13.9%</td><td>With no sales motion. Billing follows headcount, so hiring lifts revenue automatically.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Thresholds, so they are auditable</h2>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Threshold</th><th>Value</th><th>Basis</th></tr></thead>
+  <tbody>
+    <tr><td>Engagement window</td><td>14 days</td><td>Absorbs weekday-only patterns and holiday weeks.</td></tr>
+    <tr><td>Roster-dark window</td><td>30 days</td><td>Only applied to tenants entitled to roster.</td></tr>
+    <tr><td>Revenue direction band</td><td>&plusmn;5% over 4 closed invoices</td><td>Provisional, confirmed as good enough for now.</td></tr>
+    <tr><td>Strategic-risk scorecard gap</td><td>60 days</td><td>Distinguishes "workflow moved out" from "missed a week".</td></tr>
+    <tr><td>Associate floor</td><td>Under 10 for 3 consecutive days</td><td>All 20 current cases have run 7+ days; the 3-day rule prevents 3 single-day false positives at no cost.</td></tr>
+    <tr><td>Messages per associate</td><td>Under 5 per 30 days</td><td>Derived from the book: 34 tenants under 1.0, 49 under 5.0, then it jumps to 9.6 at p25.</td></tr>
+    <tr><td>Cleanup detection</td><td>40% of transitions on one day, min 8 records</td><td>Heuristic. Will miss a cleanup spread over two days.</td></tr>
+    <tr><td>Empty-shell flag</td><td>50% of rosters empty, min 3 rosters</td><td>Raw counts are meaningless: 133 of 252 tenants have at least one.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>What was built</h2>
+
+<ul class="prose">
+  <li><code>analysis/tenant-engagement/lib_hera.py</code> &mdash; read-only session, table names, and every field trap centralised.</li>
+  <li><code>analysis/tenant-engagement/three_signals.py</code> &mdash; pulls all signals. 252 tenants, zero errors, about $0.03 a run.</li>
+  <li><code>analysis/tenant-engagement/classify.py</code> &mdash; two axes to one bucket. Reads the cached pull, so threshold changes re-run instantly with no API calls.</li>
+  <li><code>cs-health-weekly</code> skill &mdash; the authoritative weekly report.</li>
+  <li>Daily review Part 4 reduced to a tripwire that defers to the weekly scorer instead of classifying.</li>
+  <li><code>analysis/cs-health-baseline-2026-07/findings.md</code> &mdash; the full baseline and every rejected alternative.</li>
+</ul>
+
+<p class="note">The daily review previously specified a three-signal model but the scripts it referenced were never in the repo, so classification was re-derived by hand on every run. Those paths now resolve.</p>
+
+<h2>Corrections along the way</h2>
+
+<p class="prose">Recorded because the numbers moved a long way and the reasons matter more than the final figures.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Measure</th><th class="num">Rev 1</th><th class="num">Rev 2</th><th class="num">Final</th><th>Cause</th></tr></thead>
+  <tbody>
+    <tr><td>Total ARR</td><td class="num">$2,097,712</td><td class="num">$1,987,326</td><td class="num">$2,325,158</td><td>Rev 1 used a lifetime-average field; rev 2 used in-progress <code>Pending</code> invoices.</td></tr>
+    <tr><td>Addressable GRR</td><td class="num">85.7%</td><td class="num">77.2%</td><td class="num">95.0%</td><td>Same invoice errors, plus a formula that ignored shrinkage inside surviving accounts.</td></tr>
+    <tr><td>Book direction</td><td class="num">&mdash;</td><td class="num">-$193,298</td><td class="num">growing</td><td>Comparing a 26-day partial month against full months made every account look like it was shrinking.</td></tr>
+    <tr><td>Accounts at risk</td><td class="num">31</td><td class="num">12</td><td class="num">6</td><td>Roster cleanups, entitlement, and revenue already gone all removed false positives.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">The $9 rate was documented in <code>knowledge/billing-overview.md</code> the whole time. It was derived from invoice line items across three revisions instead, which is what caused the early revenue errors.</p>
+
+<h2>Still open</h2>
+
+<ol class="prose">
+  <li><strong>Seasonality.</strong> Every threshold comes from a mid-summer window, so a July decline cannot yet be separated from a seasonal trough. This is the one input that could move numbers.</li>
+  <li><strong>Routing and ownership per bucket.</strong> Adoption risk plausibly belongs with CSS 1 as an adoption conversation rather than with John as a save.</li>
+  <li><strong>Response times.</strong> Now answerable, since the queues are small.</li>
+  <li><strong>Billing anomalies.</strong> Philosophe LLC and Integrated Logistics bill $0 with associates and no discount label; Crucial Mile has no premium status recorded. About $17,000 a year, pending the conversation with Matthew.</li>
+  <li><strong>Trials.</strong> 67 real trials hold $722,952 of potential and nobody is working either the engaged or the unengaged half.</li>
+  <li><strong>No outcome log.</strong> Nothing records what intervention was tried or whether it worked, so no threshold here has been calibrated against a real result.</li>
+</ol>
+
+<hr>
+<p class="note">Generated from live production DynamoDB, read-only, via <code>analysis/tenant-engagement/</code>. Reproduce with <code>python3 three_signals.py --as-of 2026-07-29</code> then <code>python3 classify.py --as-of 2026-07-29</code>. Contains confidential customer data.</p>
+
+</div>
