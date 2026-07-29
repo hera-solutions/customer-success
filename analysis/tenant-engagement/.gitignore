@@ -1,0 +1,4 @@
+# Cached DynamoDB signal pulls. Reproducible by re-running three_signals.py,
+# and they contain per-tenant customer data, so they stay local.
+data/
+__pycache__/

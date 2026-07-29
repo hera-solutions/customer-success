@@ -13,22 +13,7 @@ You are running the daily production health review for Hera Solutions. There are
 
 **Part 3 — Abram's nightly wrap-up.** What JIRA tickets Abram covered in his most recent wrap-up email. Cross-reference against Part 2: surface tickets the routine expects Abram to mention but he didn't, and any place where Abram's description disagrees with current JIRA status. **Weekdays only — skipped on Saturday and Sunday because Abram does not work weekends.**
 
-**Part 4 — Tenant engagement & revenue at risk.** Three operational signals joined per paying tenant, plus the active-associate count for revenue math:
-
-1. **`last_message_sent_by_user`** — most recent `Message` row with a `senderId` (broadcast, messenger chat, roster send). A human at the tenant typed something.
-2. **`last_message_read`** — most recent `CreateMessageReadStatus` AuditLog entry. A human at the tenant opened the app and read a message.
-3. **`last_scorecard`** — most recent `CompanyScoreCard` row. The weekly operational discipline every real DSP should be hitting.
-
-These three are independent — combining them tells you *what kind* of dark a tenant is, not just *whether* they're dark. Pattern matrix on a 14-day window for messaging and scorecard:
-
-- **HEALTHY_BOTH** — messaging recent AND scorecard recent. Normal usage.
-- **MSG_ONLY** — messaging recent, scorecard ≥14 days old. They're using Hera for comms but performance work has moved elsewhere. Mammoth pattern. The MSG_ONLY subset with scorecard ≥60 days old is the strategic-risk band — these customers have actually moved scorecards out of Hera and the whole bucket could leave together.
-- **SCORECARD_ONLY** — scorecard recent, no human messaging. Often automated imports running while operators have stopped engaging. Quietly churning.
-- **BOTH_DARK** — neither recent. Strongest "they're gone" signal. Pair with active-staff count to decide between billing reconciliation (zero staff) and a recovery call (still has roster).
-
-**Revenue at risk** is computed from `active_staff × $9/month` per [billing-overview.md](../../../knowledge/billing-overview.md). Bundle plan rate is documented; Premium uses the same rate pending separate confirmation. Aggregate by pattern and surface the dollar exposure alongside the tenant list.
-
-**Operating principle:** every active customer should be opening Hera daily for some real action. A tenant that produces no message-sent, no message-read, AND no scorecard for 7+ days is a triage item regardless of what billing or LogRocket says. One Mammoth-style false positive (read-only browsing) is acceptable; missing a real engagement collapse because the script only watched one signal is not.
+**Part 4: Tenant engagement tripwire.** A cheap check for tenants that have gone dark since the last weekly scoring run. **This part does not classify tenants.** Classification is owned by the `cs-health-weekly` skill and the shared scorer at [`analysis/tenant-engagement/`](../../tenant-engagement/README.md), which has the revenue axis, the roster-cleanup check and rostering entitlement. Section D reports the weekly triage headline, flags how stale that report is, and lists anything newly dark. See Part 4 below.
 
 Save the combined report to `/Users/johnjm/bitbucket/customer-success/analysis/logrocket-error-investigation/YYYY-MM-DD-report.md`.
 
@@ -332,142 +317,68 @@ Only flag substantive disagreements, not paraphrase noise. Each row: key, Abram'
 
 ---
 
-# Part 4 — Tenant engagement & revenue at risk (Section D in the report)
+# Part 4: Tenant engagement tripwire (Section D in the report)
 
-The job: separate paying tenants into four patterns based on what kind of engagement they have, and put a monthly dollar exposure next to each one.
+**This part no longer classifies tenants.** Classification lives in one place now:
+the `cs-health-weekly` skill and the shared scorer at
+[`analysis/tenant-engagement/`](../../tenant-engagement/README.md). Two competing
+models produced contradictory answers, so the daily review keeps a cheap tripwire
+and defers anything that requires judgement.
 
-**Reference analysis:** [`analysis/tenant-engagement/2026-06-13-three-signal-engagement-and-revenue.md`](../../../analysis/tenant-engagement/2026-06-13-three-signal-engagement-and-revenue.md) — first full run with patterns and revenue framing. Reusable scripts at [`analysis/tenant-engagement/three_signals.py`](../../../analysis/tenant-engagement/three_signals.py) and [`analysis/tenant-engagement/classify.py`](../../../analysis/tenant-engagement/classify.py).
+## What the daily run does
 
-## The three engagement signals
+Read the newest weekly report in
+[`analysis/tenant-engagement/reports/`](../../tenant-engagement/reports/) and surface
+three things in Section D:
 
-1. **`last_message_sent_by_user`** — most recent `Message` row with `senderId` populated. Real human-typed content (broadcast, messenger chat, roster send).
-2. **`last_message_read`** — most recent `CreateMessageReadStatus` row in AuditLog. Confirms a Hera user opened the app and saw a message; this is the AuditLog signal that does survive when other writes don't.
-3. **`last_scorecard`** — most recent `CompanyScoreCard` row. Every operational DSP should be uploading one a week.
+1. **The triage headline from that report**, unchanged. Bucket, tenant count, ARR,
+   share. Do not recompute it.
+2. **How stale the weekly report is.** If the newest report is more than 8 days old,
+   say so at the top of Section D and recommend running `cs-health-weekly`.
+3. **New BOTH_DARK tenants since the weekly ran.** This is the tripwire, and the only
+   thing Part 4 computes itself. See below.
 
-## Why three signals, not one
+## The tripwire
 
-Each signal's absence tells you something different about *why* the tenant is dark:
+The point is to catch a tenant going dark between weekly runs, not to reclassify
+anything. Cheap check, no judgement:
 
-- Messages active + scorecards dead = doing performance management elsewhere (Mammoth pattern).
-- Scorecards uploading + no human messaging = probably automated imports while the operator has moved on.
-- Both dark = strongest "they have gone" signal regardless of what billing says.
+For each tenant listed as `HEALTHY`, `WATCH` or `STRATEGIC_RISK` in the newest weekly
+report, confirm at least one of these is within 14 days:
 
-A single-signal check on AuditLog miscalls Mammoth as 30 days dark when they were read receipts today. The three-signal model fixes that and surfaces the *category* of risk instead of one number.
+- most recent `Message` with `senderId` populated, via the `byGroupAndMessageType`
+  GSI with a `begins_with` prefix on `broadcast#`, `messenger#` or `roster#`
+- most recent `CreateMessageReadStatus` in AuditLog, via
+  `byTenantIDAndMutationName`, **paginated fully** and taking the max, because that
+  GSI's range key is `mutationName` and cannot sort by date
+- most recent `CompanyScoreCard` via `byTenantByYearWeek`
 
-## Active-staff count (the fourth dimension)
+Any tenant where all three are older than 14 days has gone dark since the weekly
+run. List those, with monthly revenue, and recommend a `cs-health-weekly` run. **Do
+not assign them a bucket** and do not describe them as CRITICAL; the weekly scorer
+decides that, because it also has the revenue axis and the roster-cleanup check that
+this tripwire deliberately skips.
 
-For each tenant, also pull `active_staff` from `Staff.byGroupStatus`. This is what we bill on. Monthly revenue at risk = `active_staff × $9` (Bundle rate; Premium assumed same pending confirmation). Pair the dollar number with the engagement pattern in the output.
+The helpers are importable rather than reimplemented:
 
-## Step 4.1 — Pull the active-billing tenant list
-
+```python
+import sys; sys.path.insert(0, 'analysis/tenant-engagement')
+import lib_hera as H
+from three_signals import signals_for
 ```
-aws dynamodb scan \
-  --profile hera-readonly --region us-east-2 \
-  --table-name Tenant-zeobggbnyva4padyiddojnmnqy-production \
-  --projection-expression "id, companyName, customerStatus, createdAt, #g" \
-  --expression-attribute-names '{"#g":"group"}' \
-  --output json
-```
 
-Filter in code to `customerStatus ∈ {"Active - Bundle", "Active - Premium", "Trial"}`. Keep `id`, `companyName`, `customerStatus`, `group`, `createdAt`.
+## Why the split
 
-**Critical:** `Tenant.group` is the foreign key into `Staff` and `AuditLog`. It can be either a slug (`acme-logistics-42`) or a UUID. Always read `group` from Tenant — never assume `Tenant.id == Staff.group`.
+The weekly scorer needs the revenue axis (active-associate trend across closed
+invoices), the roster-cleanup check, and rostering entitlement. Without all three it
+mislabels accounts: a customer who tidied a stale roster looks like churn, a customer
+without the rostering module looks disengaged, and a customer who rostered that
+morning can land in CRITICAL. None of that belongs in a daily run.
 
-## Step 4.2 — Pull engagement signals (per tenant)
+**Revenue at risk stays out of Section D entirely.** It requires closed-invoice data
+and the already-stopped-revenue adjustment, and reporting it from a daily snapshot
+overstated it before.
 
-Three signals, all needed. Use the standalone scripts under `analysis/tenant-engagement/` or replicate the logic:
-
-**4.2a — `last_message_sent_by_user` (real human action).** For each tenant, query `Message-...-production` on the `byGroupAndMessageType` GSI with `begins_with(messageType#createdAt, "broadcast#")`, ScanIndexForward=False, Limit=10. Repeat for `messenger#` and `roster#`. Exclude `userNotification#` (system-generated). Take the most recent `createdAt` across the three types where `senderId` is populated. **Critical:** use `begins_with` on the compound RANGE — querying the GSI HASH-only does not sort by date the way you'd hope; the RANGE is `messageType#createdAt` so a `begins_with` prefix lets ScanIndexForward=False sort by date within that prefix.
-
-**4.2b — `last_message_read` (human eyeballs).** For each tenant, query `AuditLog-...-production` on the `byTenantIDAndMutationName` GSI with `tenantID = :tid AND mutationName = "CreateMessageReadStatus"`. Paginate fully (project only `createdAt`, so each page is tiny). Take max `createdAt`. The GSI's RANGE is `mutationName` (not `createdAt`), so you cannot rely on ScanIndexForward — you must paginate and aggregate the max.
-
-**4.2c — `last_scorecard` (operational discipline).** Query `CompanyScoreCard-...-production` on the `byTenantByYearWeek` GSI: `tenantId = :tid`, ScanIndexForward=False, Limit=5. Take max `createdAt` across the items returned (yearWeek can be null on a few rows so don't rely on the sort order alone).
-
-Use parallel queries with a thread pool — 12 workers is fine. Whole pass takes ~3 minutes for ~275 paying tenants.
-
-**Common mistake to avoid:** earlier versions of this routine queried `AuditLog.byTenantIDAndMutationName` without sorting by date, took `Limit=1000`, then computed max(createdAt) across that arbitrary slice. For high-volume tenants this returns a date many days old (Mammoth showed as 30 days dark when read receipts were happening today). Always use the message-type-prefix trick or paginate to convergence.
-
-**LogRocket sessions are now optional.** The three signals above cover most of what LogRocket would have told us. If a future analysis needs read-only browse detection (a tenant whose owner opens the dashboard but never edits anything), add LogRocket sessions as a fourth signal — but the three above were strong enough for the first three-signal run.
-
-## Step 4.3 — Pull active-associate counts (per tenant)
-
-For each tenant, query `Staff-zeobggbnyva4padyiddojnmnqy-production` on the `byGroupStatus` GSI (HASH=group, RANGE=status):
-
-- `active_staff` = `Query(group=<tenant.group>, status="Active", Select=COUNT)`
-- `total_staff` = `Query(group=<tenant.group>, Select=COUNT)` on the `byGroup` index
-- `inactive_staff` = `total - active`
-
-`Select=COUNT` keeps the read cost minimal.
-
-## Step 4.4 — Classify by engagement pattern
-
-For each tenant, compute the four time gaps in days:
-- `days_since_msg_sent`
-- `days_since_msg_read`
-- `days_since_scorecard`
-- `days_dark` = min of the above (most recent signal)
-
-Then assign a pattern using a 14-day window:
-- `msg_recent` = `days_since_msg_sent ≤ 14` OR `days_since_msg_read ≤ 14`
-- `sc_recent` = `days_since_scorecard ≤ 14`
-
-| msg_recent | sc_recent | Pattern | Read as |
-|---|---|---|---|
-| ✓ | ✓ | **HEALTHY_BOTH** | Normal. |
-| ✓ | ✗ | **MSG_ONLY** | Comms in use, performance work moved elsewhere. Mammoth pattern. The sub-band where `days_since_scorecard ≥ 60` is the strategic-risk list — the workflow has actually left Hera. |
-| ✗ | ✓ | **SCORECARD_ONLY** | Likely automated imports running while humans have stopped engaging. Quietly churning. |
-| ✗ | ✗ | **BOTH_DARK** | Strongest "they're gone" signal. Cross with active-staff: zero staff → billing review; non-zero → recovery call. |
-
-The 14-day window catches weekday-only patterns and holiday weeks without flagging them as dark. The 60-day floor on scorecard for the strategic-risk sub-band reflects "workflow has actually moved out" rather than "they missed a week."
-
-For TRULY_DARK paying tenants (BOTH_DARK + active_staff == 0), surface them as a special row in the output: those are billing-reconciliation calls, not recovery calls.
-
-## Step 4.5 — Build the outreach list with revenue framing
-
-For each tenant compute `monthly_revenue_at_risk = active_staff × $9` (rate from [billing-overview.md](../../../knowledge/billing-overview.md); see Step 4.6 caveats about Premium).
-
-**Aggregate by pattern.** Each Section D run should produce a four-row headline table: pattern, tenant count, total active staff, total monthly revenue, share of paying MRR. This gives the meeting-ready "X% of MRR is on a flagged signal" number.
-
-**Sub-divide the lists by urgency:**
-
-| Bucket | Definition | Action |
-|---|---|---|
-| **BOTH_DARK with active_staff > 0** | Pattern = BOTH_DARK, active staff > 0 | Recovery call this week, sorted by MRR descending. |
-| **BOTH_DARK with active_staff = 0** | Pattern = BOTH_DARK, active staff = 0 | Billing reconciliation + confirm/cancel call. These are the historically-named TRULY DARK tenants. |
-| **SCORECARD_ONLY** | Pattern = SCORECARD_ONLY | Investigate whether a human is still engaged or just automation. One outreach per tenant. |
-| **MSG_ONLY with scorecard ≥ 60 days** | Pattern = MSG_ONLY AND days_since_scorecard ≥ 60 | Strategic-risk band — "what happened to your scorecard workflow?" conversation. Don't oversell, ask. |
-| **MSG_ONLY with scorecard < 60 days** | Pattern = MSG_ONLY AND days_since_scorecard < 60 | Soft flag — they may have just missed a week. Watch list. |
-
-Premium tenants in any non-HEALTHY bucket get the same personal outreach the prior version mandated, regardless of which sub-bucket they land in.
-
-## Step 4.6 — Section D output
-
-The report's Section D should contain:
-
-1. **Pattern headline table** — four rows (HEALTHY_BOTH, MSG_ONLY, SCORECARD_ONLY, BOTH_DARK), columns: tenants, active staff, monthly revenue, % of paying MRR. This is the meeting-ready summary.
-2. **BOTH_DARK list** — full table, sorted by monthly revenue descending. Columns: Company, Plan, Active staff, Days since msg sent, Days since msg read, Days since scorecard, Monthly $. Highlight the zero-staff rows (billing reconciliation vs recovery call).
-3. **SCORECARD_ONLY list** — full table, same columns. Usually short (~10 tenants).
-4. **MSG_ONLY with scorecard ≥ 60 days** — top 20 by monthly revenue + a count + total $ summary line for the rest. This is the strategic-risk band.
-5. **Premium-tier callout** — every Premium tenant outside HEALTHY_BOTH, with which bucket they're in. Premium is small and high-value; the whole tier should be visible at a glance.
-6. **Patterns and reading** — sub-tenant station-code artifacts (`DKY4`/`HSA1`), pilot-program tenants going dark, anything new vs the prior run.
-7. **Recommended next steps** — segmented by pattern and revenue weight.
-8. **Caveats** — Premium pricing assumption, snapshot vs averaged active staff, Zoho discounts not applied, the 14-day and 60-day window choices.
-
-**Standard columns for tenant tables in Section D:**
-
-| Column | Meaning |
-|---|---|
-| Company | Tenant display name. |
-| Plan | Bundle / Premium. |
-| Active staff | Current count of Staff records with status = "Active". This is what we bill on. |
-| Days since msg sent | Days since most recent user-sent message (broadcast/messenger/roster with `senderId`). |
-| Days since msg read | Days since most recent `CreateMessageReadStatus` AuditLog entry. |
-| Days since scorecard | Days since most recent `CompanyScoreCard` row. |
-| Monthly $ | `active_staff × $9`. Treat as a ceiling — actual billing reflects average active days through the month. |
-
-If any signal lookup fails for a tenant, mark that column `n/a` and continue. Do not silently drop the tenant from the report.
-
----
 
 # Step 4 — Write the report
 
@@ -570,48 +481,46 @@ Flag types: **NEEDS PRIORITY**, **NEEDS ASSIGNEE**, **FLOATING ISSUE**, **QA BAC
 
 ---
 
-## Section D — Tenant activity health (cross-classified)
+## Section D: Tenant engagement tripwire
 
 ### Method
 
-For each Active-billing tenant (Active - Bundle, Active - Premium, Trial), join two signals:
-- **In-app activity** — any AuditLog mutation in the last 24h (writes only; pure-read traffic isn't logged here)
-- **Active associates** — current count of `Staff` records with `status = "Active"`
+Read the newest report in [`analysis/tenant-engagement/reports/`](../../tenant-engagement/reports/).
+Do not recompute the classification: that is the `cs-health-weekly` skill's job.
 
-Cross-classify into HEALTHY / DARK_BUT_BILLABLE / ZERO_STAFF_BUT_LOGGING_IN / TRULY_DARK.
+1. Reproduce its triage table verbatim (bucket, tenants, ARR, share).
+2. State the report date. **If it is more than 8 days old, say so here and recommend
+   running `cs-health-weekly`.**
+3. Run the tripwire from Part 4 and list any tenant that has gone dark since.
 
-### Quadrant matrix
+### Triage headline (from the weekly report)
 
-| Billing status | Total | Healthy | Dark but billable | Zero staff, still logging in | Truly dark |
-|---|---|---|---|---|---|
+| Bucket | Tenants | ARR | Share |
+|---|---|---|---|
 
-### TRULY_DARK paying tenants — billing review + recovery call
+Carry the weekly report's numbers straight across. Add one line naming the report file.
 
-| Company | Billing status | Active staff | Total staff | Last in-app activity | Note |
-|---|---|---|---|---|---|
+### Newly dark since the weekly run
 
-### DARK_BUT_BILLABLE Premium tenants — personal outreach today
+| Account | Monthly | Days since msg sent | Days since msg read | Days since scorecard |
+|---|---|---|---|---|
 
-| Company | Active staff | Last in-app activity |
-|---|---|---|
+Tenants previously `HEALTHY`, `WATCH` or `STRATEGIC_RISK` whose three engagement
+signals are now all older than 14 days. **Do not assign a bucket and do not call them
+CRITICAL.** State that a `cs-health-weekly` run is needed to classify them, because
+the tripwire has no revenue axis and no roster-cleanup check.
 
-### DARK_BUT_BILLABLE Bundle tenants silent 7+ days — CSM check-in sweep
+If none: "None. No tenant has gone dark since the weekly run."
 
-| Company | Active staff | Last in-app activity |
-|---|---|---|
+### What not to put here
 
-### Zero staff but still logging in — recovery candidates
+- **No revenue-at-risk figure.** It needs closed-invoice data and the
+  already-stopped-revenue adjustment. Reporting it from a daily snapshot overstated
+  it before.
+- **No bucket assignments** beyond what the weekly report already said.
+- **No save recommendations.** Adoption risk and business contraction need different
+  handling, and only the weekly scorer distinguishes them.
 
-| Company | Billing status | Last in-app activity |
-|---|---|---|
-
-### Patterns and reading
-
-[Call out station-code sub-tenants, Premium anomalies, pilot tenants, etc.]
-
-### Recommended next steps
-
-[Segmented by quadrant.]
 
 ## Day-over-day delta
 
@@ -631,7 +540,7 @@ After writing the file, post a short summary in the chat (~15 lines max):
 - Any **CLOSE-IN-INTERCOM** trackers (one click each)
 - Any **ESCALATE** trackers (high customer impact, no movement)
 - Any **Section C watch items** — NEEDS PRIORITY / NEEDS ASSIGNEE / FLOATING ISSUE / HELP NEEDED. These are concrete asks coming out of Abram's wrap-up.
-- **Section D outreach asks** — TRULY_DARK paying tenants (billing review + recovery call), DARK_BUT_BILLABLE Premium tenants (personal outreach today), any ZERO_STAFF_BUT_LOGGING_IN tenants.
+- **Section D asks**: any tenant newly dark since the weekly run, plus a prompt to run `cs-health-weekly` if its report is over 8 days old. Bucket-level actions come from the weekly report, not from here.
 - Anything new today vs yesterday
 
 Detail lives in the file.
