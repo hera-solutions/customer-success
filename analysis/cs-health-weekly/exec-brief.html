@@ -1,0 +1,323 @@
+<title>Customer Success: Where We Are</title>
+
+<style>
+  :root {
+    --blue: #0067bc; --blue-dark: #00509a; --blue-light: #e8f2fb; --pink: #f9d2d9;
+    --red: #c0392b; --red-light: #fdecea; --amber: #e67e22; --amber-light: #fef9f0;
+    --green: #1a7a3c; --green-light: #edf7f1;
+    --grey-light: #f7f8fa; --grey-mid: #e2e6ea; --grey-dark: #6c757d; --ink: #1c2b3a;
+    --bg: #ffffff; --surface: var(--grey-light); --rule: var(--grey-mid);
+    --text: var(--ink); --muted: var(--grey-dark); --accent: var(--blue);
+    --accent-soft: var(--blue-light);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e161f; --surface: #16212c; --rule: #2b3a49; --text: #e8eef4;
+      --muted: #94a4b5; --accent: #55a8ea; --accent-soft: #16293b;
+      --red: #f2796b; --red-light: #2e1a18; --amber: #f2a54c; --amber-light: #2e2418;
+      --green: #5fc78a; --green-light: #15291f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e161f; --surface: #16212c; --rule: #2b3a49; --text: #e8eef4;
+    --muted: #94a4b5; --accent: #55a8ea; --accent-soft: #16293b;
+    --red: #f2796b; --red-light: #2e1a18; --amber: #f2a54c; --amber-light: #2e2418;
+    --green: #5fc78a; --green-light: #15291f;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --surface: #f7f8fa; --rule: #e2e6ea; --text: #1c2b3a;
+    --muted: #6c757d; --accent: #0067bc; --accent-soft: #e8f2fb;
+    --red: #c0392b; --red-light: #fdecea; --amber: #e67e22; --amber-light: #fef9f0;
+    --green: #1a7a3c; --green-light: #edf7f1;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Aglet Slab", Rockwell, "Roboto Slab", Bitter, ui-serif, Georgia, serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+
+  section {
+    min-height: 100vh; scroll-snap-align: start;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 4.5rem 1.5rem 5rem; border-bottom: 1px solid var(--rule);
+  }
+  .inner { max-width: 980px; margin: 0 auto; width: 100%; }
+
+  .eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 1rem;
+  }
+  h1 { font-size: clamp(2.1rem, 6vw, 4rem); line-height: 1.05; margin: 0 0 1.2rem; font-weight: 700; text-wrap: balance; }
+  h2 { font-size: clamp(1.5rem, 3.6vw, 2.3rem); line-height: 1.15; margin: 0 0 1.2rem; font-weight: 700; text-wrap: balance; }
+  p { font-size: clamp(1rem, 1.6vw, 1.15rem); margin: 0.8rem 0; max-width: 62ch; }
+  p.lead { font-size: clamp(1.1rem, 2vw, 1.35rem); color: var(--muted); max-width: 58ch; }
+  strong { font-weight: 700; }
+
+  .big { font-size: clamp(3rem, 11vw, 7rem); line-height: 0.95; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .big.good { color: var(--green); }
+  .big.bad { color: var(--red); }
+  .big.warn { color: var(--amber); }
+  .cap { font-size: 0.75rem; letter-spacing: 0.11em; text-transform: uppercase; color: var(--muted); margin-top: 0.5rem; }
+
+  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 2.5rem 2rem; margin: 2.5rem 0 1rem; }
+  .stat .n { font-size: clamp(2.1rem, 4.6vw, 3.2rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; display: block; }
+  .stat .l { font-size: 0.78rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 0.55rem; display: block; }
+  .stat .d { font-size: 0.95rem; color: var(--text); margin-top: 0.6rem; }
+  .stat.good .n { color: var(--green); }
+  .stat.bad .n { color: var(--red); }
+  .stat.warn .n { color: var(--amber); }
+
+  .bar { display: flex; height: 2.6rem; margin: 2rem 0 0.6rem; border: 1px solid var(--rule); overflow: hidden; }
+  .bar div { display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #fff; }
+  .legend { display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: 0.83rem; color: var(--muted); }
+  .legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.4rem; vertical-align: baseline; }
+
+  .scroll { overflow-x: auto; margin: 1.6rem 0; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--rule); }
+  th { background: var(--surface); font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 700; white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .box { border-left: 5px solid var(--accent); background: var(--accent-soft); padding: 1.1rem 1.3rem; margin: 1.6rem 0; }
+  .box.red { border-color: var(--red); background: var(--red-light); }
+  .box.green { border-color: var(--green); background: var(--green-light); }
+  .box.amber { border-color: var(--amber); background: var(--amber-light); }
+  .box p { margin: 0.45rem 0; max-width: 66ch; }
+  .box p:first-child { margin-top: 0; } .box p:last-child { margin-bottom: 0; }
+
+  ol.asks { counter-reset: a; list-style: none; padding: 0; margin: 1.8rem 0 0; }
+  ol.asks li { counter-increment: a; position: relative; padding-left: 3.1rem; margin: 1.5rem 0; max-width: 66ch; }
+  ol.asks li::before {
+    content: counter(a); position: absolute; left: 0; top: -0.1rem;
+    width: 2.2rem; height: 2.2rem; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.asks .q { font-weight: 700; display: block; margin-bottom: 0.2rem; font-size: 1.05rem; }
+
+  nav.dots { position: fixed; right: 1rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.55rem; z-index: 10; }
+  nav.dots a { width: 9px; height: 9px; border-radius: 50%; background: var(--rule); display: block; }
+  nav.dots a:hover, nav.dots a:focus-visible { background: var(--accent); }
+  @media (max-width: 720px) { nav.dots { display: none; } }
+
+  .foot { font-size: 0.83rem; color: var(--muted); margin-top: 2.2rem; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+
+<nav class="dots" aria-label="Slides">
+  <a href="#s1" aria-label="Slide 1"></a><a href="#s2" aria-label="Slide 2"></a>
+  <a href="#s3" aria-label="Slide 3"></a><a href="#s4" aria-label="Slide 4"></a>
+  <a href="#s5" aria-label="Slide 5"></a><a href="#s6" aria-label="Slide 6"></a>
+  <a href="#s7" aria-label="Slide 7"></a><a href="#s8" aria-label="Slide 8"></a>
+  <a href="#s9" aria-label="Slide 9"></a><a href="#s10" aria-label="Slide 10"></a>
+</nav>
+
+<section id="s1"><div class="inner">
+  <p class="eyebrow">Hera Solutions &middot; 29 July 2026</p>
+  <h1>Customer Success:<br>where we are</h1>
+  <p class="lead">We now measure every paying customer against live product data. This is what it shows, and the five decisions I need from you.</p>
+  <p class="foot">245 customers &middot; $2.33M ARR &middot; 22,720 active associates &middot; scored weekly</p>
+</div></section>
+
+<section id="s2"><div class="inner">
+  <p class="eyebrow">The headline</p>
+  <h2>The book is healthier than we assumed, and the risk is not churn</h2>
+  <div class="three">
+    <div class="stat good">
+      <span class="n">95%</span><span class="l">Addressable retention</span>
+      <span class="d">Of revenue we could actually influence, we kept 95%. Our 90% target is already beaten.</span>
+    </div>
+    <div class="stat good">
+      <span class="n">+13.9%</span><span class="l">Growth in existing accounts</span>
+      <span class="d">Surviving customers grew on their own, with no sales motion at all.</span>
+    </div>
+    <div class="stat warn">
+      <span class="n">$721K</span><span class="l">Paying but not using it</span>
+      <span class="d">31% of ARR from customers who pay every month and get little from the product.</span>
+    </div>
+  </div>
+  <div class="box green">
+    <p><strong>The story is not that customers are leaving.</strong> It is that a third of our revenue comes from customers who are not using what they pay for, and that is the renewal risk nobody was watching.</p>
+  </div>
+</div></section>
+
+<section id="s3"><div class="inner">
+  <p class="eyebrow">What we learned about the business</p>
+  <h2>Our revenue grows when our customers hire</h2>
+  <p>Billing is <strong>$9 per active associate per month</strong>, charged daily and invoiced a month behind. Associate count explains <strong>96%</strong> of what a customer pays.</p>
+  <p>That means when a DSP adds drivers, our revenue rises automatically. It is why existing accounts grew 13.9% with nobody selling to them.</p>
+  <div class="box">
+    <p><strong>The flip side.</strong> We have almost no pricing lever inside an account. Only 4 of 249 customers pay any flat fee. Our revenue is a pass-through on a headcount base we do not control.</p>
+    <p>The only way to raise revenue per associate is to sell something not priced per associate. <strong>HeraAi is on 13% of accounts.</strong> That is the one real expansion lever we have.</p>
+  </div>
+</div></section>
+
+<section id="s4"><div class="inner">
+  <p class="eyebrow">Retention, reframed</p>
+  <h2>Two fifths of our churn is Amazon, not us</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Measure</th><th class="num">Result</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td>All-causes retention</td><td class="num">85.5%</td><td>Total revenue kept from customers we had a year ago.</td></tr>
+      <tr><td><strong>Addressable retention</strong></td><td class="num"><strong>95.0%</strong></td><td>Excluding customers whose businesses closed. This is what the team can influence.</td></tr>
+      <tr><td>Amazon DSP closures</td><td class="num">10.0%</td><td>Customers who lost their Amazon contract or shut down. Not a CS outcome.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>41% of all churn in our history is the Amazon DSP program contracting</strong>, not customers choosing to leave us. We should forecast that, not staff against it.</p>
+  <div class="box amber">
+    <p><strong>The target needs replacing.</strong> The 90% goal I set is already exceeded by $110,292. I would rather set something with room in it than report a win against a stale number.</p>
+  </div>
+</div></section>
+
+<section id="s5"><div class="inner">
+  <p class="eyebrow">Where the risk actually is</p>
+  <h2>$721K pays us and barely uses us</h2>
+  <div class="bar">
+    <div style="width:51.3%;background:var(--green)">Healthy 51%</div>
+    <div style="width:17.7%;background:var(--amber)">Adoption 18%</div>
+    <div style="width:13.3%;background:var(--blue-dark)">Strategic 13%</div>
+    <div style="width:11.0%;background:var(--grey-dark)">Contracting 11%</div>
+    <div style="width:6.7%;background:var(--red)">Other 7%</div>
+  </div>
+  <div class="legend">
+    <span style="--c:1"><b style="color:var(--green)">&#9632;</b> Healthy, no flags</span>
+    <span><b style="color:var(--amber)">&#9632;</b> Adoption risk, $412K</span>
+    <span><b style="color:var(--blue-dark)">&#9632;</b> Strategic risk, $309K</span>
+    <span><b style="color:var(--grey-dark)">&#9632;</b> Business contracting, $257K</span>
+    <span><b style="color:var(--red)">&#9632;</b> Critical, $55K</span>
+  </div>
+  <div class="three" style="margin-top:2.4rem">
+    <div class="stat warn"><span class="n">39</span><span class="l">Adoption risk &middot; $412K</span>
+      <span class="d">Growing their headcount, paying us more each month, not using the core workflow. One is up 25% and has not built a roster in 83 days.</span></div>
+    <div class="stat warn"><span class="n">32</span><span class="l">Strategic risk &middot; $309K</span>
+      <span class="d">Still messaging, but no Amazon scorecard uploaded in 60+ days. Performance management has moved out of Hera. This band could leave together.</span></div>
+    <div class="stat bad"><span class="n">6</span><span class="l">Critical &middot; $55K</span>
+      <span class="d">Declining and disengaged. Small, and a real work queue rather than a wall of names.</span></div>
+  </div>
+</div></section>
+
+<section id="s6"><div class="inner">
+  <p class="eyebrow">Two numbers to be careful with</p>
+  <h2>Some of what looks at risk is already gone</h2>
+  <div class="three">
+    <div class="stat bad"><span class="n">$53,510</span><span class="l">Already stopped</span>
+      <span class="d">Six customers are already below 10 active associates. Their next invoice is near zero. This is not recoverable and I will not report it as at risk.</span></div>
+    <div class="stat"><span class="n">13</span><span class="l">Not actually problems</span>
+      <span class="d">Their associate count fell because they tidied stale records after our reminder, not because they lost drivers. Billing corrected itself.</span></div>
+  </div>
+  <div class="box">
+    <p><strong>Why this matters for how we talk about numbers.</strong> Both of these would have shown up as churn risk in a simpler report. Separating them is the difference between a credible number and an alarming one.</p>
+  </div>
+</div></section>
+
+<section id="s7"><div class="inner">
+  <p class="eyebrow">The opportunity nobody is working</p>
+  <h2>Our trial pipeline is the same size as our adoption risk</h2>
+  <div class="three">
+    <div class="stat good"><span class="n">$723K</span><span class="l">Trial pipeline at $9</span>
+      <span class="d">67 real trials holding 6,694 associates between them.</span></div>
+    <div class="stat"><span class="n">26</span><span class="l">Engaged trials &middot; $273K</span>
+      <span class="d">Rostering and messaging now. These are live conversion candidates.</span></div>
+    <div class="stat warn"><span class="n">41</span><span class="l">Cold trials &middot; $450K</span>
+      <span class="d">Never rostered, or dark for months. One has 283 associates and last built a roster 279 days ago.</span></div>
+  </div>
+  <div class="box green">
+    <p><strong>Nobody owns the trial funnel today.</strong> At $9 per associate against a typical 89-associate customer, one conversion is worth about $9,600 a year. The cold half alone is worth more than every at-risk account combined.</p>
+  </div>
+</div></section>
+
+<section id="s8"><div class="inner">
+  <p class="eyebrow">Pricing</p>
+  <h2>We bill $222K a year below list, and mostly on purpose</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Category</th><th class="num">Per year</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Named discount programs (Veteran, DeliverRe, Customer Service, and others)</td><td class="num">$140,250</td><td>Deliberate</td></tr>
+      <tr><td>Discounts applied to the base rate rather than as a percentage</td><td class="num">$43,105</td><td>Deliberate, but invisible to a normal discount report</td></tr>
+      <tr><td>Grandfathered module pricing, 9 customers still on $5 to $7</td><td class="num">$29,283</td><td>Working as configured</td></tr>
+      <tr><td><strong>No explanation on record</strong></td><td class="num"><strong>$17,029</strong></td><td><strong>Needs a decision</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="box amber">
+    <p><strong>Three accounts to resolve.</strong> Philosophe LLC and Integrated Logistics Solutions each bill $0 while carrying 70+ associates, with no discount label. Crucial Mile has no pricing tier recorded at all and carries 175 associates.</p>
+    <p>Separately, <strong>eight accounts are comped entirely</strong>, worth $109,498 a year. MBB is intentional and earns it through internal support. The other seven I would like to confirm with you.</p>
+  </div>
+</div></section>
+
+<section id="s9"><div class="inner">
+  <p class="eyebrow">Capacity reality</p>
+  <h2>245 customers, roughly one and a half owners</h2>
+  <div class="three">
+    <div class="stat"><span class="n">245</span><span class="l">Customers</span>
+      <span class="d">Plus 67 trials nobody is working.</span></div>
+    <div class="stat warn"><span class="n">1.5</span><span class="l">Effective account owners</span>
+      <span class="d">I carry the whole book. One CSS is building toward an owned book. The other is reactive support and your assistant.</span></div>
+    <div class="stat"><span class="n">71</span><span class="l">Accounts needing attention</span>
+      <span class="d">Critical, adoption risk and strategic risk combined. Every one is a conversation somebody has to have.</span></div>
+  </div>
+  <p>This is workable because the model tells us which 71 to touch instead of all 245. It is not workable if we also want the trial funnel covered.</p>
+</div></section>
+
+<section id="s10"><div class="inner">
+  <p class="eyebrow">What I need from you</p>
+  <h2>Five decisions</h2>
+  <ol class="asks">
+    <li><span class="q">Replace the retention target.</span> We are at 95% addressable. I suggest 96 to 97%, or moving the goal to the trial funnel where there is real room.</li>
+    <li><span class="q">Resolve the three unexplained billing accounts.</span> About $17,000 a year. I need to know whether they are intentional before I touch them.</li>
+    <li><span class="q">Confirm the seven other comped accounts.</span> $109,498 a year total including MBB, which I understand and agree with.</li>
+    <li><span class="q">Decide whether we work the trial funnel.</span> $723K of pipeline, currently nobody's job. If yes, it needs an owner and it competes with the 71 at-risk accounts.</li>
+    <li><span class="q">Decide on the legacy pricing migration.</span> Nine customers are still on $5 to $7 module pricing. Moving them to $9 is fair but "cost savings" is already 10% of our churn, so it should be sequenced deliberately.</li>
+  </ol>
+</div></section>
+
+<section id="s11"><div class="inner">
+  <p class="eyebrow">Next steps</p>
+  <h2>What happens without needing a decision</h2>
+  <p>These are already underway or ready to run.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Step</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Weekly scoring</strong></td><td>Runs now, manually, and takes minutes. Every customer scored against live data for about three cents a run.</td></tr>
+      <tr><td><strong>Work the 6 critical accounts</strong></td><td>Small enough to work this week.</td></tr>
+      <tr><td><strong>Adoption conversations</strong></td><td>Starting with the largest adoption-risk accounts. These are growing customers, so the conversation is about value, not rescue.</td></tr>
+      <tr><td><strong>Ask the strategic-risk band what happened</strong></td><td>32 customers stopped uploading scorecards. We should find out why before assuming.</td></tr>
+      <tr><td><strong>Seasonality check</strong></td><td>Every threshold comes from a July snapshot. Once I have peak-season context, I can tell a real decline from a summer dip.</td></tr>
+      <tr><td><strong>Onboarding measurement</strong></td><td>29% of churn happens in the first year. That window is the next thing to instrument.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="box">
+    <p><strong>What I would flag as the honest gap.</strong> Nothing yet records what we tried on an account and whether it worked. Until that exists, these thresholds are informed judgement rather than proven predictors. Six months of logged outcomes turns this from a good model into a calibrated one.</p>
+  </div>
+  <p class="foot">Scored from live production data, read-only. Full detail and every threshold: <code>analysis/cs-health-baseline-2026-07/findings.md</code>. Contains confidential customer data.</p>
+</div></section>
+
+<script>
+  document.addEventListener("keydown", function (e) {
+    var secs = Array.prototype.slice.call(document.querySelectorAll("section"));
+    if (["ArrowDown", "PageDown", "ArrowRight", " "].indexOf(e.key) === -1 &&
+        ["ArrowUp", "PageUp", "ArrowLeft"].indexOf(e.key) === -1) return;
+    var fwd = ["ArrowDown", "PageDown", "ArrowRight", " "].indexOf(e.key) !== -1;
+    var mid = window.innerHeight / 2;
+    var cur = 0;
+    secs.forEach(function (s, i) {
+      var r = s.getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) cur = i;
+    });
+    var next = Math.max(0, Math.min(secs.length - 1, cur + (fwd ? 1 : -1)));
+    secs[next].scrollIntoView({ behavior: "smooth", block: "start" });
+    e.preventDefault();
+  });
+</script>
