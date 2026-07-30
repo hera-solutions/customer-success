@@ -49,13 +49,19 @@ Thumbs.db
 *.wmv
 
 # Claude Code local settings
-.claude/
 
 # macOS
 .DS_Store
 
 # Claude Code working files
-.claude/
 
 # Third-party plugin repos cloned for /install
 plugins/
+
+# Claude Code working files. Session logs are the deliberate exception: the
+# convention in knowledge/session-logging-prompt-for-code-repos.md stores them in
+# .claude/sessions/ and they are meant to be committed and searchable.
+# Note: git cannot re-include a path inside an excluded DIRECTORY, so this must
+# exclude the contents (.claude/*) rather than the directory (.claude/).
+.claude/*
+!.claude/sessions/
