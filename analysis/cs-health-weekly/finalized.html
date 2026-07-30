@@ -138,12 +138,16 @@
   <p class="sub">As of 30 July 2026. Scored from live production data, 248 paying tenants. Model, thresholds and code are committed and repeatable. Five measurement bugs were found and fixed on 30 July; 18 of 18 consistency checks now pass.</p>
 </header>
 
+<div class="callout">
+  <p><strong>All dollar figures on this page are monthly revenue, not annualised.</strong> Hera bills month to month with no contract, so a customer can leave at the end of any month. Annualising would imply a commitment that does not exist. Multiply by 12 for a yearly view.</p>
+</div>
+
 <div class="kpis">
   <div class="kpi"><span class="n">241</span><span class="l">Customers</span></div>
-  <div class="kpi"><span class="n">$2.32M</span><span class="l">ARR</span></div>
+  <div class="kpi"><span class="n">$193,080</span><span class="l">Monthly revenue</span></div>
   <div class="kpi"><span class="n">22,638</span><span class="l">Active associates</span></div>
   <div class="kpi crit"><span class="n">5</span><span class="l">Critical accounts</span></div>
-  <div class="kpi warn"><span class="n">$53,510</span><span class="l">Revenue already gone</span></div>
+  <div class="kpi warn"><span class="n">$4,459</span><span class="l">Monthly revenue already gone</span></div>
 </div>
 
 <h2>What was finalized</h2>
@@ -154,7 +158,7 @@
   <tbody>
     <tr><td><strong>Billing model</strong></td><td>$9.00 per active associate per month, charged $0.30/associate/day, billed one month in arrears. Verified against invoice line items and <code>knowledge/billing-overview.md</code>.</td></tr>
     <tr><td><strong>Health model</strong></td><td>Two independent axes, never a single blended score. Engagement and revenue direction are measured separately.</td></tr>
-    <tr><td><strong>Segmentation axis</strong></td><td>Engagement state, explicitly <em>not</em> ARR. Largest account is 3.8x the median, so revenue tiers would behave identically.</td></tr>
+    <tr><td><strong>Segmentation axis</strong></td><td>Engagement state, explicitly <em>not</em> revenue size. The largest customer pays only about 3x the middle one, so revenue tiers would behave identically.</td></tr>
     <tr><td><strong>Customer count</strong></td><td>241 customers across 248 tenants. Seven customers run secondary sites that appear as separate tenants.</td></tr>
     <tr><td><strong>Scoring cadence</strong></td><td>Manual weekly for now, via the <code>cs-health-weekly</code> skill. Automatable later with no VPN dependency.</td></tr>
     <tr><td><strong>Data source</strong></td><td>DynamoDB only. The five tables the model depends most on are not synced to the RDS mirror, and the mirror has drifted silently before.</td></tr>
@@ -175,17 +179,17 @@
 
 <div class="scroll">
 <table>
-  <thead><tr><th>Bucket</th><th class="num">Tenants</th><th class="num">ARR</th><th class="num">Share</th><th>Action</th></tr></thead>
+  <thead><tr><th>Bucket</th><th class="num">Tenants</th><th class="num">Monthly</th><th class="num">Share</th><th>Action</th></tr></thead>
   <tbody>
-    <tr class="sev-crit"><td><span class="chip crit">CRITICAL</span></td><td class="num">5</td><td class="num">$45,979</td><td class="num">2.0%</td><td>Declining and disengaged. Work first.</td></tr>
-    <tr class="sev-warn"><td><span class="chip warn">ADOPTION RISK</span></td><td class="num">27</td><td class="num">$290,937</td><td class="num">12.6%</td><td>Paying, not declining, not using the core workflow. Adoption conversation, never a save.</td></tr>
-    <tr class="sev-warn"><td><span class="chip warn">STRATEGIC RISK</span></td><td class="num">35</td><td class="num">$339,211</td><td class="num">14.6%</td><td>Comms current, no scorecard in 60+ days. The workflow left Hera. Ask, do not sell.</td></tr>
+    <tr class="sev-crit"><td><span class="chip crit">CRITICAL</span></td><td class="num">5</td><td class="num">$3,832</td><td class="num">2.0%</td><td>Declining and disengaged. Work first.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">ADOPTION RISK</span></td><td class="num">27</td><td class="num">$24,245</td><td class="num">12.6%</td><td>Paying, not declining, not using the core workflow. Adoption conversation, never a save.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">STRATEGIC RISK</span></td><td class="num">35</td><td class="num">$28,268</td><td class="num">14.6%</td><td>Comms current, no scorecard in 60+ days. The workflow left Hera. Ask, do not sell.</td></tr>
     <tr class="sev-crit"><td><span class="chip crit">BILLING RECONCILIATION</span></td><td class="num">2</td><td class="num">$0</td><td class="num">0.0%</td><td>Dark with zero associates. Confirm or cancel.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">CONTRACTION</span></td><td class="num">31</td><td class="num">$266,224</td><td class="num">11.5%</td><td>Declining but engaged. Their operation is shrinking. Forecast, do not chase.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">WATCH</span></td><td class="num">3</td><td class="num">$32,209</td><td class="num">1.4%</td><td>One soft signal. Review next week.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">DATA HYGIENE</span></td><td class="num">10</td><td class="num">$28,886</td><td class="num">1.2%</td><td>Associate drop is a bulk roster cleanup. Billing self-corrected. No action.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">NOT ENTITLED</span></td><td class="num">5</td><td class="num">$21,635</td><td class="num">0.9%</td><td>No rostering module. Score on coaching and scorecard only.</td></tr>
-    <tr class="sev-ok"><td><span class="chip ok">HEALTHY</span></td><td class="num">131</td><td class="num">$1,291,876</td><td class="num">55.8%</td><td>No flags.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">CONTRACTION</span></td><td class="num">31</td><td class="num">$22,185</td><td class="num">11.5%</td><td>Declining but engaged. Their operation is shrinking. Forecast, do not chase.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">WATCH</span></td><td class="num">3</td><td class="num">$2,684</td><td class="num">1.4%</td><td>One soft signal. Review next week.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">DATA HYGIENE</span></td><td class="num">10</td><td class="num">$2,407</td><td class="num">1.2%</td><td>Associate drop is a bulk roster cleanup. Billing self-corrected. No action.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">NOT ENTITLED</span></td><td class="num">5</td><td class="num">$1,803</td><td class="num">0.9%</td><td>No rostering module. Score on coaching and scorecard only.</td></tr>
+    <tr class="sev-ok"><td><span class="chip ok">HEALTHY</span></td><td class="num">131</td><td class="num">$107,656</td><td class="num">55.8%</td><td>No flags.</td></tr>
   </tbody>
 </table>
 </div>
@@ -225,12 +229,12 @@
 </div>
 
 <div class="callout red">
-  <p><strong>Revenue that has already stopped, not at risk: $53,510 a year.</strong></p>
+  <p><strong>Revenue that has already stopped, not at risk: $4,459 a month.</strong></p>
   <p>Six accounts are under 10 active associates now but their last closed invoice was over $100. Their next invoice will be near zero. Presenting this as recoverable ARR overstates what any save could return.</p>
 </div>
 
 <div class="callout red">
-  <p><strong>Billed and not collected: $4,449 a month, $53,388 a year.</strong></p>
+  <p><strong>Billed and not collected: $4,449 a month.</strong></p>
   <p>JDW Logistics, the largest account at 338 associates, has had its last three invoices written off. PacTrack has two consecutive failed Stripe payments and Pure Logistics one. All three are otherwise active, engaged customers.</p>
 </div>
 
@@ -272,7 +276,7 @@
 </div>
 
 <h3>Strategic risk: the scorecard workflow left Hera</h3>
-<p class="prose">Top 12 by revenue, of 35 worth $339,211. Messaging is current but no scorecard in 60+ days, so performance management is happening elsewhere. This band can leave together.</p>
+<p class="prose">Top 12 by revenue, of 35 worth $28,268 a month. Messaging is current but no scorecard in 60+ days, so performance management is happening elsewhere. This band can leave together.</p>
 <div class="scroll">
 <table>
   <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Days since scorecard</th></tr></thead>
@@ -357,7 +361,7 @@
 <table>
   <thead><tr><th>Measure</th><th class="num">Rev 1</th><th class="num">Rev 2</th><th class="num">Final</th><th>Cause</th></tr></thead>
   <tbody>
-    <tr><td>Total ARR</td><td class="num">$2,097,712</td><td class="num">$1,987,326</td><td class="num">$2,316,957</td><td>Rev 1 used a lifetime-average field; rev 2 used in-progress <code>Pending</code> invoices.</td></tr>
+    <tr><td>Monthly revenue</td><td class="num">$174,809</td><td class="num">$165,611</td><td class="num">$193,080</td><td>Rev 1 used a lifetime-average field; rev 2 used in-progress <code>Pending</code> invoices. All figures now monthly.</td></tr>
     <tr><td>Addressable GRR</td><td class="num">85.7%</td><td class="num">77.2%</td><td class="num">95.8%</td><td>Same invoice errors, plus a formula that ignored shrinkage inside surviving accounts.</td></tr>
     <tr><td>Book direction</td><td class="num">not measured</td><td class="num">-$193,298</td><td class="num">growing</td><td>Comparing a 26-day partial month against full months made every account look like it was shrinking.</td></tr>
   </tbody>
@@ -373,7 +377,7 @@
     <tr class="sev-crit"><td><strong>Message search swamped by automated sends</strong></td><td>Roster and coaching messages are delivered per associate and carry no sender. A tenant with 100 associates emits 100+ sender-less rows a minute, pushing the human-sent message out of any fixed page. <strong>59 of 252 tenants read as darker than they were, 14 by a week or more.</strong> One read as 1,205 days dark while messaging that same day.</td><td>Search back by time across all types, stop at the first human send, and flag truncation rather than silently reporting dark.</td></tr>
     <tr class="sev-crit"><td><strong>Roster scan consumed by future planning</strong></td><td>Tenants plan weeks ahead, so their newest rosters are future-dated shells with no routes yet. The scan cap ran out before reaching real work. <strong>23 tenants showed no staffed roster; 6 had staffed one within three days</strong>, three of them that same day.</td><td>Only consider rosters dated today or earlier, and raise the cap.</td></tr>
     <tr class="sev-warn"><td><strong>Uncollected revenue counted as ARR</strong></td><td>Only <code>Pending</code> was excluded, so <code>Written Off</code> and <code>Payment Error</code> invoices counted as collected.</td><td>Revenue comes from <code>Paid</code> invoices only. Delinquency is now its own flag.</td></tr>
-    <tr class="sev-crit"><td><strong>Twelve-month churn understated by half</strong></td><td>Each account's final invoice is often a partial stub for the few days before cancellation, then written off. <strong>25 of 88 accounts had one.</strong> One showed $71/yr instead of $13,598/yr. Total was $328,323 against a true $781,176.</td><td>Use the last full month, skipping any final month under 60% of the prior norm.</td></tr>
+    <tr class="sev-crit"><td><strong>Twelve-month churn understated by half</strong></td><td>Each account's final invoice is often a partial stub for the few days before cancellation, then written off. <strong>25 of 88 accounts had one.</strong> One showed $6/mo instead of $1,133/mo. The twelve-month total was $27,360/mo against a true $65,098/mo.</td><td>Use the last full month, skipping any final month under 60% of the prior norm.</td></tr>
     <tr class="sev-mute"><td><strong>A negative invoice subtracting from ARR</strong></td><td>A $10 fixed discount against a $9 charge for one associate invoiced <strong>-$1.00</strong>. A genuine billing defect, trivial in value.</td><td>Clamp to zero for ARR and flag the credit.</td></tr>
   </tbody>
 </table>
@@ -384,12 +388,13 @@
   <thead><tr><th>Figure</th><th class="num">Published 29 July</th><th class="num">Verified 30 July</th></tr></thead>
   <tbody>
     <tr><td>Paying tenants / customers</td><td class="num">252 / 245</td><td class="num">248 / 241</td></tr>
-    <tr><td>ARR</td><td class="num">$2,325,158</td><td class="num">$2,316,957</td></tr>
-    <tr class="sev-crit"><td>Critical</td><td class="num">6, $55,263</td><td class="num">5, $45,979</td></tr>
-    <tr class="sev-warn"><td>Adoption risk</td><td class="num">39, $412,126</td><td class="num">27, $290,937</td></tr>
-    <tr class="sev-warn"><td>Strategic risk</td><td class="num">32, $308,819</td><td class="num">35, $339,211</td></tr>
-    <tr class="sev-ok"><td>Healthy</td><td class="num">121, $1,192,527</td><td class="num">131, $1,291,876</td></tr>
-    <tr class="sev-crit"><td><strong>Twelve-month churn</strong></td><td class="num">$328,323</td><td class="num">$781,176</td></tr>
+    <tr><td>Monthly revenue</td><td class="num">$193,763</td><td class="num">$193,080</td></tr>
+    
+    <tr class="sev-crit"><td>Critical</td><td class="num">6, $4,605/mo</td><td class="num">5, $3,832/mo</td></tr>
+    <tr class="sev-warn"><td>Adoption risk</td><td class="num">39, $34,344/mo</td><td class="num">27, $24,245/mo</td></tr>
+    <tr class="sev-warn"><td>Strategic risk</td><td class="num">32, $25,735/mo</td><td class="num">35, $28,268/mo</td></tr>
+    <tr class="sev-ok"><td>Healthy</td><td class="num">121, $99,377/mo</td><td class="num">131, $107,656/mo</td></tr>
+    <tr class="sev-crit"><td><strong>Monthly revenue lost to churn, 12 months</strong></td><td class="num">$27,360</td><td class="num">$65,098</td></tr>
     <tr><td>Trials engaged / cold</td><td class="num">26 / 41</td><td class="num">35 / 32</td></tr>
   </tbody>
 </table>

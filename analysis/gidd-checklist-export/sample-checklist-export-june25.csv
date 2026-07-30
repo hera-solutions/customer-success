@@ -1,0 +1,7 @@
+Associate Name,Transporter ID,Date,Wave Time,Route,Vehicle,Device,Staging,Assigned Parking,Roster Status,Morning: Punched In / Uniform,Morning: Pre-trip DVIC (90s),Morning: Has Dolly?,Morning: Has Phone Mount?,End of Route: Trash Out?,End of Route: Has Dolly?,End of Route: Phone Mount Issues?,End of Route: Plugged In?,End of Route: Charging?,End of Route: Post-trip DVIC (90s),End of Route: Belongings Returned,End of Route: Parking Space,End of Route: Flex / Punch Out
+Brendon Lee,A3NY9HEYTBCYSF,2026-06-25,11:15,CX164,LMR 070,GIDD-072,A8,A118,Rostered,Acknowledged,Acknowledged,Yes,Yes,Yes,Yes,No issues,Yes,Yes,Acknowledged,Acknowledged,A118,Acknowledged
+Max Yermakov,A2RIVSSSGLOTH3,2026-06-25,11:15,CX166,LMR 071,GIDD-071,A9,A117,Rostered,Acknowledged,Acknowledged,Yes,Yes,Yes,Yes,,Yes,Yes,Acknowledged,Acknowledged,A117,Acknowledged
+Alex Iggulden,A17VSCGBA92GUE,2026-06-25,11:20,CX145,LMR 079,GIDD-078,G2,A097,Rostered,Acknowledged,Acknowledged,Yes,Yes,Yes,Yes,,Yes,Yes,Acknowledged,Acknowledged,97,Acknowledged
+Elisha Gonzalez,A34A00BJXWRIV8,2026-06-25,11:15,CX159,LMR 075,GIDD-075,A13,A113,Rostered,Acknowledged,Acknowledged,Yes,Yes,Yes,Yes,,Yes,Yes,Acknowledged,Acknowledged,A113,Acknowledged
+Michael Carvalho,A28E9D2ZSC4WVJ,2026-06-25,10:55,CX150,LMR 90,,D11,A086,Rostered,Acknowledged,Acknowledged,Yes,No,Yes,No,,Yes,Yes,Acknowledged,Acknowledged,A086,Acknowledged
+Asobo Penn,A1K0EFBRVHPJYY,2026-06-25,11:20,CX144,LMR 085,GIDD-085,G9,A091,Rostered,Acknowledged,Acknowledged,Yes,Yes,Yes,No,No issues,Yes,Yes,Acknowledged,Acknowledged,A099,Acknowledged
