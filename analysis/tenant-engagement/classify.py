@@ -73,7 +73,7 @@ def classify(t, as_of):
     # ---- revenue axis, from CLOSED invoices only
     series = [
         s["associates"]
-        for s in t.get("invoice_series", [])[:TREND_INVOICES]
+        for s in [x for x in t.get("invoice_series", []) if x.get("status") == "Paid"][:TREND_INVOICES]
         if s.get("associates")
     ]
     series = list(reversed(series))  # oldest -> newest
@@ -84,9 +84,33 @@ def classify(t, as_of):
         r["assoc_change"] = None
         r["assoc_delta"] = None
     r["assoc_series"] = series
-    closed = [s for s in t.get("invoice_series", []) if s.get("invoiceTotal") is not None]
-    r["monthly"] = closed[0]["invoiceTotal"] if closed else 0.0
+    # Revenue must come from a PAID invoice. 'Written Off' means we stopped
+    # pursuing payment and 'Payment Error' means Stripe failed, so neither was
+    # collected. An earlier version accepted any non-Pending invoice, which put
+    # $53,388/yr of uncollected billing into the ARR total, including JDW
+    # Logistics at $2,883/mo written off.
+    paid = [
+        s for s in t.get("invoice_series", [])
+        if s.get("invoiceTotal") is not None and s.get("status") == "Paid"
+    ]
+    raw_monthly = paid[0]["invoiceTotal"] if paid else 0.0
+    # A negative invoice is a credit, produced when a FIXED discount exceeds the
+    # charge. Next Level Logistics carries a $10 fixed Veteran discount against a
+    # $9 charge for one associate, invoicing -$1.00. That is a billing defect and
+    # it must not subtract from book ARR.
+    r["credit_invoice"] = raw_monthly < 0
+    r["monthly"] = max(0.0, raw_monthly)
     r["arr"] = r["monthly"] * 12
+    # Delinquency is its own signal, not a revenue adjustment.
+    unpaid = [
+        s for s in t.get("invoice_series", [])
+        if s.get("status") in ("Written Off", "Payment Error")
+    ]
+    r["delinquent"] = bool(unpaid) and (
+        t.get("invoice_series") and t["invoice_series"][0].get("status") != "Paid"
+    )
+    r["delinquent_status"] = t["invoice_series"][0].get("status") if r["delinquent"] else None
+    r["delinquent_amount"] = t["invoice_series"][0].get("invoiceTotal") if r["delinquent"] else 0.0
 
     ch = r["assoc_change"]
     r["direction"] = (

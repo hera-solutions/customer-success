@@ -135,14 +135,14 @@
 <header class="top">
   <p class="eyebrow">Hera Solutions &middot; Customer Success</p>
   <h1>Finalized health model and baseline</h1>
-  <p class="sub">As of 29 July 2026. Scored from live production data, 252 paying tenants. Model, thresholds and code are committed and repeatable.</p>
+  <p class="sub">As of 30 July 2026. Scored from live production data, 248 paying tenants. Model, thresholds and code are committed and repeatable. Five measurement bugs were found and fixed on 30 July; 18 of 18 consistency checks now pass.</p>
 </header>
 
 <div class="kpis">
-  <div class="kpi"><span class="n">245</span><span class="l">Customers</span></div>
-  <div class="kpi"><span class="n">$2.33M</span><span class="l">ARR</span></div>
-  <div class="kpi"><span class="n">22,720</span><span class="l">Active associates</span></div>
-  <div class="kpi crit"><span class="n">6</span><span class="l">Critical accounts</span></div>
+  <div class="kpi"><span class="n">241</span><span class="l">Customers</span></div>
+  <div class="kpi"><span class="n">$2.32M</span><span class="l">ARR</span></div>
+  <div class="kpi"><span class="n">22,638</span><span class="l">Active associates</span></div>
+  <div class="kpi crit"><span class="n">5</span><span class="l">Critical accounts</span></div>
   <div class="kpi warn"><span class="n">$53,510</span><span class="l">Revenue already gone</span></div>
 </div>
 
@@ -155,7 +155,7 @@
     <tr><td><strong>Billing model</strong></td><td>$9.00 per active associate per month, charged $0.30/associate/day, billed one month in arrears. Verified against invoice line items and <code>knowledge/billing-overview.md</code>.</td></tr>
     <tr><td><strong>Health model</strong></td><td>Two independent axes, never a single blended score. Engagement and revenue direction are measured separately.</td></tr>
     <tr><td><strong>Segmentation axis</strong></td><td>Engagement state, explicitly <em>not</em> ARR. Largest account is 3.8x the median, so revenue tiers would behave identically.</td></tr>
-    <tr><td><strong>Customer count</strong></td><td>245 customers across 252 tenants. Seven customers run secondary sites that appear as separate tenants.</td></tr>
+    <tr><td><strong>Customer count</strong></td><td>241 customers across 248 tenants. Seven customers run secondary sites that appear as separate tenants.</td></tr>
     <tr><td><strong>Scoring cadence</strong></td><td>Manual weekly for now, via the <code>cs-health-weekly</code> skill. Automatable later with no VPN dependency.</td></tr>
     <tr><td><strong>Data source</strong></td><td>DynamoDB only. The five tables the model depends most on are not synced to the RDS mirror, and the mirror has drifted silently before.</td></tr>
     <tr><td><strong>Team shape</strong></td><td>About 1.5 effective account owners, not 3. John carries the book; CSS 1 is building toward an owned book with a retention bonus; CSS 2 is a detection layer.</td></tr>
@@ -177,15 +177,15 @@
 <table>
   <thead><tr><th>Bucket</th><th class="num">Tenants</th><th class="num">ARR</th><th class="num">Share</th><th>Action</th></tr></thead>
   <tbody>
-    <tr class="sev-crit"><td><span class="chip crit">CRITICAL</span></td><td class="num">6</td><td class="num">$55,263</td><td class="num">2.4%</td><td>Declining and disengaged. Work first.</td></tr>
-    <tr class="sev-warn"><td><span class="chip warn">ADOPTION RISK</span></td><td class="num">39</td><td class="num">$412,126</td><td class="num">17.7%</td><td>Paying, not declining, not using the core workflow. Adoption conversation, never a save.</td></tr>
-    <tr class="sev-warn"><td><span class="chip warn">STRATEGIC RISK</span></td><td class="num">32</td><td class="num">$308,819</td><td class="num">13.3%</td><td>Comms current, no scorecard in 60+ days. The workflow left Hera. Ask, do not sell.</td></tr>
+    <tr class="sev-crit"><td><span class="chip crit">CRITICAL</span></td><td class="num">5</td><td class="num">$45,979</td><td class="num">2.0%</td><td>Declining and disengaged. Work first.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">ADOPTION RISK</span></td><td class="num">27</td><td class="num">$290,937</td><td class="num">12.6%</td><td>Paying, not declining, not using the core workflow. Adoption conversation, never a save.</td></tr>
+    <tr class="sev-warn"><td><span class="chip warn">STRATEGIC RISK</span></td><td class="num">35</td><td class="num">$339,211</td><td class="num">14.6%</td><td>Comms current, no scorecard in 60+ days. The workflow left Hera. Ask, do not sell.</td></tr>
     <tr class="sev-crit"><td><span class="chip crit">BILLING RECONCILIATION</span></td><td class="num">2</td><td class="num">$0</td><td class="num">0.0%</td><td>Dark with zero associates. Confirm or cancel.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">CONTRACTION</span></td><td class="num">30</td><td class="num">$256,785</td><td class="num">11.0%</td><td>Declining but engaged. Their operation is shrinking. Forecast, do not chase.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">WATCH</span></td><td class="num">5</td><td class="num">$49,020</td><td class="num">2.1%</td><td>One soft signal. Review next week.</td></tr>
-    <tr class="sev-mute"><td><span class="chip mute">DATA HYGIENE</span></td><td class="num">12</td><td class="num">$28,982</td><td class="num">1.2%</td><td>Associate drop is a bulk roster cleanup. Billing self-corrected. No action.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">CONTRACTION</span></td><td class="num">31</td><td class="num">$266,224</td><td class="num">11.5%</td><td>Declining but engaged. Their operation is shrinking. Forecast, do not chase.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">WATCH</span></td><td class="num">3</td><td class="num">$32,209</td><td class="num">1.4%</td><td>One soft signal. Review next week.</td></tr>
+    <tr class="sev-mute"><td><span class="chip mute">DATA HYGIENE</span></td><td class="num">10</td><td class="num">$28,886</td><td class="num">1.2%</td><td>Associate drop is a bulk roster cleanup. Billing self-corrected. No action.</td></tr>
     <tr class="sev-mute"><td><span class="chip mute">NOT ENTITLED</span></td><td class="num">5</td><td class="num">$21,635</td><td class="num">0.9%</td><td>No rostering module. Score on coaching and scorecard only.</td></tr>
-    <tr class="sev-ok"><td><span class="chip ok">HEALTHY</span></td><td class="num">121</td><td class="num">$1,192,527</td><td class="num">51.3%</td><td>No flags.</td></tr>
+    <tr class="sev-ok"><td><span class="chip ok">HEALTHY</span></td><td class="num">131</td><td class="num">$1,291,876</td><td class="num">55.8%</td><td>No flags.</td></tr>
   </tbody>
 </table>
 </div>
@@ -215,12 +215,11 @@
 <table>
   <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Assoc change</th><th>Pattern</th><th class="num">Last staffed roster</th></tr></thead>
   <tbody>
-    <tr class="sev-crit"><td>DC1 Transport</td><td class="num">144</td><td class="num">$1,234</td><td class="num">-6%</td><td>Messaging only</td><td class="num">none in 14</td></tr>
-    <tr class="sev-crit"><td>SURF Logistics</td><td class="num">110</td><td class="num">$927</td><td class="num">-11%</td><td>Healthy both</td><td class="num">78d</td></tr>
-    <tr class="sev-crit"><td>Platinum Transport Services</td><td class="num">119</td><td class="num">$920</td><td class="num">-8%</td><td>Messaging only</td><td class="num">31d</td></tr>
-    <tr class="sev-crit"><td>Add Logistics, LLC</td><td class="num">88</td><td class="num">$787</td><td class="num">-15%</td><td>Messaging only</td><td class="num">none in 14</td></tr>
-    <tr class="sev-crit"><td>PacTrack, Inc</td><td class="num">79</td><td class="num">$711</td><td class="num">-6%</td><td>Both dark</td><td class="num">52d</td></tr>
-    <tr class="sev-crit"><td>Road Runners Enterprises</td><td class="num">3</td><td class="num">$27</td><td class="num">-95%</td><td>Both dark</td><td class="num">129d</td></tr>
+    <tr class="sev-crit"><td>DC1 Transport</td><td class="num">143</td><td class="num">$1,234</td><td class="num">-6%</td><td>Msg Only</td><td class="num">857d</td></tr>
+    <tr class="sev-crit"><td>SURF Logistics</td><td class="num">111</td><td class="num">$927</td><td class="num">-11%</td><td>Healthy Both</td><td class="num">79d</td></tr>
+    <tr class="sev-crit"><td>Platinum Transport Services</td><td class="num">119</td><td class="num">$920</td><td class="num">-8%</td><td>Msg Only</td><td class="num">32d</td></tr>
+    <tr class="sev-crit"><td>PacTrack, Inc</td><td class="num">79</td><td class="num">$724</td><td class="num">-23%</td><td>Both Dark</td><td class="num">53d</td></tr>
+    <tr class="sev-crit"><td>Road Runners Enterprises</td><td class="num">3</td><td class="num">$27</td><td class="num">-95%</td><td>Both Dark</td><td class="num">130d</td></tr>
   </tbody>
 </table>
 </div>
@@ -230,55 +229,70 @@
   <p>Six accounts are under 10 active associates now but their last closed invoice was over $100. Their next invoice will be near zero. Presenting this as recoverable ARR overstates what any save could return.</p>
 </div>
 
-<div class="scroll">
-<table>
-  <thead><tr><th>Account</th><th class="num">Peak associates</th><th class="num">Now</th><th class="num">Days under 10</th><th class="num">Last closed invoice</th></tr></thead>
-  <tbody>
-    <tr class="sev-crit"><td>SkyHook 2 LLC</td><td class="num">125</td><td class="num">0</td><td class="num">23</td><td class="num">$1,035</td></tr>
-    <tr class="sev-crit"><td>Globalteq Logisitcs LLC</td><td class="num">106</td><td class="num">0</td><td class="num">11</td><td class="num">$900</td></tr>
-    <tr class="sev-crit"><td>Merica Delivery Service</td><td class="num">93</td><td class="num">5</td><td class="num">15</td><td class="num">$681</td></tr>
-    <tr class="sev-crit"><td>Deliver2U LLC</td><td class="num">122</td><td class="num">0</td><td class="num">7</td><td class="num">$671</td></tr>
-    <tr class="sev-crit"><td>Focus Logistics</td><td class="num">71</td><td class="num">0</td><td class="num">15</td><td class="num">$610</td></tr>
-    <tr class="sev-crit"><td>Envizion Logistics LLC</td><td class="num">96</td><td class="num">1</td><td class="num">28</td><td class="num">$562</td></tr>
-  </tbody>
-</table>
+<div class="callout red">
+  <p><strong>Billed and not collected: $4,449 a month, $53,388 a year.</strong></p>
+  <p>JDW Logistics, the largest account at 338 associates, has had its last three invoices written off. PacTrack has two consecutive failed Stripe payments and Pure Logistics one. All three are otherwise active, engaged customers.</p>
 </div>
 
 <h3>Adoption risk: paying more every month, not using it</h3>
-<p class="prose">Top eight by revenue, of 39. These grow their associate count, so your revenue rises while they get little from the product. Each is a renewal that dies quietly the first time somebody asks what they are paying for.</p>
+<p class="prose">All 27, sorted by revenue. These grow their associate count, so revenue rises while they get little from the product.</p>
 <div class="scroll">
 <table>
   <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Assoc change</th><th class="num">Last staffed roster</th></tr></thead>
   <tbody>
-    <tr class="sev-warn"><td>Express Package System Inc</td><td class="num">185</td><td class="num">$1,750</td><td class="num">+25%</td><td class="num">83d</td></tr>
-    <tr class="sev-warn"><td>Wilx Logistics</td><td class="num">126</td><td class="num">$1,613</td><td class="num">+24%</td><td class="num">none in 14</td></tr>
-    <tr class="sev-warn"><td>Clark Courier Service LLC</td><td class="num">155</td><td class="num">$1,471</td><td class="num">+8%</td><td class="num">none in 14</td></tr>
-    <tr class="sev-warn"><td>Distant Winds Logistics</td><td class="num">157</td><td class="num">$1,386</td><td class="num">+27%</td><td class="num">130d</td></tr>
-    <tr class="sev-warn"><td>Last Mile Logistics LLC</td><td class="num">140</td><td class="num">$1,316</td><td class="num">+15%</td><td class="num">288d</td></tr>
-    <tr class="sev-warn"><td>Sinaro Logistics</td><td class="num">151</td><td class="num">$1,279</td><td class="num">+5%</td><td class="num">none in 14</td></tr>
-    <tr class="sev-warn"><td>Delco Deadline Deliveries, LLC</td><td class="num">122</td><td class="num">$1,191</td><td class="num">+6%</td><td class="num">none in 14</td></tr>
-    <tr class="sev-warn"><td>Timestamp Logistics LLC</td><td class="num">119</td><td class="num">$1,159</td><td class="num">+25%</td><td class="num">none in 14</td></tr>
+    <tr class="sev-warn"><td>Express Package System Inc</td><td class="num">186</td><td class="num">$1,750</td><td class="num">+25%</td><td class="num">84d</td></tr>
+    <tr class="sev-warn"><td>Wilx Logistics</td><td class="num">126</td><td class="num">$1,613</td><td class="num">+24%</td><td class="num">122d</td></tr>
+    <tr class="sev-warn"><td>Clark Courier Service LLC</td><td class="num">155</td><td class="num">$1,471</td><td class="num">+8%</td><td class="num">661d</td></tr>
+    <tr class="sev-warn"><td>Distant Winds Logistics</td><td class="num">158</td><td class="num">$1,386</td><td class="num">+27%</td><td class="num">131d</td></tr>
+    <tr class="sev-warn"><td>Last Mile Logistics LLC</td><td class="num">140</td><td class="num">$1,316</td><td class="num">+15%</td><td class="num">289d</td></tr>
+    <tr class="sev-warn"><td>Sinaro Logistics</td><td class="num">151</td><td class="num">$1,279</td><td class="num">+5%</td><td class="num">473d</td></tr>
+    <tr class="sev-warn"><td>Bison Peak LLC &#124; DHI2</td><td class="num">129</td><td class="num">$1,149</td><td class="num">+2%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Bison Peak LLC</td><td class="num">121</td><td class="num">$1,137</td><td class="num">+12%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Spears Enterprises LLC</td><td class="num">115</td><td class="num">$1,120</td><td class="num">+7%</td><td class="num">33d</td></tr>
+    <tr class="sev-warn"><td>Lucky 7 Logistics</td><td class="num">115</td><td class="num">$1,095</td><td class="num">+18%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Leary Logistics</td><td class="num">124</td><td class="num">$1,070</td><td class="num">+16%</td><td class="num">52d</td></tr>
+    <tr class="sev-warn"><td>JPZ Logistics LLC</td><td class="num">105</td><td class="num">$969</td><td class="num">+22%</td><td class="num">243d</td></tr>
+    <tr class="sev-warn"><td>Cargo To You</td><td class="num">94</td><td class="num">$924</td><td class="num">+5%</td><td class="num">49d</td></tr>
+    <tr class="sev-warn"><td>TPE Logistics Solutions Inc</td><td class="num">115</td><td class="num">$900</td><td class="num">+12%</td><td class="num">46d</td></tr>
+    <tr class="sev-warn"><td>Pure Logistics USA LLC</td><td class="num">95</td><td class="num">$852</td><td class="num">+117%</td><td class="num">60d</td></tr>
+    <tr class="sev-warn"><td>RPM Delivery Service</td><td class="num">90</td><td class="num">$845</td><td class="num">+7%</td><td class="num">61d</td></tr>
+    <tr class="sev-warn"><td>Frontline Logistics</td><td class="num">91</td><td class="num">$828</td><td class="num">+2%</td><td class="num">555d</td></tr>
+    <tr class="sev-warn"><td>Black Nile Logistics</td><td class="num">75</td><td class="num">$787</td><td class="num">+20%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Infinity Logistics Solutions</td><td class="num">71</td><td class="num">$692</td><td class="num">+16%</td><td class="num">42d</td></tr>
+    <tr class="sev-warn"><td>Flash Hub Delivery</td><td class="num">78</td><td class="num">$686</td><td class="num">+9%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Merica Delivery Service</td><td class="num">5</td><td class="num">$681</td><td class="num">+5%</td><td class="num">1d</td></tr>
+    <tr class="sev-warn"><td>Active Transportation Services LLC</td><td class="num">71</td><td class="num">$618</td><td class="num">-0%</td><td class="num">96d</td></tr>
+    <tr class="sev-warn"><td>Krowned Solutions LLC</td><td class="num">94</td><td class="num">$608</td><td class="num">+1928%</td><td class="num">79d</td></tr>
+    <tr class="sev-warn"><td>On-demand Logistics Service Llc</td><td class="num">62</td><td class="num">$400</td><td class="num">+8%</td><td class="num">603d</td></tr>
+    <tr class="sev-warn"><td>New Deal Logistics</td><td class="num">3</td><td class="num">$27</td><td class="num">+0%</td><td class="num">209d</td></tr>
+    <tr class="sev-warn"><td>Double Iron Car Care LLC</td><td class="num">18</td><td class="num">$25</td><td class="num">+29%</td><td class="num">none in 45</td></tr>
+    <tr class="sev-warn"><td>Shandy Holdings</td><td class="num">2</td><td class="num">$18</td><td class="num">+0%</td><td class="num">194d</td></tr>
   </tbody>
 </table>
 </div>
 
 <h3>Strategic risk: the scorecard workflow left Hera</h3>
-<p class="prose">Top eight by revenue, of 32 worth $308,819. Messaging is current but no scorecard has been uploaded in 60+ days, so performance management is happening somewhere else. This band can leave together, which makes it worth more attention than its size suggests.</p>
+<p class="prose">Top 12 by revenue, of 35 worth $339,211. Messaging is current but no scorecard in 60+ days, so performance management is happening elsewhere. This band can leave together.</p>
 <div class="scroll">
 <table>
   <thead><tr><th>Account</th><th class="num">Assoc</th><th class="num">Monthly</th><th class="num">Days since scorecard</th></tr></thead>
   <tbody>
-    <tr class="sev-warn"><td>Tala Logistics</td><td class="num">132</td><td class="num">$1,164</td><td class="num">679</td></tr>
-    <tr class="sev-warn"><td>G Logistics LLC</td><td class="num">129</td><td class="num">$1,152</td><td class="num">447</td></tr>
-    <tr class="sev-warn"><td>Zuniga Logistics LLC</td><td class="num">120</td><td class="num">$1,177</td><td class="num">294</td></tr>
-    <tr class="sev-warn"><td>Cleveland Logistics Company</td><td class="num">163</td><td class="num">$1,574</td><td class="num">241</td></tr>
-    <tr class="sev-warn"><td>Town and Country Couriers</td><td class="num">197</td><td class="num">$1,648</td><td class="num">195</td></tr>
-    <tr class="sev-warn"><td>Task Force Delivery LLC</td><td class="num">135</td><td class="num">$1,468</td><td class="num">84</td></tr>
-    <tr class="sev-warn"><td>Delivering Delights</td><td class="num">132</td><td class="num">$1,151</td><td class="num">76</td></tr>
-    <tr class="sev-warn"><td>Bruiser Trucking LLC</td><td class="num">129</td><td class="num">$1,033</td><td class="num">76</td></tr>
+    <tr class="sev-warn"><td>Town and Country Couriers</td><td class="num">197</td><td class="num">$1,648</td><td class="num">196</td></tr>
+    <tr class="sev-warn"><td>Cleveland Logistics Company</td><td class="num">163</td><td class="num">$1,574</td><td class="num">242</td></tr>
+    <tr class="sev-warn"><td>Task Force Delivery LLC</td><td class="num">135</td><td class="num">$1,468</td><td class="num">85</td></tr>
+    <tr class="sev-warn"><td>Zuniga Logistics LLC</td><td class="num">120</td><td class="num">$1,177</td><td class="num">295</td></tr>
+    <tr class="sev-warn"><td>Tala Logistics</td><td class="num">132</td><td class="num">$1,164</td><td class="num">680</td></tr>
+    <tr class="sev-warn"><td>G Logistics LLC</td><td class="num">129</td><td class="num">$1,152</td><td class="num">448</td></tr>
+    <tr class="sev-warn"><td>Delivering Delights</td><td class="num">132</td><td class="num">$1,151</td><td class="num">77</td></tr>
+    <tr class="sev-warn"><td>Bruiser Trucking LLC</td><td class="num">129</td><td class="num">$1,033</td><td class="num">77</td></tr>
+    <tr class="sev-warn"><td>Xeno Logistics</td><td class="num">111</td><td class="num">$1,014</td><td class="num">390</td></tr>
+    <tr class="sev-warn"><td>Customer First Logistics (CFRT)</td><td class="num">94</td><td class="num">$943</td><td class="num">69</td></tr>
+    <tr class="sev-warn"><td>Globalteq Logisitcs LLC</td><td class="num">0</td><td class="num">$900</td><td class="num">413</td></tr>
+    <tr class="sev-warn"><td>Orad Logistics Inc</td><td class="num">112</td><td class="num">$891</td><td class="num">167</td></tr>
   </tbody>
 </table>
 </div>
+
 
 <h2>Explicitly not problems</h2>
 
@@ -294,10 +308,10 @@
 <table>
   <thead><tr><th>Measure</th><th class="num">Result</th><th>Note</th></tr></thead>
   <tbody>
-    <tr class="sev-ok"><td>Addressable GRR</td><td class="num">95.0%</td><td>The 90% target set at setup is already exceeded by $110,292 and needs replacing.</td></tr>
-    <tr><td>All-causes GRR</td><td class="num">85.5%</td><td>Figure for the CEO meeting.</td></tr>
-    <tr class="sev-mute"><td>Program-closure drag</td><td class="num">10.0%</td><td>Amazon DSP closures. Not a CS outcome, report separately.</td></tr>
-    <tr class="sev-ok"><td>Expansion in surviving accounts</td><td class="num">+13.9%</td><td>With no sales motion. Billing follows headcount, so hiring lifts revenue automatically.</td></tr>
+    <tr class="sev-ok"><td>Addressable GRR</td><td class="num">95.8%</td><td>The 90% target set at setup is already exceeded by $138,000 and needs replacing.</td></tr>
+    <tr><td>All-causes GRR</td><td class="num">86.3%</td><td>Figure for the CEO meeting.</td></tr>
+    <tr class="sev-mute"><td>Program-closure drag</td><td class="num">9.8%</td><td>Amazon DSP closures. Not a CS outcome, report separately.</td></tr>
+    <tr class="sev-ok"><td>Expansion in surviving accounts</td><td class="num">+17.8%</td><td>With no sales motion. Billing follows headcount, so hiring lifts revenue automatically.</td></tr>
   </tbody>
 </table>
 </div>
@@ -335,21 +349,54 @@
 
 <h2>Corrections along the way</h2>
 
-<p class="prose">Recorded because the numbers moved a long way and the reasons matter more than the final figures.</p>
+<p class="prose">Recorded in full because the numbers moved a long way and the reasons matter more than the final figures. A second audit on 30 July found five measurement bugs; all are fixed and 18 of 18 consistency checks now pass.</p>
+
+<h3>Round one: the money</h3>
 
 <div class="scroll">
 <table>
   <thead><tr><th>Measure</th><th class="num">Rev 1</th><th class="num">Rev 2</th><th class="num">Final</th><th>Cause</th></tr></thead>
   <tbody>
-    <tr><td>Total ARR</td><td class="num">$2,097,712</td><td class="num">$1,987,326</td><td class="num">$2,325,158</td><td>Rev 1 used a lifetime-average field; rev 2 used in-progress <code>Pending</code> invoices.</td></tr>
-    <tr><td>Addressable GRR</td><td class="num">85.7%</td><td class="num">77.2%</td><td class="num">95.0%</td><td>Same invoice errors, plus a formula that ignored shrinkage inside surviving accounts.</td></tr>
-    <tr><td>Book direction</td><td class="num">&mdash;</td><td class="num">-$193,298</td><td class="num">growing</td><td>Comparing a 26-day partial month against full months made every account look like it was shrinking.</td></tr>
-    <tr><td>Accounts at risk</td><td class="num">31</td><td class="num">12</td><td class="num">6</td><td>Roster cleanups, entitlement, and revenue already gone all removed false positives.</td></tr>
+    <tr><td>Total ARR</td><td class="num">$2,097,712</td><td class="num">$1,987,326</td><td class="num">$2,316,957</td><td>Rev 1 used a lifetime-average field; rev 2 used in-progress <code>Pending</code> invoices.</td></tr>
+    <tr><td>Addressable GRR</td><td class="num">85.7%</td><td class="num">77.2%</td><td class="num">95.8%</td><td>Same invoice errors, plus a formula that ignored shrinkage inside surviving accounts.</td></tr>
+    <tr><td>Book direction</td><td class="num">not measured</td><td class="num">-$193,298</td><td class="num">growing</td><td>Comparing a 26-day partial month against full months made every account look like it was shrinking.</td></tr>
   </tbody>
 </table>
 </div>
 
-<p class="note">The $9 rate was documented in <code>knowledge/billing-overview.md</code> the whole time. It was derived from invoice line items across three revisions instead, which is what caused the early revenue errors.</p>
+<h3>Round two, 30 July: five measurement bugs</h3>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Bug</th><th>Effect</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr class="sev-crit"><td><strong>Message search swamped by automated sends</strong></td><td>Roster and coaching messages are delivered per associate and carry no sender. A tenant with 100 associates emits 100+ sender-less rows a minute, pushing the human-sent message out of any fixed page. <strong>59 of 252 tenants read as darker than they were, 14 by a week or more.</strong> One read as 1,205 days dark while messaging that same day.</td><td>Search back by time across all types, stop at the first human send, and flag truncation rather than silently reporting dark.</td></tr>
+    <tr class="sev-crit"><td><strong>Roster scan consumed by future planning</strong></td><td>Tenants plan weeks ahead, so their newest rosters are future-dated shells with no routes yet. The scan cap ran out before reaching real work. <strong>23 tenants showed no staffed roster; 6 had staffed one within three days</strong>, three of them that same day.</td><td>Only consider rosters dated today or earlier, and raise the cap.</td></tr>
+    <tr class="sev-warn"><td><strong>Uncollected revenue counted as ARR</strong></td><td>Only <code>Pending</code> was excluded, so <code>Written Off</code> and <code>Payment Error</code> invoices counted as collected.</td><td>Revenue comes from <code>Paid</code> invoices only. Delinquency is now its own flag.</td></tr>
+    <tr class="sev-crit"><td><strong>Twelve-month churn understated by half</strong></td><td>Each account's final invoice is often a partial stub for the few days before cancellation, then written off. <strong>25 of 88 accounts had one.</strong> One showed $71/yr instead of $13,598/yr. Total was $328,323 against a true $781,176.</td><td>Use the last full month, skipping any final month under 60% of the prior norm.</td></tr>
+    <tr class="sev-mute"><td><strong>A negative invoice subtracting from ARR</strong></td><td>A $10 fixed discount against a $9 charge for one associate invoiced <strong>-$1.00</strong>. A genuine billing defect, trivial in value.</td><td>Clamp to zero for ARR and flag the credit.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Figure</th><th class="num">Published 29 July</th><th class="num">Verified 30 July</th></tr></thead>
+  <tbody>
+    <tr><td>Paying tenants / customers</td><td class="num">252 / 245</td><td class="num">248 / 241</td></tr>
+    <tr><td>ARR</td><td class="num">$2,325,158</td><td class="num">$2,316,957</td></tr>
+    <tr class="sev-crit"><td>Critical</td><td class="num">6, $55,263</td><td class="num">5, $45,979</td></tr>
+    <tr class="sev-warn"><td>Adoption risk</td><td class="num">39, $412,126</td><td class="num">27, $290,937</td></tr>
+    <tr class="sev-warn"><td>Strategic risk</td><td class="num">32, $308,819</td><td class="num">35, $339,211</td></tr>
+    <tr class="sev-ok"><td>Healthy</td><td class="num">121, $1,192,527</td><td class="num">131, $1,291,876</td></tr>
+    <tr class="sev-crit"><td><strong>Twelve-month churn</strong></td><td class="num">$328,323</td><td class="num">$781,176</td></tr>
+    <tr><td>Trials engaged / cold</td><td class="num">26 / 41</td><td class="num">35 / 32</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">The $9 rate was documented in <code>knowledge/billing-overview.md</code> the whole time. It was derived from invoice line items across three revisions instead, which caused the early revenue errors.</p>
+
 
 <h2>Still open</h2>
 

@@ -31,8 +31,32 @@ import lib_hera as H
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
-# Message types that represent a human typing. userNotification is system-generated.
-HUMAN_MESSAGE_TYPES = ("broadcast", "messenger", "roster")
+# Message types that can carry a human sender. Verified 2026-07-30 by sampling
+# 40 tenants over 11 days: userNotification (18,895 rows) and taskReminder and
+# billingError carry ZERO senderId values and are correctly excluded. Every type
+# below does carry human sends.
+#
+# An earlier version queried only broadcast, messenger and roster. That missed
+# recurring, standUpAnnouncements and coaching, which together held 12,056 human
+# sends in that sample, comparable to broadcast alone. 59 of 252 tenants read as
+# darker than they were, 14 of them by 7+ days. DBE Logistics read as 1,205 days
+# dark while messaging that same day.
+ROSTER_SCAN_CAP = 45   # past-dated rosters to examine when finding the last staffed one
+
+# Retained for reference only: the search below is type-agnostic and does not use
+# this list. Kept because it documents which types can carry a human sender.
+_HUMAN_MESSAGE_TYPES_REFERENCE = (
+    "broadcast",
+    "messenger",
+    "roster",
+    "recurring",
+    "standUpAnnouncements",
+    "coaching",
+    "wireless-support",
+)
+MESSAGE_LOOKBACK_DAYS = 120  # how far back to look for a human send
+MESSAGE_PAGE_CAP = 40        # bound the read; sets message_search_truncated if hit
+
 
 
 def signals_for(ddb, tenant, as_of, window_days):
@@ -63,31 +87,52 @@ def signals_for(ddb, tenant, as_of, window_days):
     window_start = (as_of - dt.timedelta(days=window_days)).isoformat()
 
     # 1. last human-sent message.
-    # The GSI range is messageType#createdAt, so a begins_with prefix on the
-    # message type lets ScanIndexForward=False sort by date within that type.
-    # Querying the hash alone does NOT order by date.
-    newest = None
-    for mtype in HUMAN_MESSAGE_TYPES:
-        try:
-            rows = ddb.query(
-                TableName=H.table("Message"),
-                IndexName="byGroupAndMessageType",
-                KeyConditionExpression="#g = :g AND begins_with(#sk, :p)",
-                ExpressionAttributeNames={"#g": "group", "#sk": "messageType#createdAt"},
-                ExpressionAttributeValues={":g": {"S": group}, ":p": {"S": mtype + "#"}},
-                ProjectionExpression="createdAt,senderId",
-                ScanIndexForward=False,
-                Limit=10,
-            )["Items"]
-            for item in (H.flatten(i) for i in rows):
-                if not item.get("senderId"):
-                    continue
-                stamp = item.get("createdAt")
-                if stamp and (newest is None or stamp > newest):
-                    newest = stamp
-        except Exception as exc:
-            out["errors"].append(f"msg:{mtype}:{exc}"[:90])
-    out["last_message_sent_by_user"] = newest
+    #
+    # Roster and coaching messages are delivered PER ASSOCIATE in bursts, and those
+    # per-associate rows carry no senderId. A tenant with 100 associates emits 100+
+    # sender-less rows in a single minute, so ANY fixed row limit can be swamped and
+    # the human-sent message pushed out of the page. Limit 25 missed real sends on 4
+    # tenants; Limit 60 happened to catch them. Neither is principled.
+    #
+    # So: walk back by TIME, newest first, across all message types, and stop at the
+    # first row with a senderId. Bounded by a page cap, and if the cap is hit we say
+    # so rather than silently reporting the tenant as dark.
+    try:
+        found = None
+        pages = 0
+        truncated = False
+        kw = dict(
+            TableName=H.table("Message"),
+            IndexName="byGroup",
+            KeyConditionExpression="#g = :g AND createdAt BETWEEN :a AND :b",
+            ExpressionAttributeNames={"#g": "group"},
+            ExpressionAttributeValues={
+                ":g": {"S": group},
+                ":a": {"S": (as_of - dt.timedelta(days=MESSAGE_LOOKBACK_DAYS)).isoformat()},
+                ":b": {"S": as_of.isoformat() + "T23:59:59.999Z"},
+            },
+            ProjectionExpression="createdAt,senderId,messageType",
+            ScanIndexForward=False,
+        )
+        while True:
+            resp = ddb.query(**kw)
+            pages += 1
+            for item in (H.flatten(i) for i in resp["Items"]):
+                if item.get("senderId"):
+                    found = item.get("createdAt")
+                    out["last_message_type"] = item.get("messageType")
+                    break
+            if found or "LastEvaluatedKey" not in resp:
+                break
+            if pages >= MESSAGE_PAGE_CAP:
+                truncated = True
+                break
+            kw["ExclusiveStartKey"] = resp["LastEvaluatedKey"]
+        out["last_message_sent_by_user"] = found
+        out["message_search_truncated"] = truncated
+        out["message_pages_read"] = pages
+    except Exception as exc:
+        out["errors"].append(f"msg:{exc}"[:90])
 
     # 2. last message read.
     # The GSI range is mutationName, so ScanIndexForward cannot order by date.
@@ -148,10 +193,22 @@ def signals_for(ddb, tenant, as_of, window_days):
                 if parsed:
                     dated.append((parsed, r["id"]))
             dated.sort(reverse=True)
+            # Window is [window_start, as_of]. Future-dated rosters are planning,
+            # not work done, and counting them inflated the denominator of the
+            # empty-shell ratio.
             out["rosters_in_window"] = sum(
-                1 for d, _ in dated if d.isoformat() >= window_start
+                1 for d, _ in dated if window_start <= d.isoformat() and d <= as_of
             )
-            for parsed, rid in dated[:14]:
+            # Planning horizon: rosters dated ahead of today. Kept as context only.
+            out["future_rosters"] = sum(1 for d, _ in dated if d > as_of)
+            # Only rosters dated today or earlier can tell us whether real work
+            # happened. Tenants plan weeks ahead, so their newest rosters by
+            # notesDate are future shells with no routes assigned yet. Scanning
+            # from the newest without this filter burned the whole cap on empty
+            # future rosters: 23 tenants read as having NO staffed roster, and 6
+            # of them had actually staffed one within the previous three days.
+            past = [(d, rid) for d, rid in dated if d <= as_of]
+            for parsed, rid in past[:ROSTER_SCAN_CAP]:
                 routes = H.query_all(
                     ddb,
                     TableName=H.table("Route"),
@@ -165,8 +222,10 @@ def signals_for(ddb, tenant, as_of, window_days):
                 if any(r.get("routeStaffId") for r in routes):
                     if out["last_staffed_roster"] is None:
                         out["last_staffed_roster"] = parsed.isoformat()
-                    if out["rosters_in_window"] == 0:
-                        break
+                        # we scan newest-first, so the first hit is the answer;
+                        # keep going only while we still owe empty-shell counts
+                        if parsed.isoformat() < window_start:
+                            break
         except Exception as exc:
             out["errors"].append(f"roster:{exc}"[:90])
 
