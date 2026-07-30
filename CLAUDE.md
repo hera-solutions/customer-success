@@ -472,6 +472,29 @@ Before finalizing any draft, silently check:
 
 Final output should be ready to use or very close to ready.
 
+## Secrets and sensitive data
+
+**Never store an API key, credential, token, password or other sensitive value in any file, commit, log, session transcript, cached dataset or published artifact.** If such a value passes through the working context it stays there and is never persisted. A private repo is not an exemption, and neither is "it is our own data": git history is permanent and cannot be quietly un-published.
+
+Before committing anything derived from tool output (session transcripts, cached query results, CSV exports, debug dumps), scan it and redact. Mark every redaction inline, for example `[REDACTED-MIRADORE-API-KEY]`, so a later reader can see that something was removed and what kind of thing it was.
+
+What to check for:
+
+- AWS key ids, `AKIA` and `ASIA` prefixes
+- `SessionToken` values
+- PEM headers, `-----BEGIN ... PRIVATE KEY-----`
+- Connection strings with an embedded password
+- Bearer, GitHub and Stripe tokens
+
+Two practical notes learned the hard way:
+
+- **Redact fragments, not just whole values.** A 12-character slice of a real key is still part of a credential.
+- **Use a real regex, not a substring test.** A scan script's own patterns get echoed into the next transcript, so `-----BEGIN ... PRIVATE KEY-----` appearing in a file is usually the pattern rather than an actual key. Verify which before concluding either way.
+
+**Known credential columns in Hera production data.** `Tenant.miradoreApiKey` holds a live Miradore device-management key per tenant. Do not project it, and do not `head` a wide `Tenant` CSV export, which includes it. Project the fields you need explicitly. `~/Tenant_202511241117.csv` in the home directory contains real keys and must not be copied into any repo.
+
+This rule exists because a customer's live Miradore API key was nearly committed to this repository on 2026-07-30. It appeared in terminal output from reading that CSV and was caught only by scanning the transcript before the commit.
+
 ## Knowledge management
 
 - Track all important information in `.md` files organized into a subfolder structure that best fits the information being managed. Reuse existing folders where they fit; create new ones when a topic doesn't have a clear home.

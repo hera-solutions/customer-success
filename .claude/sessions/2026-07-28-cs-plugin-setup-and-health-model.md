@@ -239,6 +239,7 @@ This is the most important section of this log. Most of the session's value came
 - **HERA-8631** (Pride Delivery Messenger crash, 2026-07-07) is the reason the revenue axis stays on DynamoDB rather than the RDS mirror.
 - **`~/bitbucket-hera/hera/amplify/backend/api/hera/schema.graphql`** (3,902 lines) is the authoritative field reference.
 - **Plugin config** lives outside this repo at `~/.claude/plugins/config/claude-for-customer-success/`.
+- **Raw transcript appendix:** `.claude/sessions/transcripts/2026-07-28-cs-plugin-setup-and-health-model.jsonl`. Complete but redacted, and it contains retracted claims and wrong figures presented as right at the time. This log is the record; that file is only for reconstructing exactly what was run. See `transcripts/README.md`.
 
 ---
 
