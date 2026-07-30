@@ -43,6 +43,12 @@ DATA = os.path.join(HERE, "data")
 # dark while messaging that same day.
 ROSTER_SCAN_CAP = 45   # past-dated rosters to examine when finding the last staffed one
 
+# Fleet event types on the Accident table, which despite its name holds all vehicle
+# history. Production distribution over a 24,860-row sample: Odometer Reading 22,274,
+# Maintenance 2,000, Vehicle Damage 291, Accident 155, Incident 140.
+FLEET_USAGE_TYPES = ("Odometer Reading", "Maintenance")
+FLEET_INCIDENT_TYPES = ("Accident", "Incident", "Vehicle Damage")
+
 # Retained for reference only: the search below is type-agnostic and does not use
 # this list. Kept because it documents which types can carry a human sender.
 _HUMAN_MESSAGE_TYPES_REFERENCE = (
@@ -78,6 +84,14 @@ def signals_for(ddb, tenant, as_of, window_days):
         "daily_active_staff": {},
         "rosters_in_window": 0,
         "empty_rosters_in_window": 0,
+        # UPSIDE ONLY. Nothing in this dict may ever lower a health band. Fleet
+        # adoption is 10% for odometer readings and 28% for maintenance among
+        # entitled tenants, so 70% use neither. A signal that fires on 70% of the
+        # book carries no information about which accounts are at risk: it is a
+        # company-level product adoption gap, not 168 individual problems.
+        # Revisit making it scored only once a majority are using it, so that
+        # absence becomes the exception rather than the rule.
+        "upside": {},
         "errors": [],
     }
     if not group:
@@ -293,6 +307,96 @@ def signals_for(ddb, tenant, as_of, window_days):
     except Exception as exc:
         out["errors"].append(f"invoice:{exc}"[:90])
 
+    # ---- UPSIDE SIGNALS. Value-conversation material, never scored.
+    up = {}
+    premium = tenant.get("accountPremiumStatus") or []
+    if isinstance(premium, str):
+        premium = [premium]
+    up["fleet_entitled"] = ("vehicles" in set(premium)) or ("bundle" in set(premium))
+    # Inventory and document signing both live in the Athena (Amplify Gen 2) app and
+    # have no table in this DynamoDB account, so USAGE is not measurable here. Only
+    # the entitlement flags on Tenant are visible. Paused by decision 2026-07-30.
+    # Both inventory flags are `true` on 949 of 954 tenant rows including churned ones,
+    # so they are a global default rather than a per-tenant entitlement and carry no
+    # information. Captured only so a future reader does not repeat the check. Document
+    # signing has no field on Tenant at all.
+    up["inventory_enabled"] = bool(tenant.get("featureEnabledInventoryManagement"))
+    up["inventory_flag_is_global_default"] = True
+    up["inventory_usage"] = None   # not measurable: Athena
+    up["doc_signing_usage"] = None  # not measurable: Athena
+    if up["fleet_entitled"]:
+        since30 = (as_of - dt.timedelta(days=30)).isoformat()
+        since90 = (as_of - dt.timedelta(days=90)).isoformat()
+
+        def fleet_count(kind, since):
+            return H.query_count(
+                ddb,
+                TableName=H.table("Accident"),
+                IndexName="byGroupByHistoryType",
+                KeyConditionExpression="#g = :g AND #sk BETWEEN :a AND :b",
+                ExpressionAttributeNames={
+                    "#g": "group",
+                    "#sk": "vehicleHistoryType#accidentDate",
+                },
+                ExpressionAttributeValues={
+                    ":g": {"S": group},
+                    ":a": {"S": kind + "#" + since},
+                    ":b": {"S": kind + "#9999"},
+                },
+            )
+
+        try:
+            up["vehicles"] = H.query_count(
+                ddb, TableName=H.table("Vehicle"), IndexName="byGroup",
+                KeyConditionExpression="#g = :g",
+                ExpressionAttributeNames={"#g": "group"},
+                ExpressionAttributeValues={":g": {"S": group}},
+            )
+        except Exception as exc:
+            out["errors"].append(f"veh:{exc}"[:80]); up["vehicles"] = None
+        try:
+            up["odometer_30d"] = fleet_count("Odometer Reading", since30)
+            up["maintenance_90d"] = fleet_count("Maintenance", since90)
+            up["incidents_90d"] = sum(
+                fleet_count(k, since90) for k in FLEET_INCIDENT_TYPES
+            )
+        except Exception as exc:
+            out["errors"].append(f"fleet:{exc}"[:80])
+        try:
+            # vehicles carrying an odometer reading inside 30 days
+            up["vehicles_fresh_odometer"] = H.query_count(
+                ddb, TableName=H.table("Vehicle"),
+                IndexName="byGroupAndLastOdometerReadingDate",
+                KeyConditionExpression="#g = :g AND lastOdometerReadingDate >= :a",
+                ExpressionAttributeNames={"#g": "group"},
+                ExpressionAttributeValues={":g": {"S": group}, ":a": {"S": since30}},
+            )
+        except Exception as exc:
+            out["errors"].append(f"odofresh:{exc}"[:80]); up["vehicles_fresh_odometer"] = None
+        # Reminders have no createdAt index, so a byGroup count is lifetime-ever and
+        # reaches back to 2022. That inflates the signal badly: it counts a reminder
+        # somebody completed three years ago as current usage. Count OPEN (Pending)
+        # reminders instead, which means maintenance tracking is live right now.
+        try:
+            up["reminders_open"] = H.query_count(
+                ddb, TableName=H.table("VehicleMaintenanceReminder"),
+                IndexName="byGroupByStatus",
+                KeyConditionExpression="#g = :g AND begins_with(#sk, :p)",
+                ExpressionAttributeNames={"#g": "group", "#sk": "status#dueBySort"},
+                ExpressionAttributeValues={":g": {"S": group}, ":p": {"S": "Pending#"}},
+            )
+        except Exception as exc:
+            out["errors"].append(f"rem:{exc}"[:80]); up["reminders_open"] = None
+        try:
+            up["reminders_lifetime"] = H.query_count(
+                ddb, TableName=H.table("VehicleMaintenanceReminder"), IndexName="byGroup",
+                KeyConditionExpression="#g = :g",
+                ExpressionAttributeNames={"#g": "group"},
+                ExpressionAttributeValues={":g": {"S": group}},
+            )
+        except Exception as exc:
+            up["reminders_lifetime"] = None
+    out["upside"] = up
     return out
 
 
@@ -360,7 +464,8 @@ def main():
         TableName=H.table("Tenant"),
         ProjectionExpression=(
             "id,#g,companyName,customerStatus,accountPremiumStatus,"
-            "isTestingAccount,isTemporaryAccount,totalNumberOfMonthsPaidByTenant"
+            "isTestingAccount,isTemporaryAccount,totalNumberOfMonthsPaidByTenant,"
+            "featureEnabledInventoryManagement,featureAccessInventoryManagement"
         ),
         ExpressionAttributeNames={"#g": "group"},
     )

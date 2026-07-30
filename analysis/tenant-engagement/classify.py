@@ -155,6 +155,15 @@ def classify(t, as_of):
     r["shell_ratio"] = (ew / rw) if rw else None
     r["shell_flag"] = bool(rw >= SHELL_MIN_ROSTERS and (ew / rw) >= SHELL_RATIO)
 
+    # ---- UPSIDE, carried through untouched.
+    # Deliberately assigned AFTER every scored signal and BEFORE the bucket, and the
+    # bucket logic below must never reference r["upside"]. There is a test for this in
+    # verify_upside_isolation(). Fleet adoption is 10% odometer / 28% maintenance, so
+    # scoring it would flag 70% of the book, which is a product problem not a triage
+    # list. Inventory and document signing live in the Athena app and have no table in
+    # this account, so their usage is not measurable: paused by decision 2026-07-30.
+    r["upside"] = t.get("upside") or {}
+
     # ---- triage bucket, the single field to act on
     #
     # "Disengaged" means BOTH_DARK (no human messaging AND no scorecard) or
@@ -187,6 +196,47 @@ def classify(t, as_of):
     else:
         r["bucket"] = "HEALTHY"
     return r
+
+
+def verify_upside_isolation():
+    """
+    Prove that upside signals cannot change a bucket.
+
+    Runs classify() twice on a synthetic tenant, once with every upside signal at its
+    best and once at its worst, and asserts the bucket is identical. If someone later
+    wires an upside signal into the bucket logic, this fails loudly.
+    """
+    import copy
+    base = {
+        "companyName": "TEST", "group": "test", "can_roster": True,
+        "last_message_sent_by_user": "2026-07-29T00:00:00Z",
+        "last_message_read": "2026-07-29T00:00:00Z",
+        "last_scorecard": "2026-07-28T00:00:00Z",
+        "last_staffed_roster": "2026-07-29",
+        "active_staff": 90, "rosters_in_window": 30, "empty_rosters_in_window": 1,
+        "invoice_series": [
+            {"createdAt": "2026-06-02T00:00:00Z", "status": "Paid",
+             "invoiceTotal": 810.0, "associates": 90.0},
+            {"createdAt": "2026-05-02T00:00:00Z", "status": "Paid",
+             "invoiceTotal": 810.0, "associates": 90.0},
+        ],
+        "daily_active_staff": {"2026-07-29": 90.0},
+    }
+    best = copy.deepcopy(base)
+    best["upside"] = {"fleet_entitled": True, "vehicles": 200, "odometer_30d": 1500,
+                      "maintenance_90d": 200, "incidents_90d": 40,
+                      "vehicles_fresh_odometer": 180, "reminders_open": 500,
+                      "inventory_enabled": True, "inventory_entitled": True}
+    worst = copy.deepcopy(base)
+    worst["upside"] = {"fleet_entitled": True, "vehicles": 200, "odometer_30d": 0,
+                       "maintenance_90d": 0, "incidents_90d": 0,
+                       "vehicles_fresh_odometer": 0, "reminders_open": 0,
+                       "inventory_enabled": False, "inventory_entitled": False}
+    as_of = dt.date(2026, 7, 30)
+    a, b = classify(best, as_of), classify(worst, as_of)
+    assert a["bucket"] == b["bucket"], (
+        f"upside leaked into scoring: {a['bucket']} vs {b['bucket']}")
+    return a["bucket"]
 
 
 def plural(n, word):
@@ -414,6 +464,75 @@ def build_report(rows, as_of, window):
         for k, v in sorted(multi.items(), key=lambda kv: -sum(x["arr"] for x in kv[1])):
             b = ", ".join(sorted(set(x["bucket"] for x in v)))
             w(f"| {k} | {len(v)} | {money(sum(x['monthly'] for x in v))} | {b} |")
+        w("")
+
+    # ---- value opportunities, upside only
+    fleet = [r for r in rows if (r["upside"] or {}).get("fleet_entitled")]
+    if fleet:
+        g = lambda r, k: (r["upside"] or {}).get(k) or 0
+        no_odo = [r for r in fleet if g(r, "odometer_30d") == 0]
+        no_maint = [r for r in fleet if g(r, "maintenance_90d") == 0]
+        neither = [r for r in fleet if g(r, "odometer_30d") == 0 and g(r, "maintenance_90d") == 0]
+        users = sorted([r for r in fleet if g(r, "odometer_30d") > 0],
+                       key=lambda r: -g(r, "odometer_30d"))
+        w("## Value opportunities")
+        w("")
+        w("**These never lower a health band.** They are material for the value and "
+          "expansion conversation, not risk signals. Fleet adoption is low enough "
+          "across the book that absence is the norm rather than a warning: scoring it "
+          "would flag most customers and tell you nothing about which are at risk.")
+        w("")
+        w("### Fleet module")
+        w("")
+        w(f"{len(fleet)} tenants are entitled to the vehicles module "
+          f"({len(rows)-len(fleet)} are not and are excluded here).")
+        w("")
+        w("| Signal | Tenants | Share |")
+        w("|---|---|---|")
+        w(f"| Logged no odometer reading in 30 days | {len(no_odo)} | {len(no_odo)/len(fleet)*100:.0f}% |")
+        w(f"| Logged no maintenance in 90 days | {len(no_maint)} | {len(no_maint)/len(fleet)*100:.0f}% |")
+        w(f"| **Logged neither** | **{len(neither)}** | **{len(neither)/len(fleet)*100:.0f}%** |")
+        w(f"| Has open maintenance reminders | {sum(1 for r in fleet if g(r,'reminders_open')>0)} | "
+          f"{sum(1 for r in fleet if g(r,'reminders_open')>0)/len(fleet)*100:.0f}% |")
+        w(f"| Logged an incident or damage in 90 days | {sum(1 for r in fleet if g(r,'incidents_90d')>0)} | "
+          f"{sum(1 for r in fleet if g(r,'incidents_90d')>0)/len(fleet)*100:.0f}% |")
+        w("")
+        w(f"**{money(sum(r['monthly'] for r in neither))} per month** comes from the "
+          f"{len(neither)} tenants using no fleet features at all, while carrying "
+          f"{sum(g(r,'vehicles') for r in neither):,} vehicles between them. That is the "
+          "single largest untapped value across the book.")
+        if users:
+            w("")
+            w("### Reference customers for the fleet conversation")
+            w("")
+            w("The tenants who do use it, and the proof it works. Useful when selling "
+              "fleet to everyone else.")
+            w("")
+            w("| Account | Vehicles | Odometer readings 30d | Maintenance 90d | Open reminders |")
+            w("|---|---|---|---|---|")
+            for r in users[:10]:
+                nm = str(r["companyName"]).replace("|", "\\|")
+                w(f"| {nm} | {g(r,'vehicles')} | {g(r,'odometer_30d'):,} | "
+                  f"{g(r,'maintenance_90d'):,} | {g(r,'reminders_open'):,} |")
+        w("")
+        w("### Paused: inventory and document signing")
+        w("")
+        w("**Neither is measurable from here, and neither has a usable entitlement flag "
+          "either.** Both features live in the Athena app, which has no table in this "
+          "DynamoDB account, so there is no usage to count.")
+        w("")
+        w("The two flags on `Tenant` that look like they would help do not:")
+        w("")
+        w("- `featureEnabledInventoryManagement` and `featureAccessInventoryManagement` are "
+          "both `true` on 949 of 954 tenant rows, including long-churned ones. That is a "
+          "global default switched on for everybody, not a record of who bought it, so a "
+          "count off this field would mean nothing.")
+        w("- Document signing has **no field at all** on `Tenant`. It is too new to have "
+          "been added.")
+        w("")
+        w("So measuring either one needs RDS access or the Athena API. Paused by decision "
+          "on 2026-07-30. Both are intended to become scored signals later, once adoption "
+          "is high enough that absence is the exception.")
         w("")
 
     w("## Caveats")

@@ -90,6 +90,13 @@ Then, in order of usefulness:
    associate drop does not get mistaken for churn.
 5. **Multi-site customers.** Secondary sites appear as separate tenants. Treat each
    group as one relationship and one conversation.
+6. **Value opportunities, last and clearly separated.** The fleet numbers are upside
+   only and **cannot** lower a band. Say so out loud, because a table showing 70% of
+   customers using nothing reads like an emergency and is not one. It is a single
+   product adoption conversation. Lead with the aggregate, not a per-account list, and
+   name the reference customers who do use it, since those are what sell it to
+   everyone else. Inventory and document signing are unmeasurable from DynamoDB;
+   report them as paused rather than as zero.
 
 ## Things that will make you wrong
 

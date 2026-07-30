@@ -60,6 +60,36 @@ The `bucket` field crosses the two and is the only field you need to act on.
 | `under10_run` | `InvoiceLineItem` | `gsi-InvoiceInvoiceLineItems` | Daily `activeStaff`, consecutive recent days below 10 |
 | `cleanup` | `StaffStatus` | `byGroup` | Bulk `Active` to `Inactive` transitions on one day |
 
+### Upside signals, reported but never scored
+
+Everything under `upside` in the signals JSON. **Nothing here may lower a health
+band.** `classify.py` assigns `r["upside"]` after every scored signal and the bucket
+logic must not reference it; `verify_upside_isolation()` proves this by classifying the
+same tenant twice, once with every upside signal maxed and once at zero, and asserting
+the bucket is identical. Run it after touching either file.
+
+The reason is not caution, it is information content. 70% of entitled tenants use no
+fleet feature at all, so a fleet signal would flag most of the book and tell you
+nothing about which accounts are at risk. That is one product conversation, not 168
+triage items. Promote a signal to the scored tier once a majority use it.
+
+| Signal | Source | Index | Note |
+|---|---|---|---|
+| `fleet_entitled` | `Tenant` | scan | `accountPremiumStatus` contains `vehicles` or `bundle`. 7 of 248 are not entitled and are excluded, not marked absent |
+| `vehicles` | `Vehicle` | `byGroup` | Fleet size |
+| `odometer_30d` | `Accident` | `byGroupByHistoryType` | `begins_with` on `Odometer Reading#`. The `Accident` table holds all vehicle history despite the name |
+| `maintenance_90d` | `Accident` | `byGroupByHistoryType` | `Maintenance#` |
+| `incidents_90d` | `Accident` | `byGroupByHistoryType` | Sum of `Accident`, `Incident`, `Vehicle Damage`. Counts as value captured, not risk: logging incidents means they use Hera for compliance |
+| `vehicles_fresh_odometer` | `Vehicle` | `byGroupAndLastOdometerReadingDate` | Vehicles read within 30 days |
+| `reminders_open` | `VehicleMaintenanceReminder` | `byGroupByStatus` | `begins_with` on `Pending#`. **Never use a plain `byGroup` count**: there is no `createdAt` index, so it is lifetime-ever back to 2022 and counted a reminder completed three years ago as current usage, putting HRH Delivery at 923 instead of 237 |
+
+Inventory management and document signing are **paused, not missing.** Both live in the
+Athena app with no table in this account. Their entitlement flags do not substitute:
+`featureEnabledInventoryManagement` and `featureAccessInventoryManagement` are `true` on
+949 of 954 rows including churned ones, a global default rather than a purchase record,
+and document signing has no `Tenant` field at all. Measuring either needs RDS or the
+Athena API.
+
 ## Field traps
 
 All centralised in `lib_hera.py`. Each one produced a confidently wrong answer at
