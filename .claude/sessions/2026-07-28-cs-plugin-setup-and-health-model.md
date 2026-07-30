@@ -199,6 +199,13 @@ This is the most important section of this log. Most of the session's value came
 
 ## 7. Open items and follow-ups
 
+> **Superseded by [`analysis/OPEN-QUESTIONS.md`](../../analysis/OPEN-QUESTIONS.md) on
+> 2026-07-30.** That file is the canonical list and uses stable IDs (A1 through G1).
+> The 16 items below are kept as the original record. Five questions were missing from
+> this list entirely: the retention target, expansion routing, legal routing, success
+> plan format, and renewal conversation style.
+
+
 ### Waiting on John
 
 1. **Seasonality / peak season.** Every threshold comes from a mid-summer window. A July decline cannot be separated from a seasonal trough. John said he would supply peak-season detail. **This is the single input that could move numbers.**
