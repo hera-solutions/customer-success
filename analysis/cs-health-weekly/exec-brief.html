@@ -38,81 +38,76 @@
   body {
     margin: 0; background: var(--bg); color: var(--text);
     font-family: "Aglet Slab", Rockwell, "Roboto Slab", Bitter, ui-serif, Georgia, serif;
-    line-height: 1.5; -webkit-font-smoothing: antialiased;
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
   }
 
   section {
     min-height: 100vh; scroll-snap-align: start;
     display: flex; flex-direction: column; justify-content: center;
-    padding: 4rem 1.5rem 4.5rem; border-bottom: 1px solid var(--rule);
+    padding: 3.5rem 1.5rem 4rem; border-bottom: 1px solid var(--rule);
   }
-  .inner { max-width: 980px; margin: 0 auto; width: 100%; }
+  .inner { max-width: 1000px; margin: 0 auto; width: 100%; }
 
   .eyebrow {
     font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--accent); font-weight: 700; margin: 0 0 0.9rem;
   }
   .slideno { float: right; color: var(--rule); font-size: 0.7rem; letter-spacing: 0.1em; }
-  h1 { font-size: clamp(2rem, 5.5vw, 3.7rem); line-height: 1.05; margin: 0 0 1.1rem; font-weight: 700; text-wrap: balance; }
-  h2 { font-size: clamp(1.4rem, 3.4vw, 2.2rem); line-height: 1.15; margin: 0 0 1rem; font-weight: 700; text-wrap: balance; }
-  p { font-size: clamp(0.98rem, 1.5vw, 1.1rem); margin: 0.7rem 0; max-width: 64ch; }
-  p.lead { font-size: clamp(1.05rem, 1.9vw, 1.3rem); color: var(--muted); max-width: 58ch; }
+  h1 { font-size: clamp(2rem, 5.5vw, 3.6rem); line-height: 1.05; margin: 0 0 1.1rem; font-weight: 700; text-wrap: balance; }
+  h2 { font-size: clamp(1.35rem, 3.2vw, 2.05rem); line-height: 1.18; margin: 0 0 1.1rem; font-weight: 700; text-wrap: balance; }
+  p { font-size: clamp(1rem, 1.5vw, 1.13rem); margin: 0.85rem 0; max-width: 70ch; }
+  p.big { font-size: clamp(1.1rem, 1.9vw, 1.3rem); }
   strong { font-weight: 700; }
 
-  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); gap: 2rem 1.8rem; margin: 2rem 0 0.8rem; }
-  .stat .n { font-size: clamp(1.9rem, 4.2vw, 2.9rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; display: block; }
-  .stat .l { font-size: 0.76rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 0.5rem; display: block; }
-  .stat .d { font-size: 0.92rem; color: var(--text); margin-top: 0.55rem; }
+  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.6rem 1.8rem; margin: 1.8rem 0; }
+  .stat .n { font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; display: block; }
+  .stat .l { font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-top: 0.45rem; display: block; }
   .stat.good .n { color: var(--green); }
   .stat.bad .n { color: var(--red); }
   .stat.warn .n { color: var(--amber); }
 
-  .bar { display: flex; height: 2.4rem; margin: 1.8rem 0 0.5rem; border: 1px solid var(--rule); overflow: hidden; }
+  .bar { display: flex; height: 2.3rem; margin: 1.5rem 0 0.5rem; border: 1px solid var(--rule); overflow: hidden; }
   .bar div { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; text-align: center; }
-  .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem; color: var(--muted); }
 
-  .scroll { overflow-x: auto; margin: 1.3rem 0; border: 1px solid var(--rule); }
-  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--rule); }
-  th { background: var(--surface); font-size: 0.71rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 700; white-space: nowrap; }
+  .scroll { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.89rem; }
+  th, td { text-align: left; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--rule); }
+  th { background: var(--surface); font-size: 0.7rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 700; white-space: nowrap; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   tbody tr:last-child td { border-bottom: none; }
+  tr.grp td { background: var(--surface); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  tr.tot td { font-weight: 700; border-top: 2px solid var(--rule); }
 
-  .box { border-left: 5px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.2rem; margin: 1.4rem 0; }
+  .box { border-left: 5px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.2rem; margin: 1.3rem 0; }
   .box.red { border-color: var(--red); background: var(--red-light); }
   .box.green { border-color: var(--green); background: var(--green-light); }
   .box.amber { border-color: var(--amber); background: var(--amber-light); }
-  .box p { margin: 0.4rem 0; max-width: 66ch; }
+  .box p { margin: 0.4rem 0; max-width: 70ch; font-size: 1rem; }
   .box p:first-child { margin-top: 0; } .box p:last-child { margin-bottom: 0; }
 
-  /* plain-language explainer, deliberately distinct from the argument boxes */
-  .plain {
-    margin: 1.6rem 0 0; padding: 1rem 1.2rem; border: 1px dashed var(--rule);
-    background: transparent; border-radius: 4px;
-  }
-  .plain .h {
-    font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted); font-weight: 700; display: block; margin-bottom: 0.5rem;
-  }
-  .plain p { font-size: 0.98rem; margin: 0.4rem 0; max-width: 70ch; }
-  .plain p:first-of-type { margin-top: 0; } .plain p:last-child { margin-bottom: 0; }
-
-  ol.asks { counter-reset: a; list-style: none; padding: 0; margin: 1.6rem 0 0; }
-  ol.asks li { counter-increment: a; position: relative; padding-left: 3rem; margin: 1.3rem 0; max-width: 66ch; }
+  ol.asks { counter-reset: a; list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  ol.asks li { counter-increment: a; position: relative; padding-left: 3rem; margin: 1.2rem 0; max-width: 70ch; }
   ol.asks li::before {
-    content: counter(a); position: absolute; left: 0; top: -0.1rem;
+    content: counter(a); position: absolute; left: 0; top: -0.05rem;
     width: 2.1rem; height: 2.1rem; border-radius: 50%;
     background: var(--accent); color: #fff; font-weight: 700; font-size: 0.95rem;
     display: flex; align-items: center; justify-content: center;
   }
-  ol.asks .q { font-weight: 700; display: block; margin-bottom: 0.2rem; font-size: 1.02rem; }
+  ol.asks .q { font-weight: 700; display: block; margin-bottom: 0.15rem; }
+
+  .flow { display: grid; grid-template-columns: 1fr auto; gap: 0.1rem 1.5rem; max-width: 620px; margin: 1.6rem 0 0.5rem; font-size: 1.02rem; }
+  .flow div { padding: 0.5rem 0; border-bottom: 1px solid var(--rule); }
+  .flow .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+  .flow .neg .v { color: var(--red); }
+  .flow .pos .v { color: var(--green); }
+  .flow .end { border-bottom: none; border-top: 2px solid var(--rule); font-weight: 700; padding-top: 0.7rem; }
 
   nav.dots { position: fixed; right: 1rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 10; }
   nav.dots a { width: 9px; height: 9px; border-radius: 50%; background: var(--rule); display: block; }
   nav.dots a:hover, nav.dots a:focus-visible { background: var(--accent); }
   @media (max-width: 760px) { nav.dots { display: none; } }
 
-  .foot { font-size: 0.82rem; color: var(--muted); margin-top: 2rem; }
+  .foot { font-size: 0.82rem; color: var(--muted); margin-top: 1.8rem; }
   a { color: var(--accent); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 </style>
@@ -124,117 +119,103 @@
   <a href="#s7" aria-label="Slide 7"></a><a href="#s8" aria-label="Slide 8"></a>
   <a href="#s9" aria-label="Slide 9"></a><a href="#s10" aria-label="Slide 10"></a>
   <a href="#s11" aria-label="Slide 11"></a><a href="#s12" aria-label="Slide 12"></a>
-  <a href="#s13" aria-label="Slide 13"></a><a href="#s14" aria-label="Slide 14"></a>
+  <a href="#s13" aria-label="Slide 13"></a>
 </nav>
 
 <section id="s1"><div class="inner">
-  <p class="eyebrow">Hera Solutions &middot; 30 July 2026<span class="slideno">1 / 14</span></p>
+  <p class="eyebrow">Hera Solutions &middot; 30 July 2026<span class="slideno">1 / 13</span></p>
   <h1>Customer Success:<br>where we are</h1>
-  <p class="lead">We now check every paying customer against what they actually do in the product. This is what it shows, and the five decisions I need from you.</p>
-  <p class="foot">241 customers &middot; $193,080 a month &middot; 22,638 active associates &middot; checked weekly</p>
-  <div class="plain">
-    <span class="h">How to read this deck</span>
-    <p><strong>Every dollar figure is monthly revenue, not yearly.</strong> We bill month to month with no contract, so a customer can leave at the end of any month. Talking in yearly figures would pretend we have a commitment we do not have.</p>
-    <p>So when you see <strong>$24,245</strong>, read it as "that is how much money arrives every month from that group of customers." Multiply by twelve in your head only if you want the yearly picture.</p>
+  <p class="big">We now check every paying customer against what they actually do in the product, every week. This is what it shows, and the five decisions I need from you.</p>
+  <p><strong>Every dollar figure in this deck is what arrives in one month.</strong> We bill month to month with no contract, so a customer can leave at the end of any month. Yearly figures would pretend we have a commitment we do not have.</p>
+  <div class="three">
+    <div class="stat"><span class="n">241</span><span class="l">Customers</span></div>
+    <div class="stat"><span class="n">$193,080</span><span class="l">Arrives each month</span></div>
+    <div class="stat"><span class="n">22,638</span><span class="l">Drivers we bill for</span></div>
+    <div class="stat"><span class="n">$801</span><span class="l">Average customer, monthly</span></div>
   </div>
 </div></section>
 
 <section id="s2"><div class="inner">
-  <p class="eyebrow">The headline<span class="slideno">2 / 14</span></p>
-  <h2>The business is healthier than we assumed, and the problem is not customers leaving</h2>
+  <p class="eyebrow">The headline<span class="slideno">2 / 13</span></p>
+  <h2>We assumed our problem was customers quitting. It is not.</h2>
+  <p class="big">We keep almost every customer we could realistically keep, and the ones who stay grow on their own without anybody selling to them.</p>
+  <p><strong>The real problem is quieter.</strong> $52,512 arrives every month from customers who pay the invoice and hardly open the product. That is 27 cents of every dollar we collect. Those customers are not angry and they are not complaining. They simply are not getting anything, and the first time somebody in their office asks what the money is for, we lose them.</p>
+  <p>Until now we could not tell you who those customers were. Now it is a list of 62 names.</p>
   <div class="three">
-    <div class="stat good">
-      <span class="n">96&cent;</span><span class="l">Kept on the dollar</span>
-      <span class="d">Of the money we were getting a year ago from customers we already had, we still get 96 cents, once you set aside customers whose businesses closed.</span>
-    </div>
-    <div class="stat good">
-      <span class="n">+17.8%</span><span class="l">Customers grew by themselves</span>
-      <span class="d">The customers who stayed are paying us more than a year ago, and nobody sold them anything.</span>
-    </div>
-    <div class="stat warn">
-      <span class="n">$52,512</span><span class="l">Paying, barely using it</span>
-      <span class="d">Every month. That is 27 cents of every dollar we collect, from customers getting almost nothing from the product.</span>
-    </div>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>We assumed our problem was customers quitting. It is not. We keep almost all of them, and the ones who stay grow.</p>
-    <p>The real problem is quieter: <strong>about a quarter of our monthly money comes from customers who pay the invoice but hardly open the product.</strong> Those customers have no reason to keep paying once anyone stops to ask why they are. That is the risk we could not see before, and it is now a list of names.</p>
+    <div class="stat good"><span class="n">$177,905</span><span class="l">Kept from last year's customers</span></div>
+    <div class="stat good"><span class="n">+$26,927</span><span class="l">Growth with no selling</span></div>
+    <div class="stat warn"><span class="n">$52,512</span><span class="l">Paying, barely using it</span></div>
   </div>
 </div></section>
 
 <section id="s3"><div class="inner">
-  <p class="eyebrow">How our money works<span class="slideno">3 / 14</span></p>
+  <p class="eyebrow">How our money works<span class="slideno">3 / 13</span></p>
   <h2>We get paid when our customers hire drivers</h2>
-  <p>We charge <strong>$9 per active associate per month</strong>, worked out daily at 30 cents a head, and we invoice a month behind. The number of active associates explains <strong>96%</strong> of what any customer pays.</p>
+  <p class="big">We charge $9 per active driver per month, worked out daily at 30 cents a head, and we invoice a month behind. The number of drivers explains 96% of what any customer pays us.</p>
+  <p><strong>Our revenue is essentially a headcount tax.</strong> If a customer hires 20 more drivers we automatically collect $180 more next month without doing anything. If they lose 20 drivers we lose $180. That is why revenue went up this year with nobody selling: our customers hired.</p>
+  <p><strong>The flip side is that we have almost no way to charge an existing customer more.</strong> The price per driver is fixed and only 4 of our 248 customers pay any kind of flat fee. The one real upsell we own is HeraAi, which is switched on for 13% of customers.</p>
   <div class="three">
-    <div class="stat"><span class="n">$801</span><span class="l">Average customer</span><span class="d">Per month.</span></div>
-    <div class="stat"><span class="n">$759</span><span class="l">Middle customer</span><span class="d">Half pay more, half pay less.</span></div>
-    <div class="stat"><span class="n">$2,202</span><span class="l">Biggest customer</span><span class="d">Only about 3x the middle one.</span></div>
+    <div class="stat"><span class="n">$759</span><span class="l">Middle customer, monthly</span></div>
+    <div class="stat"><span class="n">$2,202</span><span class="l">Biggest customer, monthly</span></div>
+    <div class="stat"><span class="n">3x</span><span class="l">Biggest vs middle</span></div>
   </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>Our revenue is basically a headcount tax. If a customer hires 20 more drivers, we automatically get $180 more a month without doing anything. If they lose 20, we lose $180.</p>
-    <p><strong>Two consequences.</strong> First, we grow when our customers grow, which is why revenue went up without any selling. Second, <strong>we have almost no way to charge an existing customer more</strong>, because the price per head is fixed and only 4 of our 248 customers pay any kind of flat fee.</p>
-    <p>The only lever we have is selling something that is not priced per head. HeraAi is on 13% of accounts. That is the one real upsell we own.</p>
-  </div>
+  <p class="foot">Our biggest customer pays only about three times what our middle customer pays. There are no whales here, which is why we do not sort customers by size.</p>
 </div></section>
 
 <section id="s4"><div class="inner">
-  <p class="eyebrow">Do we keep our customers<span class="slideno">4 / 14</span></p>
-  <h2>We keep 96 cents of every dollar we could realistically keep</h2>
-  <div class="scroll">
-  <table>
-    <thead><tr><th>Measure</th><th class="num">Result</th><th>What it means</th></tr></thead>
-    <tbody>
-      <tr><td>Money kept, everything counted</td><td class="num">86&cent;</td><td>Of every dollar we were getting a year ago from customers we already had, we still get 86 cents.</td></tr>
-      <tr><td><strong>Money kept, fair version</strong></td><td class="num"><strong>96&cent;</strong></td><td>Same thing, but leaving out customers whose businesses shut down. This is the number our team can actually affect.</td></tr>
-      <tr><td>Lost because Amazon closed them</td><td class="num">10&cent;</td><td>Customers who lost their Amazon contract or went out of business. Nothing we could have done.</td></tr>
-    </tbody>
-  </table>
+  <p class="eyebrow">Do we keep our customers<span class="slideno">4 / 13</span></p>
+  <h2>Of the money coming in a year ago, we still have $177,905 of $206,077</h2>
+  <p class="big">Take the customers who were paying us in June last year. Between them they sent us $206,077 a month. Here is what happened to that money over twelve months.</p>
+  <div class="flow">
+    <div>What that group paid us a year ago</div><div class="v">$206,077</div>
+    <div class="neg">Lost because Amazon closed them or they shut down</div><div class="v neg">-$20,283</div>
+    <div class="neg">Lost for reasons that were on us</div><div class="v neg">-$34,816</div>
+    <div class="pos">The ones who stayed grew and now pay more</div><div class="v pos">+$26,927</div>
+    <div class="end">What the same group pays us today</div><div class="v end">$177,905</div>
   </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>Imagine we were collecting $100 a month a year ago from a group of customers. Today that same group pays us $86. Of the $14 we lost, about $10 walked out because their business ended and $4 is on us.</p>
-    <p><strong>96 cents is a very good number.</strong> Most software businesses would be pleased with 90. The target I set earlier was 90 cents and we were already past it, so that target is not telling us anything and needs replacing.</p>
+  <p><strong>Read the middle two lines.</strong> Of the $55,099 we lost, $20,283 walked out because the business ended, and $34,816 is money we might have kept. The customers who stayed more than covered a third of the damage by growing.</p>
+  <div class="box green">
+    <p><strong>This is a good result.</strong> Keeping $177,905 of $185,794 once you set aside the businesses that closed means we hold onto nearly everything we realistically can. The target I set earlier was lower than what we were already doing, so it needs replacing with something that actually stretches us.</p>
   </div>
 </div></section>
 
 <section id="s5"><div class="inner">
-  <p class="eyebrow">Why customers actually leave<span class="slideno">5 / 14</span></p>
-  <h2>Competitors are not the reason we lose customers</h2>
-  <p class="lead">88 paying customers left in the last twelve months. Between them they were paying us <strong>$65,098 a month</strong>. Here is what actually caused it.</p>
-  <div class="bar">
-    <div style="width:36%;background:var(--grey-dark)">Amazon or business ended 36%</div>
-    <div style="width:27%;background:var(--amber)">Went to a competitor 27%</div>
-    <div style="width:37%;background:var(--blue)">Everything else 38%</div>
-  </div>
+  <p class="eyebrow">Why customers actually leave<span class="slideno">5 / 13</span></p>
+  <h2>Competitors are not why we lose customers</h2>
+  <p class="big">88 paying customers left in the last twelve months. Between them they were sending us $65,099 a month. Every reason is listed below, biggest first, with whether we could have done anything about it.</p>
   <div class="scroll">
   <table>
-    <thead><tr><th>Cause</th><th class="num">Customers</th><th class="num">Monthly revenue lost</th><th class="num">Share</th></tr></thead>
+    <thead><tr><th>Why they left</th><th class="num">Customers</th><th class="num">Monthly</th><th>Could we have stopped it?</th></tr></thead>
     <tbody>
-      <tr><td><strong>Amazon closed them, or the business ended</strong></td><td class="num">35</td><td class="num">$23,156</td><td class="num">36%</td></tr>
-      <tr><td>Went to a competitor</td><td class="num">23</td><td class="num">$17,525</td><td class="num">27%</td></tr>
-      <tr><td>Did not find it useful, too expensive, built their own, or no reason recorded</td><td class="num">30</td><td class="num">$24,417</td><td class="num">38%</td></tr>
+      <tr><td><strong>Amazon closed them, or they shut down</strong></td><td class="num">31</td><td class="num">$20,981</td><td>No</td></tr>
+      <tr><td><strong>Did not find the product useful</strong></td><td class="num">11</td><td class="num">$10,941</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Went to a competitor we never wrote down</td><td class="num">12</td><td class="num">$8,533</td><td>Probably</td></tr>
+      <tr><td><strong>Too expensive</strong></td><td class="num">9</td><td class="num">$6,614</td><td><strong>Sometimes</strong></td></tr>
+      <tr><td>Went to LMDmax</td><td class="num">7</td><td class="num">$5,306</td><td>Probably</td></tr>
+      <tr><td><strong>Built their own system instead</strong></td><td class="num">6</td><td class="num">$4,134</td><td><strong>Sometimes</strong></td></tr>
+      <tr><td><strong>Just stopped using it, gave no reason</strong></td><td class="num">3</td><td class="num">$1,902</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Went to Manage my DSP</td><td class="num">2</td><td class="num">$1,808</td><td>Probably</td></tr>
+      <tr><td>Went to DSPworkplace</td><td class="num">1</td><td class="num">$1,148</td><td>Probably</td></tr>
+      <tr><td>Closed a second depot</td><td class="num">2</td><td class="num">$1,115</td><td>No</td></tr>
+      <tr><td>Paused their subscription</td><td class="num">1</td><td class="num">$826</td><td>Maybe</td></tr>
+      <tr><td>Went to Lokiteck</td><td class="num">1</td><td class="num">$731</td><td>Probably</td></tr>
+      <tr><td>Amazon cut their routes</td><td class="num">1</td><td class="num">$648</td><td>No</td></tr>
+      <tr><td>Let all their drivers go</td><td class="num">1</td><td class="num">$412</td><td>No</td></tr>
+      <tr class="tot"><td>Total</td><td class="num">88</td><td class="num">$65,099</td><td></td></tr>
     </tbody>
   </table>
   </div>
   <div class="box red">
-    <p><strong>And of the ones who did go to a competitor, the names we worry about barely appear.</strong></p>
-    <p>DSPworkplace: <strong>one customer</strong> in twelve months. Manage my DSP: two. Lokiteck: one. LMDmax: seven.</p>
-    <p>The biggest competitor group is twelve customers recorded only as <strong>"Other"</strong>, worth $8,533 a month. Nearly half our competitive losses went to somebody we never wrote down.</p>
+    <p><strong>DSPworkplace took one customer in twelve months.</strong> One, worth $1,148 a month. Lokiteck one. Manage my DSP two. LMDmax seven.</p>
+    <p>All five competitors together account for 23 customers and $17,525 a month, about a quarter of what we lost. The single biggest reason by a wide margin is Amazon shutting our customers down, which we cannot prevent.</p>
   </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>If the worry is "everyone is leaving for DSPworkplace," the answer is that <strong>one customer</strong> did that in a whole year. Competitors account for roughly a quarter of our losses, and the largest single cause is Amazon shutting our customers down, which we cannot prevent.</p>
-    <p><strong>But the money tells a slightly different story than the headcount.</strong> The biggest chunk of lost revenue, 38%, is the "everything else" group, and the largest single reason inside it is customers who did not find the product useful, at $10,941 a month.</p>
-    <p>That is worth saying out loud because <strong>it is the one we can fix.</strong> It is exactly the group the adoption work targets.</p>
-  </div>
+  <p><strong>And the reasons that are genuinely on us add up to more than the competitors do.</strong> Did not find it useful, too expensive, built their own, and just stopped, together are 29 customers and $23,591 a month. That is the group the adoption work goes after, and it is the argument for doing it.</p>
 </div></section>
 
 <section id="s6"><div class="inner">
-  <p class="eyebrow">Where the risk actually is<span class="slideno">6 / 14</span></p>
+  <p class="eyebrow">Where the risk actually is<span class="slideno">6 / 13</span></p>
   <h2>$52,512 a month pays us and barely uses us</h2>
+  <p class="big">We sorted all 248 accounts into groups based on what they actually do in the product. Two groups matter most, and neither of them is about customers leaving.</p>
   <div class="bar">
     <div style="width:55.8%;background:var(--green)">Healthy 56%</div>
     <div style="width:14.6%;background:var(--blue-dark)">Stopped scorecards 15%</div>
@@ -242,179 +223,114 @@
     <div style="width:11.5%;background:var(--grey-dark)">Shrinking 11%</div>
     <div style="width:5.5%;background:var(--red)">Other 5%</div>
   </div>
-  <div class="three">
-    <div class="stat warn"><span class="n">27</span><span class="l">Not using it &middot; $24,245/mo</span>
-      <span class="d">Hiring more drivers, paying us more every month, and not doing the daily work in Hera. One is up 25% and has not built a driver schedule in 83 days.</span></div>
-    <div class="stat warn"><span class="n">35</span><span class="l">Stopped scorecards &middot; $28,268/mo</span>
-      <span class="d">Still messaging drivers, but have not uploaded an Amazon scorecard in over two months. They are doing that work somewhere else now.</span></div>
-    <div class="stat bad"><span class="n">5</span><span class="l">Critical &middot; $3,832/mo</span>
-      <span class="d">Losing drivers and not using the product. Small enough to work this week.</span></div>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>We sorted every customer into one of nine groups. Two of them matter most and neither is about customers leaving.</p>
-    <p><strong>"Not using it"</strong> is the strange one: these customers are growing, so our invoice to them goes up every month, and yet they barely touch the product. They are not angry, they are not complaining, they simply are not getting value. The first time anyone in their office asks what the $1,750 is for, we lose them.</p>
-    <p><strong>"Stopped scorecards"</strong> means they still use Hera to message drivers but have moved the performance side of their job somewhere else. That is a warning that half our product has already been replaced.</p>
-    <p>Together that is <strong>$52,512 a month</strong>, and until now nobody knew who those 62 customers were.</p>
+  <p><strong>27 customers worth $24,245 a month are "not using it."</strong> These are the strange ones. They are hiring more drivers, so our invoice to them goes up every month, and yet they barely touch the product. One is up 25% on drivers and has not built a driver schedule in 83 days.</p>
+  <p><strong>35 customers worth $28,268 a month have "stopped scorecards."</strong> They still message their drivers through Hera, but they have not uploaded an Amazon performance scorecard in over two months. They are doing that part of the job somewhere else now, which means half our product has already been replaced for them.</p>
+  <p><strong>5 customers worth $3,832 a month are critical:</strong> losing drivers and not using the product. That is small enough to work through this week.</p>
+  <div class="box amber">
+    <p><strong>Two other groups matter for the opposite reason: leave them alone.</strong></p>
+    <p><strong>31 customers are shrinking but fully engaged.</strong> Their own businesses are getting smaller. That is not a failure on our side and chasing them wastes the time we need for the other groups.</p>
   </div>
 </div></section>
 
 <section id="s7"><div class="inner">
-  <p class="eyebrow">What we invoice on 1 August<span class="slideno">7 / 14</span></p>
+  <p class="eyebrow">What we invoice on 1 August<span class="slideno">7 / 13</span></p>
   <h2>If the last two days of July hold, we invoice $190,722</h2>
-  <p class="lead">July closes tomorrow and bills a month behind. Twenty-nine days are already counted, so this is a projection off real usage, not a guess.</p>
-  <div class="three">
-    <div class="stat"><span class="n">$194,414</span><span class="l">June, invoiced 1 July</span><span class="d">23,543 average active associates.</span></div>
-    <div class="stat warn"><span class="n">$190,722</span><span class="l">July, invoices 1 August</span><span class="d">23,131 average active associates.</span></div>
-    <div class="stat warn"><span class="n">-$3,692</span><span class="l">Month on month</span><span class="d">Down 1.9%, or 412 fewer drivers.</span></div>
-  </div>
+  <p class="big">July closes tomorrow and we bill a month behind. Twenty-nine of the thirty-one days are already counted, so this is a projection from real usage rather than a guess. It is about $3,700 less than we invoiced on 1 July.</p>
   <div class="scroll">
   <table>
     <thead><tr><th>Where the change comes from</th><th class="num">June</th><th class="num">July</th><th class="num">Change</th></tr></thead>
     <tbody>
       <tr><td>Healthy customers</td><td class="num">$99,377</td><td class="num">$100,370</td><td class="num" style="color:var(--green)">+$993</td></tr>
-      <tr><td>Customers tidying up old driver records</td><td class="num">$2,965</td><td class="num">$983</td><td class="num" style="color:var(--red)">-$1,982</td></tr>
+      <tr><td>Customers deleting old driver records</td><td class="num">$2,965</td><td class="num">$983</td><td class="num" style="color:var(--red)">-$1,982</td></tr>
       <tr><td>Stopped scorecards</td><td class="num">$25,735</td><td class="num">$24,270</td><td class="num" style="color:var(--red)">-$1,464</td></tr>
       <tr><td>Not using it</td><td class="num">$34,344</td><td class="num">$33,247</td><td class="num" style="color:var(--red)">-$1,097</td></tr>
       <tr><td>Already gone, now billing nothing</td><td class="num">$702</td><td class="num">$0</td><td class="num" style="color:var(--red)">-$702</td></tr>
+      <tr class="tot"><td>All customers</td><td class="num">$194,414</td><td class="num">$190,722</td><td class="num" style="color:var(--red)">-$3,692</td></tr>
     </tbody>
   </table>
   </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>We will invoice about $3,700 less on 1 August than we did on 1 July. Before anyone panics, look at where it comes from.</p>
-    <p><strong>Our healthy customers actually grew.</strong> Roughly 62% of the drop is two harmless things: customers deleting old driver records they should have deleted months ago, and customers who were already dead finally billing zero. That is our books catching up with reality, not customers walking away.</p>
-    <p><strong>One honest caution.</strong> Amazon delivery is seasonal and all my measurements come from one summer snapshot. I cannot yet tell a normal summer dip from a real decline. Once you tell me what peak season looks like, this becomes a trend instead of a single data point.</p>
+  <p><strong>Before anyone worries, look at the top line: our healthy customers actually grew.</strong> Roughly $2,700 of the $3,700 drop is two harmless things. Customers deleting driver records they should have deleted months ago, and customers who had already effectively left finally billing zero. That is our books catching up with reality, not customers walking away.</p>
+  <div class="box amber">
+    <p><strong>One honest caution.</strong> Amazon delivery is seasonal and every measurement I have comes from one summer snapshot. I cannot yet tell a normal summer dip from a real decline. Once you tell me what peak season looks like, this becomes a trend instead of a single reading.</p>
   </div>
 </div></section>
 
 <section id="s8"><div class="inner">
-  <p class="eyebrow">Two numbers to be careful with<span class="slideno">8 / 14</span></p>
-  <h2>Some of what looks at risk is already gone</h2>
+  <p class="eyebrow">Two numbers to be careful with<span class="slideno">8 / 13</span></p>
+  <h2>Some of what looks at risk has already gone</h2>
+  <p class="big">Both of the things below would show up as customers in trouble on a simpler report, and both would be wrong. I am flagging them because being able to say which numbers are not frightening is what makes the frightening ones believable.</p>
+  <p><strong>$4,459 a month has already stopped.</strong> Six customers are already below 10 active drivers. Their next invoice will be near zero. They have effectively left and we just have not seen the final invoice yet. Calling that money recoverable would make our risk look bigger and our save rate look worse than reality.</p>
+  <p><strong>11 customers look like they are shrinking and are not.</strong> Their driver count dropped because they deleted old records after our reminder, not because they lost drivers. We ask customers twice a month to remove drivers who have left. When they do it, their bill goes down. That is good housekeeping, and running a save call on them would confuse everybody.</p>
   <div class="three">
-    <div class="stat bad"><span class="n">$4,459</span><span class="l">A month, already stopped</span>
-      <span class="d">Six customers are already below 10 active drivers. Their next invoice is near zero. This money is gone and I will not call it "at risk."</span></div>
-    <div class="stat"><span class="n">11</span><span class="l">Not actually problems</span>
-      <span class="d">Their driver count dropped because they cleaned up old records after our reminder, not because they lost drivers.</span></div>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>Both of these would look like customers in trouble on a simpler report, and both would be wrong.</p>
-    <p>The first group has already effectively left; we just have not seen the final invoice yet. Calling that money "recoverable" would make our risk number look bigger and our save rate look worse than reality.</p>
-    <p>The second group did exactly what we asked them to do. We remind customers twice a month to remove drivers who left. When they do, their bill goes down. <strong>That is good hygiene, not churn</strong>, and running a save call on them would be confusing.</p>
-    <p>I am flagging both because being able to say which numbers are not scary is what makes the scary ones believable.</p>
+    <div class="stat bad"><span class="n">$4,459</span><span class="l">A month, already gone</span></div>
+    <div class="stat"><span class="n">11</span><span class="l">Look bad, are fine</span></div>
   </div>
 </div></section>
 
 <section id="s9"><div class="inner">
-  <p class="eyebrow">The opportunity nobody is working<span class="slideno">9 / 14</span></p>
+  <p class="eyebrow">The opportunity nobody is working<span class="slideno">9 / 13</span></p>
   <h2>Our free trials are worth more than everything we are worried about</h2>
+  <p class="big">We have 67 companies sitting in a free trial right now, holding 6,648 drivers between them. If they all converted at our normal price they would be worth $59,832 a month, which is more than the entire $52,512 we are worried about losing.</p>
+  <p><strong>Nobody owns this.</strong> It is not on my list and it is not on either CSS's list. 35 of them are actively scheduling drivers and messaging, so they are live chances to convert, worth $33,561 a month. The other 32 have gone quiet or never really started, worth $26,271 a month. One of those has 287 drivers and has never once built a driver schedule.</p>
+  <p>An average customer is worth about $800 a month. So converting one trial is worth roughly the same as saving one at-risk customer, and there are 67 of them sitting untouched.</p>
   <div class="three">
-    <div class="stat good"><span class="n">$59,832</span><span class="l">A month, in trials</span><span class="d">67 real trials holding 6,648 drivers between them.</span></div>
-    <div class="stat"><span class="n">35</span><span class="l">Active trials &middot; $33,561/mo</span><span class="d">Scheduling and messaging right now. These are live chances to convert.</span></div>
-    <div class="stat warn"><span class="n">32</span><span class="l">Cold trials &middot; $26,271/mo</span><span class="d">Never scheduled a driver, or went quiet months ago. One has 287 drivers and has never built a schedule.</span></div>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>We have 67 companies sitting in a free trial right now. If every one converted at our normal price, they would be worth <strong>$59,832 a month</strong>, which is more than the entire $52,512 we are worried about losing.</p>
-    <p><strong>Nobody owns this.</strong> It is not on my list, it is not on either CSS's list. 32 of them have never even built a driver schedule, which means they signed up and never really started.</p>
-    <p>An average customer is worth about $800 a month. So converting one trial is worth roughly the same as saving one at-risk customer, and there are 67 of them sitting untouched.</p>
+    <div class="stat good"><span class="n">$59,832</span><span class="l">A month, sitting in trials</span></div>
+    <div class="stat"><span class="n">35</span><span class="l">Active, worth $33,561</span></div>
+    <div class="stat warn"><span class="n">32</span><span class="l">Cold, worth $26,271</span></div>
   </div>
 </div></section>
 
 <section id="s10"><div class="inner">
-  <p class="eyebrow">What we charge<span class="slideno">10 / 14</span></p>
-  <h2>We bill $17,438 a month less than our own price list</h2>
-  <div class="scroll">
-  <table>
-    <thead><tr><th>Reason</th><th class="num">Per month</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr><td>Discount programmes we chose: veterans, DeliverRe, customer service goodwill</td><td class="num">~$11,700</td><td>Deliberate</td></tr>
-      <tr><td>Older customers still on our old per-module prices of $5 to $7</td><td class="num">~$2,400</td><td>Working as set up</td></tr>
-      <tr><td><strong>No explanation on record</strong></td><td class="num"><strong>~$1,400</strong></td><td><strong>Needs a decision</strong></td></tr>
-    </tbody>
-  </table>
-  </div>
-  <div class="box amber">
-    <p><strong>Three accounts I cannot explain.</strong> Philosophe LLC and Integrated Logistics each bill $0 while carrying more than 70 drivers, with no discount recorded anywhere. Crucial Mile has no price tier recorded at all and carries 175 drivers.</p>
-    <p>Separately, <strong>eight customers pay nothing at all.</strong> MBB is deliberate and earns it by helping us internally. The other seven I would like to confirm with you.</p>
-  </div>
+  <p class="eyebrow">What we charge, and what we collect<span class="slideno">10 / 13</span></p>
+  <h2>We bill $17,438 a month less than our own price list, mostly on purpose</h2>
+  <p class="big">Most of the gap between our price list and what we actually collect is a choice we made, and I am not suggesting we change it. Veteran discounts, DeliverRe partners and goodwill credits are about $11,700 a month. Older customers still on our previous per-module prices of $5 to $7 are about $2,400.</p>
+  <p><strong>What I need from you is the small part with no explanation: about $1,400 a month.</strong> Philosophe LLC and Integrated Logistics each bill nothing while carrying more than 70 drivers, with no discount recorded anywhere. Crucial Mile has no price tier recorded at all and carries 175 drivers.</p>
+  <p><strong>Separately, eight customers pay nothing at all.</strong> MBB is deliberate and earns it by helping us internally. The other seven I cannot explain and would like to confirm with you.</p>
   <div class="box red">
-    <p><strong>A different problem I found while re-checking the data: we are billing and not collecting.</strong></p>
-    <p><strong>JDW Logistics, our largest customer at 338 drivers, has had its last three invoices written off</strong>, April through June, about $2,883 a month. It is a healthy, growing, active customer. PacTrack has had two card payments fail in a row and Pure Logistics one.</p>
-    <p>Together that is <strong>$4,449 a month we are delivering and not being paid for.</strong></p>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>Most of the gap between our price list and what we actually collect is on purpose, and I am not suggesting we change it. Veteran discounts and goodwill credits are choices we made.</p>
-    <p>What I need from you is the small unexplained part, and the collection problem, which is separate and more urgent: <strong>our biggest customer has not paid in three months and is still using the product every day.</strong></p>
+    <p><strong>A different and more urgent problem I found while re-checking the data: we are delivering and not being paid.</strong></p>
+    <p><strong>JDW Logistics, our largest customer at 338 drivers, has had its last three invoices written off.</strong> April, May and June, about $2,883 a month. It is a healthy, growing, active customer using the product every day. PacTrack has had two card payments fail in a row, and Pure Logistics one.</p>
+    <p>Together that is <strong>$4,449 a month we are supplying for free without deciding to.</strong></p>
   </div>
 </div></section>
 
 <section id="s11"><div class="inner">
-  <p class="eyebrow">Can we actually cover this<span class="slideno">11 / 14</span></p>
+  <p class="eyebrow">Can we actually cover this<span class="slideno">11 / 13</span></p>
   <h2>241 customers, roughly one and a half people</h2>
+  <p class="big">One and a half people cannot have a real relationship with 241 customers. That was true before this work and it is still true now. I carry the whole book, one CSS is growing into owning part of it, and the other is reactive support and your assistant.</p>
+  <p><strong>What changed is that we now know which 67 customers to call instead of guessing.</strong> 67 conversations across a quarter is workable. 241 was not.</p>
+  <p><strong>What is not workable is covering those 67 and the 67 trials at the same time.</strong> That is a genuine choice about what we do not do, not a complaint about resourcing, and it is decision four on the next slide.</p>
   <div class="three">
-    <div class="stat"><span class="n">241</span><span class="l">Customers</span><span class="d">Plus 67 trials nobody is working.</span></div>
-    <div class="stat warn"><span class="n">1.5</span><span class="l">People who really own accounts</span>
-      <span class="d">I carry the whole book. One CSS is growing into owning part of it. The other is reactive support and your assistant.</span></div>
-    <div class="stat"><span class="n">67</span><span class="l">Customers needing a conversation</span>
-      <span class="d">Critical, not using it, and stopped scorecards added together.</span></div>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>One and a half people cannot have a real relationship with 241 customers. That was true before this work and it is still true.</p>
-    <p>What changed is that <strong>we now know which 67 to call instead of guessing.</strong> 67 conversations is a workable amount of work for a quarter. 241 was not.</p>
-    <p>What is not workable is covering those 67 <em>and</em> the 67 trials at the same time. That is a real choice, not a resourcing complaint, and it is decision four.</p>
+    <div class="stat"><span class="n">241</span><span class="l">Customers</span></div>
+    <div class="stat warn"><span class="n">1.5</span><span class="l">People who own accounts</span></div>
+    <div class="stat"><span class="n">67</span><span class="l">Need a conversation</span></div>
+    <div class="stat"><span class="n">67</span><span class="l">Trials nobody works</span></div>
   </div>
 </div></section>
 
 <section id="s12"><div class="inner">
-  <p class="eyebrow">What I need from you<span class="slideno">12 / 14</span></p>
+  <p class="eyebrow">What I need from you<span class="slideno">12 / 13</span></p>
   <h2>Five decisions</h2>
   <ol class="asks">
-    <li><span class="q">Replace the retention target.</span> We keep 96 cents on the dollar and the old target was 90. I suggest 97, or moving the goal to trials where there is real room to improve.</li>
-    <li><span class="q">Sort out the three unexplained billing accounts.</span> About $1,400 a month. I do not want to touch them until I know whether somebody made those calls on purpose.</li>
-    <li><span class="q">Confirm the seven other free accounts.</span> MBB I understand and agree with. The rest I cannot explain.</li>
-    <li><span class="q">Decide whether we work the trials.</span> $59,832 a month sitting there, currently nobody's job. If yes, it needs an owner, and it competes with the 67 at-risk customers.</li>
-    <li><span class="q">Decide about the old pricing.</span> Nine customers still pay $5 to $7 instead of $9. Moving them up is fair, but "too expensive" is already 10% of why customers leave us, so we should sequence it carefully rather than send one email.</li>
+    <li><span class="q">Replace the retention target.</span> We are already keeping nearly everything we can, so the old target tells us nothing. I suggest we set it higher, or move the goal onto trials where there is real room to improve.</li>
+    <li><span class="q">Sort out the three unexplained billing accounts.</span> About $1,400 a month. I do not want to touch them until I know whether somebody made those calls deliberately.</li>
+    <li><span class="q">Confirm the seven other free accounts.</span> MBB I understand and agree with. The rest I cannot account for.</li>
+    <li><span class="q">Decide whether we work the trials.</span> $59,832 a month sitting there and currently nobody's job. If yes it needs an owner, and it competes directly with the 67 at-risk customers.</li>
+    <li><span class="q">Decide about the old pricing.</span> Nine customers still pay $5 to $7 a driver instead of $9. Moving them up is fair, but "too expensive" already cost us $6,614 a month this year, so we should sequence it carefully rather than send one email.</li>
   </ol>
 </div></section>
 
 <section id="s13"><div class="inner">
-  <p class="eyebrow">What happens anyway<span class="slideno">13 / 14</span></p>
-  <h2>Things that do not need a decision from you</h2>
-  <div class="scroll">
-  <table>
-    <thead><tr><th>Step</th><th>Detail</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Weekly customer check</strong></td><td>Runs now, takes minutes, costs about three cents. Every customer scored against real usage.</td></tr>
-      <tr><td><strong>Call the 5 critical customers</strong></td><td>Small enough to do this week.</td></tr>
-      <tr><td><strong>Start adoption conversations</strong></td><td>Beginning with the largest "not using it" customers. These are growing customers, so it is a conversation about value, not a rescue.</td></tr>
-      <tr><td><strong>Ask the scorecard group what happened</strong></td><td>35 customers stopped uploading. We should find out why rather than assume.</td></tr>
-      <tr><td><strong>Chase the unpaid invoices</strong></td><td>Starting with JDW.</td></tr>
-      <tr><td><strong>Onboarding</strong></td><td>29% of the customers we lose leave in their first year. That is the next thing worth measuring.</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <div class="plain">
-    <span class="h">In plain terms</span>
-    <p>None of this needs budget or a hire. It needs the five answers on the previous slide and then it is just work.</p>
-  </div>
-</div></section>
-
-<section id="s14"><div class="inner">
-  <p class="eyebrow">How much to trust these numbers<span class="slideno">14 / 14</span></p>
-  <h2>What I am confident about, and what I am not</h2>
+  <p class="eyebrow">What happens anyway, and how much to trust this<span class="slideno">13 / 13</span></p>
+  <h2>The work that needs no decision, and the two things I am not sure about</h2>
+  <p><strong>Already running or ready to go:</strong> the weekly customer check takes minutes and costs about three cents. Calling the 5 critical customers this week. Starting adoption conversations with the largest "not using it" customers, framed as value rather than rescue. Asking the 35 scorecard customers what happened rather than assuming. Chasing the unpaid invoices starting with JDW. None of this needs budget or a hire.</p>
   <div class="box green">
-    <p><strong>Confident.</strong> Every figure here comes from our own production data, checked twice. I found and fixed five measurement mistakes on 30 July, including one that made 59 customers look more abandoned than they were and one that understated our yearly losses by half. Eighteen consistency checks now pass, and the revenue figures reconcile to the cent against our invoices.</p>
+    <p><strong>What I am confident about.</strong> Every figure here comes from our own production data and has been checked twice. I found and fixed five measurement mistakes on 30 July, including one that made 59 customers look more abandoned than they were and one that understated our losses by half. Eighteen consistency checks now pass and the revenue figures match our invoices to the dollar.</p>
   </div>
   <div class="box amber">
-    <p><strong>Not confident.</strong> Two things.</p>
-    <p><strong>Seasonality.</strong> All my cut-off points come from one summer snapshot. A drop in July might just be what July looks like.</p>
-    <p><strong>We have never recorded what works.</strong> Nothing anywhere tracks what we tried on a customer and whether it helped. So these warning signs are informed judgement, not proven predictions. Six months of writing down what we did and what happened turns this from a good guess into something we can rely on.</p>
+    <p><strong>What I am not confident about. First, seasonality.</strong> Every cut-off point I use comes from one summer snapshot, so a drop in July might just be what July looks like here.</p>
+    <p><strong>Second, we have never recorded what works.</strong> Nothing anywhere tracks what we tried on a customer and whether it helped. So these warning signs are informed judgement, not proven predictions. Six months of writing down what we did and what happened turns this from a good guess into something we can rely on.</p>
   </div>
-  <p class="foot">All figures are monthly revenue from live production data, read-only, as of 30 July 2026. Full detail and every cut-off point: <code>analysis/cs-health-baseline-2026-07/findings.md</code>. Contains confidential customer information.</p>
+  <p class="foot">All figures are monthly revenue from live production data, read-only, as of 30 July 2026. Full detail: <code>analysis/cs-health-baseline-2026-07/findings.md</code>. Contains confidential customer information.</p>
 </div></section>
 
 <script>
