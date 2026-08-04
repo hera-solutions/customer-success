@@ -647,7 +647,7 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
     <table>
       <thead><tr><th>Field</th><th>What goes in it</th></tr></thead>
       <tbody>
-        <tr><td class="mono">Contact Outcome</td><td>Connected, left message, no answer, wrong number, declined to talk</td></tr>
+        <tr><td class="mono">Contact Outcome</td><td>Reached, left message, no answer, declined to talk, or rescheduled</td></tr>
         <tr><td class="mono">Job Named</td><td>Which part of their day they told you was hardest</td></tr>
         <tr><td class="mono">Blocker</td><td>Why they stopped. <strong>The most valuable field on the task</strong></td></tr>
         <tr><td class="mono">Ask Made</td><td>What you asked for, who owns it, by when</td></tr>
@@ -754,13 +754,15 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
   <h2>What is not ready</h2>
 
   <div class="col">
-    <p>Two things have to happen before any of this goes live.</p>
+    <p>Three things have to happen before any of this goes live, and the first one is on us rather than on either of you.</p>
   </div>
 
   <div class="tw">
     <table>
       <thead><tr><th>Blocking</th><th>Owner</th><th>Why it matters</th></tr></thead>
       <tbody>
+        <tr><td><strong>Build the part that actually creates the tasks</strong></td><td>Engineering</td><td><strong>The tasks do not exist in Zoho yet.</strong> Everything above is worked out and printed to a file; nothing is written to the CRM. The seven fields are built and correct, but no task has been created</td></tr>
+        <tr><td><strong>Stop a closed task coming straight back</strong></td><td>Engineering</td><td>There is no memory of what was already worked. Close a task today and the same one reappears tomorrow morning. Same for a customer who recovers: their task stays open until somebody notices</td></tr>
         <tr><td><strong>Turn off the five old Zoho rules</strong></td><td>Matthew</td><td>Until they stop, two systems feed the same queue. That is how we got to 217 overdue tasks</td></tr>
         <tr><td><strong>Sign off the list of customer outcomes</strong></td><td>Matthew</td><td>The call script refers to it, so it cannot be used with customers until it is agreed</td></tr>
       </tbody>
@@ -768,9 +770,11 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
   </div>
 
   <div class="col">
+    <p>So treat the numbers and the reasoning in this document as real, and the plumbing as not built. <strong>Nothing will appear in your Zoho queue from this system until the first two rows above are done.</strong></p>
+
     <p>Also outstanding, but not blocking:</p>
     <ul>
-      <li><strong>The call script and the quarterly emails are drafts.</strong> They have been written and they need a read, not a rebuild.</li>
+      <li><strong>The call script and the quarterly emails are drafts.</strong> They have been written and they need a read, not a rebuild. One of the three emails was withdrawn on the day it was written, for the reason in Part 07.</li>
       <li><strong>Onboarding has not been set up in this system at all.</strong> New customers are still handled the way they always were. That is the next piece of work, and Matthew's version of this document waits for it.</li>
       <li><strong>Abram's accounts</strong>, as in Part 09.</li>
       <li><strong>Where Matthew's escalations get recorded</strong> is genuinely unclear. If his process lives in email rather than Zoho, an account that hands over on day 10 leaves no trace in the CRM and we lose sight of it.</li>

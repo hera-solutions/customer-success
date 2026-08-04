@@ -20,7 +20,16 @@ The detection, weighting, lifecycle and generation all exist now.
 
 ### ~~Blocker 2: the adoption conversation has nowhere to be recorded~~ DONE
 
-Eight custom fields on Zoho Tasks, tested with a round trip: Job Named, Blocker, Ask Made, Outcome Evidence, Customer Quote, Contact Outcome, Next Action. Coverage is a single query, since automation tasks never populate Contact Outcome.
+**Seven** custom fields on Zoho Tasks, not eight. Re-verified live 08-04-2026: `Job_Named`, `Blocker`, `Ask_Made`, `Outcome_Evidence`, `Customer_Quote`, `Contact_Outcome`, `Next_Action`. All writable, and **every picklist value matches the generator's constants exactly**. Coverage is a single query, since automation tasks never populate `Contact_Outcome`.
+
+**BUT NOTHING WRITES TO THEM YET, and this is the real state of Blocker 2.** `generate_tasks.py --write` parses the flag, prints `MODE: WRITE`, and creates nothing. There is no Zoho API call anywhere in the pipeline. Fail-safe for pre-rollout, but the output is misleading: it reads as though 53 tasks were created.
+
+**Two of the seven documented decisions are also unimplemented**, both because they need to read existing Zoho tasks:
+
+| Decision | State |
+|---|---|
+| 3. 30-day cooldown per account per task type | **NOT BUILT.** `COOLDOWN_DAYS = 30` is defined and never referenced, so a closed task can regenerate the next morning |
+| 5. Recovery auto-closes an open task | **NOT BUILT.** A customer who comes back keeps an open task until somebody notices |
 
 ### ~~Blocker 4: no owner and no cadence~~ MOSTLY DONE
 

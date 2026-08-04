@@ -169,7 +169,7 @@ Write it **verbatim**, with the name and the date. From a 4-of-4 dark account th
 
 | Field | Content |
 |---|---|
-| `Contact Outcome` | Connected, left message, no answer, wrong number, declined to talk |
+| `Contact Outcome` | Reached, left message, no answer, declined to talk, rescheduled. **Verified against Zoho 08-04-2026. There is no "wrong number" value** |
 | `Job Named` | One of the six, or "not covered by Hera" |
 | `Blocker` | One of the six categories in step 4 |
 | `Ask Made` | The ask, with owner and date |

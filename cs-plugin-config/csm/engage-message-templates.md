@@ -144,7 +144,7 @@ Use only where a mobile number exists on the Zoho contact. One message, no follo
 
 | Field | What goes in it |
 |---|---|
-| `Contact Outcome` | Connected, left message, no answer, or wrong number |
+| `Contact Outcome` | Reached, left message, no answer, declined to talk, rescheduled |
 | `Blocker` | Why they do not use it. **The single most valuable field on this task** |
 | `Customer Quote` | Their words, not a paraphrase |
 | `Ask Made` | The 15 minutes, and whether they took it |

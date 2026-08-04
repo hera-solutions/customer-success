@@ -3,6 +3,14 @@
 PRE-ROLLOUT SAFETY: dry-run is the DEFAULT. Nothing is written to Zoho unless
 --write is passed explicitly. No customer contact is authorised as of 08-04-2026.
 
+NOT YET IMPLEMENTED, and --write refuses because of it:
+  - No Zoho writer exists. This script only produces the plan JSON.
+  - Decision 3, the 30-day cooldown, needs to read existing tasks. COOLDOWN_DAYS is
+    defined and unused, so a closed task would regenerate the next morning.
+  - Decision 5, recovery auto-closing an open task, needs the same read.
+  All seven Zoho custom fields DO exist and every picklist value matches the
+  constants below, verified live 08-04-2026.
+
 Decisions this implements, all agreed 08-04-2026 (see the CSM plugin config,
 "The outreach lifecycle"):
   1  Value floor: a CS task needs >=1 active associate AND >=$100/mo. Below the
@@ -19,7 +27,7 @@ in the config.
 
 Usage:
     python3 generate_tasks.py                 # dry run, prints what it would do
-    python3 generate_tasks.py --write         # actually creates tasks
+    python3 generate_tasks.py --write         # REFUSES: no writer is implemented yet
     python3 generate_tasks.py --as-of 2026-08-04
 """
 import argparse, datetime as dt, glob, json, os, re, sys
@@ -331,7 +339,14 @@ def main():
     from collections import Counter
     c = Counter(p["kind"] for p in plan)
     print(f"source: {src}   as of {fmt_us(as_of)}")
-    print(f"MODE: {'WRITE' if a.write else 'DRY RUN, nothing will be created'}\n")
+    if a.write:
+        sys.exit("--write REFUSED: no Zoho writer is implemented. This script only "
+                 "produces the plan JSON.\n"
+                 "Also missing before it can write safely: the 30-day cooldown "
+                 "(decision 3) and\nrecovery auto-close (decision 5), both of which "
+                 "need to read existing tasks. Without\nthe cooldown, a task closed "
+                 "today regenerates tomorrow morning.")
+    print("MODE: DRY RUN, nothing will be created\n")
     for k in ("RISK","ENGAGE","CONFIRM_OR_CLOSE"):
         sub=[p for p in plan if p["kind"]==k]
         print(f"{k:18s} {len(sub):3d} tasks  ${sum(p['monthly'] for p in sub):9,.0f}/mo  -> {'John' if sub and sub[0]['owner']==JOHN else 'Matthew' if sub else '-'}")
@@ -342,8 +357,7 @@ def main():
                "due":str(p["due"])} for p in plan],
               open(os.path.join(DATA, f"task-plan-{as_of}.json"),"w"), indent=1, default=str)
     print(f"\nplan written to data/task-plan-{as_of}.json")
-    if not a.write:
-        print("\nDRY RUN. Re-run with --write to create these in Zoho.")
+    print("\nDRY RUN. No writer exists yet, so this is currently the only mode.")
     return plan
 
 if __name__ == "__main__":
