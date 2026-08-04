@@ -110,9 +110,13 @@ def main():
         for i,(t,out) in enumerate(ex.map(work, tenants), 1):
             rec = {"group": t["group"], "companyName": t.get("companyName") or t["group"],
                    "active_staff": t.get("active_staff"), "can_roster": t.get("can_roster")}
-            for x in ("invoice_series",):
-                s = t.get(x) or []
-                rec["monthly"] = next((float(y["invoiceTotal"]) for y in s if y.get("invoiceTotal")), 0.0)
+            # TRAP, fixed 08-04-2026: taking the first NON-ZERO invoice walks backwards past
+            # every current invoice on a discounted account and reports a stale pre-discount
+            # figure. Outlaw, Spears and CV Delivery all read ~$1,100-1,400/mo when they
+            # actually bill $0. invoice_series is newest-first and closed-only, so take [0]
+            # verbatim. A zero invoice is a fact about the account, not missing data.
+            s = t.get("invoice_series") or []
+            rec["monthly"] = float(s[0].get("invoiceTotal") or 0) if s else 0.0
             sigs = dict(out)
             sigs["last_staffed_roster"] = t.get("last_staffed_roster")
             sigs["last_message_sent_by_user"] = t.get("last_message_sent_by_user")
