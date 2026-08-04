@@ -12,9 +12,10 @@ Original assessment set 08-04-2026 after the user said "there is still a substan
 
 The detection, weighting, lifecycle and generation all exist now.
 
-- **Trigger:** dark 30 days on 3 or more of the four heartbeat signals (human-sent message 6.8, document upload 4.5, staffed roster 4.3, associate status change 3.9). Weights are churn lift, not judgment.
+- **Trigger:** dark 30 days on 3 or more of the four heartbeat signals: human-sent message 6.8, document upload 4.5, staffed roster 4.3, and **roster maintained**, measured as the billed driver count not moving. Weights are churn lift, not judgment.
+- **The 4th heartbeat was replaced on 08-04-2026 and the weight has NOT been re-derived.** It used to be measured with `StaffStatus`, which was wrong half the time: of 30 accounts it called stale, 15 had a billed driver count that moved inside 30 days. It now comes from `InvoiceLineItem.activeStaff`. The 3-of-4 rule counts signals rather than summing weights, so the rule is unaffected, but **re-run `signal_weights.py` before calling the weight evidenced.**
 - **Generator:** `analysis/tenant-engagement/generate_tasks.py`, dry-run by default, `--write` required.
-- **Output on 08-04-2026:** 3 RISK to John, 41 ENGAGE to John, 17 Confirm-or-close to Matthew.
+- **Output on 08-04-2026:** 3 RISK to John, 34 ENGAGE to John, 16 Confirm-or-close to Matthew. 53 tasks, down from 61 once the bad roster signal was removed.
 - **The five Zoho `Last_Active1` rules still need turning off**, which is Matthew's action. They fired six tasks on 08-04-2026 and not one was for a paying at-risk customer.
 
 ### ~~Blocker 2: the adoption conversation has nowhere to be recorded~~ DONE
@@ -56,9 +57,10 @@ QBR format, success plan format, renewal conversation style, and the CS playbook
 
 ### New, from building the generator
 
-- **Three ENGAGE message templates.** The 41 accounts collapse into three gaps: no driver schedules (14 accounts, $15,374/mo), no driver paperwork (12, $8,728), no driver added or deactivated (7, $6,240). Three pieces of writing cover 33 of 41.
+- **ENGAGE message templates, four live and two withdrawn.** No driver schedules (14 accounts, $15,374/mo) and no driver paperwork (12, $8,728) are drafted and need a writing approval only. **The driver-list gap (7 accounts, $6,240/mo) is WITHDRAWN**: all seven had changed their billed driver count within 8 days, so the email would have been wrong to their face.
+- **Two accounts are probably being over-billed, and the largest is not on the urgent list.** Last Mile Logistics, $1,219/mo, 140 drivers, roster frozen 34 days after 75 changes in the prior year. TPE Logistics, $931/mo, 115 drivers, frozen 50 days. Both billed per driver. Needs a decision from Matthew on whether CS raises it or he does.
 - **Where Matthew's escalation flow records anything.** The `Cases` module is permission-denied to the CS connector. Ask him. If his flow lives outside Zoho, escalated accounts have no CRM record at all.
-- **Double Iron Car Care: 18 associates, $25/mo.** Eighteen drivers should bill about $162. One of those two numbers is wrong, and the value floor filters on both.
+- ~~**Double Iron Car Care: 18 associates, $25/mo.**~~ **RESOLVED 08-04-2026. Nothing was wrong.** They are on a flat monthly fee: `flatMonthlyBillingAmount` 25, `variableTotal` 0, and every per-driver line charge 0. 11 accounts are not billed per driver, which also means a frozen roster costs them nothing.
 
 ---
 

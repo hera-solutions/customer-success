@@ -38,9 +38,26 @@ SRC = {
 # account is dark on. Cutoff 15 set by the user 08-04-2026.
 WEIGHTS = json.load(open(os.path.join(HERE, "signal-weights.json")))
 DARK_DAYS = 30
+# The 4th heartbeat is "is the roster being maintained". It USED to be measured with
+# StaffStatus, and that was wrong HALF THE TIME: of 30 accounts StaffStatus called
+# stale on 08-04-2026, 15 had a billed driver count that moved inside 30 days and 10
+# inside 8 days. Town and Country Couriers showed 201 drivers, flagged 179 days
+# stale, count changed 2 days ago. StaffStatus is a TRANSITION log, so a customer who
+# creates and removes staff records directly writes nothing to it.
+#
+# Measured instead from InvoiceLineItem.activeStaff (staff_history.py), which is the
+# number we actually invoice. Decision by John 08-04-2026.
+#
+# WEIGHT CAVEAT: the 3.9 weight that put roster maintenance in the top four was
+# derived for the StaffStatus version. The 3-of-4 rule counts signals rather than
+# summing weights, so the rule is unaffected, but whether roster maintenance still
+# ranks 4th has NOT been re-derived. Re-run signal_weights.py against the daily
+# series before treating the weight as evidenced.
+ROSTER_SIGNAL = "roster_maintained"
 # The four HEARTBEAT signals: the highest-lift signals, weight >= 3.9. An account
 # still doing two or more of these is alive whatever else it has dropped.
 HEARTBEAT = [s for s, w in WEIGHTS.items() if w >= 3.9]
+HEARTBEAT = [ROSTER_SIGNAL if s == "staff_status" else s for s in HEARTBEAT]
 # RISK = dark on 3 or more heartbeats. Chosen for CORRECTNESS not optimality:
 # 2-of-4 has better recall (65.2% vs 48.5%) but flags DBE Logistics, which is
 # active on messaging, scorecard, infractions and kudos within 3 days and must
@@ -93,6 +110,14 @@ def main():
     a = ap.parse_args()
     as_of = dt.date.fromisoformat(a.as_of) if a.as_of else dt.date.today()
 
+    hist_files = sorted(glob.glob(os.path.join(DATA, "staff-history-*.json")))
+    if not hist_files:
+        sys.exit("no staff-history-*.json. Run staff_history.py FIRST, it feeds the "
+                 "4th heartbeat.")
+    hist = {t["companyName"]: t for t in json.load(open(hist_files[-1]))["tenants"]}
+    print(f"roster heartbeat from {os.path.basename(hist_files[-1])} "
+          f"(InvoiceLineItem.activeStaff)")
+
     sig_file = sorted(glob.glob(os.path.join(DATA, "signals-*.json")))[-1]
     base = json.load(open(sig_file))
     print(f"reusing roster/message/scorecard from {os.path.basename(sig_file)}")
@@ -127,9 +152,22 @@ def main():
             allv = [d for d in ds.values() if d]
             rec["last_any"] = str(max(allv)) if allv else None
             rec["days_since_any"] = (as_of - max(allv)).days if allv else None
+            # The roster heartbeat is days-since-the-count-last-moved, so it slots
+            # into the same days-since comparison as every other signal.
+            h = hist.get(rec["companyName"]) or {}
+            rec["billed_drivers"] = h.get("latest")
+            rec["per_driver_billing"] = h.get("per_driver_billing")
+            rec["days"][ROSTER_SIGNAL] = h.get("days_frozen")
+            rec["signals"][ROSTER_SIGNAL] = h.get("latest_date")
+            rec["driver_change_30d"] = (h.get("change") or {}).get("30")
+            rec["driver_peak"] = h.get("peak")
+            rec["driver_peak_date"] = h.get("peak_date")
             dark = lambda k: rec["days"].get(k) is None or rec["days"][k] > DARK_DAYS
-            rec["dark_signals"] = sorted(k for k,w in WEIGHTS.items() if w and dark(k))
-            rec["risk_score"] = round(sum(w for k,w in WEIGHTS.items() if w and dark(k)), 1)
+            # WEIGHTS is still keyed on staff_status, so score it under the new name
+            # rather than double-counting or silently dropping it.
+            W2 = {(ROSTER_SIGNAL if k == "staff_status" else k): w for k, w in WEIGHTS.items()}
+            rec["dark_signals"] = sorted(k for k,w in W2.items() if w and dark(k))
+            rec["risk_score"] = round(sum(w for k,w in W2.items() if w and dark(k)), 1)
             rec["heartbeats_dark"] = sorted(s for s in HEARTBEAT if dark(s))
             rec["tier"] = ("RISK" if len(rec["heartbeats_dark"]) >= HEARTBEAT_DARK_FOR_RISK
                            else ("ENGAGE" if rec["heartbeats_dark"] else "ACTIVE"))

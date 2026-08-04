@@ -20,17 +20,27 @@ That breaks the central rule of the previous draft, "open with what they are doi
 
 The measure compared the newest closed invoice against one **four months older**, which reported growth that had already stopped and, on Probyn, turned a collapse into growth because the window began at the bottom of the crash. Fixed in `revenue_direction()`.
 
-| Account | Pays | Drivers | Real direction | Roster frozen | Days since trigger |
-|---|---|---|---|---|---|
-| **TPE Logistics Solutions** | $931 | 115 | flat, +3% month over month | **55 days** | 21 |
-| Probyn Inc | $357 | 41 | flat month over month, **down 69% from 127 drivers in February** | **120 days** | 58 |
-| Divine Package | $221 | 43 | flat, +0% | **138 days** | 46 |
+**Driver counts here come from `InvoiceLineItem.activeStaff`, the daily billed figure.** Not `Invoice.averageActiveDriverCount`, which is a monthly average, and not the Staff table, which has no history. Decision 08-04-2026.
 
-**Every one of the three has a frozen roster, so every one is probably being over-billed.** Billing is per active driver, and a list nobody maintains keeps invoicing.
+| Account | Pays | Drivers | Real direction | Roster frozen | Over-billed? | Days since trigger |
+|---|---|---|---|---|---|---|
+| **TPE Logistics Solutions** | $931 | 115 | flat over 30 days | **50 days** | **Likely** | 21 |
+| Probyn Inc | $357 | 41 | flat over 30 days, **down 80% from 200 drivers on 11-20-2025** | **90 days** | **Likely** | 58 |
+| Divine Package | $221 | 43 | flat | **110 days** | **No, flat fee** | 46 |
 
-**TPE is the clearest case.** It lost an average of 14.8 drivers a month for eleven consecutive months, never fewer than five, and has logged **zero** departures since 06-10-2026. A 115-driver DSP does not stop losing drivers. At its own historical rate roughly 24 people have left without being deactivated, which is about **$195 a month** being invoiced for nobody. That figure is an estimate from their own turnover, not a measurement, so present it as a question rather than a number.
+**Two of the three are probably being over-billed, not all three.** Billing is per active driver and a list nobody maintains keeps invoicing, but **Divine Package is on a flat monthly fee**, so its driver count does not affect what it owes. Saying otherwise to that customer would be false. The task states which basis each account is on.
+
+**TPE is the clearest case, and it is now direct evidence rather than inference.** The billed count changed 132 times in the prior year, moving most weeks. It stopped at exactly 115 on 06-14-2026 and has been 115 every day since. Two independent tables agree on the date: the last status transition was 06-10 and the last driver record created was 06-15.
+
+**Probyn is the sadder story.** 200 drivers on 11-20-2025, 41 now. Four fifths of the operation went before they stopped using Hera, so do not open that call as though the product were the problem.
 
 **This is the same shape as JDW**, which John described as "overpaying and we cannot reach them." Treat it as at least partly a billing conversation, and hand it to Matthew if the roster turns out to be wrong.
+
+### One more account, larger than any of these three, that is NOT on this list
+
+**Last Mile Logistics: $1,219/mo, 140 drivers, roster frozen 34 days after 75 changes in the prior year.** The biggest likely over-billing in the book.
+
+It is correctly NOT a RISK call: they message daily and uploaded paperwork today, so they are 2-of-4 and land in ENGAGE. **What they have not done is build a driver schedule in 294 days.** Keep it as a quarterly email, but raise the frozen roster in it.
 
 **So the opener is money in the customer's favour**, which is a far better position than asking about adoption:
 
@@ -55,8 +65,8 @@ The task description already carries these. **Never open this call without them.
 | Check | Source | Why |
 |---|---|---|
 | **Entitlement** | `can_roster`, derived from `Tenant.accountPremiumStatus` | Accounts without `bundle` or `rostering` **physically cannot roster** |
-| **Revenue direction** | last four **closed** invoices | Never the current accruing month, it is a partial average and it produced two fake 36% declines |
-| **Real headcount now** | `Staff` on `byGroupStatus`, `status = 'Active'` | The number to say out loud |
+| **Driver count and its direction** | `InvoiceLineItem.activeStaff`, daily | The billed figure and a real time series. **Never `averageActiveDriverCount`**: it is a monthly average, and on the accruing month it covers only the days elapsed, which produced two fake 36% declines |
+| **Is the roster frozen, and is it billed per driver** | `days_frozen` and `per_driver_billing` | A frozen roster means over-billing ONLY if they are charged per driver |
 | **Discount and billing state** | `Invoice.discountPercentLabel`, invoice status | Walking in unaware of a live credit or a failed payment is avoidable |
 | **Which heartbeat is closest to coming back** | days-since per signal | This is your ask. See step 5 |
 
@@ -66,13 +76,15 @@ The task description already carries these. **Never open this call without them.
 
 ## Step 2: Open on their operation, not on Hera
 
-**Do not open by asking whether they still use Hera.** With an account 51 days dark and paying $931, that question invites "no, cancel it," and you will have talked a growing customer into churning. The old draft's instruction to "ask straight out whether they are still using Hera at all" is wrong for that reason and is withdrawn.
+**Do not open by asking whether they still use Hera.** With an account 50 days dark and paying $931 a month, that question invites "no, cancel it," and you will have talked a live customer into churning. The old draft's instruction to "ask straight out whether they are still using Hera at all" is wrong for that reason and is withdrawn.
 
 Open on the business. It is safe, it is genuinely interesting, and it tells you within a minute whether this is fixable.
 
-> "How's the operation running right now, are you still on [N] routes? I ask because you've added drivers since [month] and I wanted to make sure the billing side of that is actually matching what you're getting."
+> "How's the operation running right now, are you still on [N] drivers? I ask because your list hasn't changed since [month], and I want to make sure you're not paying for people who've already moved on."
 
-That does three things: gets them talking about themselves, states a verifiable fact, and gives an honest reason for the call that is on their side of the table.
+That does three things: gets them talking about themselves, states a verifiable fact, and puts money back in their pocket as the reason for the call. It is very hard to be annoyed at somebody opening that way.
+
+**On a flat-fee account, drop the billing half of that sentence** and ask only about the operation. There is nothing for them to save.
 
 **Never open with:**
 

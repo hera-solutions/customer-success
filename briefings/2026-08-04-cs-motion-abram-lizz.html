@@ -322,9 +322,9 @@
 
 <div class="stats">
   <div class="stat"><span class="stat-n">241</span><span class="stat-l">Paying customers</span></div>
-  <div class="stat"><span class="stat-n">61</span><span class="stat-l">Need something done</span></div>
+  <div class="stat"><span class="stat-n">53</span><span class="stat-l">Need something done</span></div>
   <div class="stat"><span class="stat-n">3</span><span class="stat-l">Genuinely urgent</span></div>
-  <div class="stat"><span class="stat-n">180</span><span class="stat-l">Fine, leave alone</span></div>
+  <div class="stat"><span class="stat-n">188</span><span class="stat-l">Fine, leave alone</span></div>
 </div>
 <p class="col" style="font-size:0.94rem;color:var(--ink-2)">Three quarters of the book needs nothing from us. That is the point of the whole exercise: to stop spreading attention evenly across 241 accounts and put it on the ones where it changes an outcome.</p>
 
@@ -372,7 +372,7 @@
         <tr><td><strong>A message was sent</strong></td><td>Somebody there texted their drivers</td><td class="num">Strongest of the four</td></tr>
         <tr><td><strong>Paperwork was uploaded</strong></td><td>A licence, insurance, any driver document</td><td class="num">Second</td></tr>
         <tr><td><strong>A schedule was built</strong></td><td>Tomorrow's drivers assigned to routes and vans</td><td class="num">Third</td></tr>
-        <tr><td><strong>A driver's status changed</strong></td><td>Somebody was marked as joining or leaving</td><td class="num">Fourth</td></tr>
+        <tr><td><strong>The driver count moved</strong></td><td>The number of drivers we bill for went up or down</td><td class="num">Fourth</td></tr>
       </tbody>
     </table>
   </div>
@@ -412,7 +412,7 @@
 
   <div class="col">
     <p>Every morning, Monday to Friday, the system checks all 241 customers and creates tasks. Weekend activity counts toward Monday, so nothing is missed by not running at weekends.</p>
-    <p>As of 08-04-2026 that produces 61 tasks. They are not all the same job.</p>
+    <p>As of 08-04-2026 that produces 53 tasks. They are not all the same job.</p>
   </div>
 
   <div class="tw">
@@ -429,13 +429,13 @@
         </tr>
         <tr>
           <td><span class="chip c-eng">Engage</span></td>
-          <td class="num">41</td><td class="num">$35,617</td>
+          <td class="num">34</td><td class="num">$29,377</td>
           <td>Healthy, in Hera daily, but <strong>one feature they never touch.</strong> Email once a quarter.</td>
           <td>John</td>
         </tr>
         <tr>
           <td><span class="chip c-hold">Confirm or close</span></td>
-          <td class="num">17</td><td class="num">$3,749</td>
+          <td class="num">16</td><td class="num">$3,749</td>
           <td>Bills almost nothing, or has no drivers at all. <strong>Not a CS call.</strong></td>
           <td>Matthew</td>
         </tr>
@@ -444,7 +444,7 @@
   </div>
 
   <div class="col">
-    <p><strong>Notice the shape of that.</strong> The urgent list is three accounts, not thirty. The large number, 41 accounts and $35,617 a month, is customers who are doing fine and are missing out on part of what they pay for. That is a quarterly email, not a phone call, and it is where most of the money is.</p>
+    <p><strong>Notice the shape of that.</strong> The urgent list is three accounts, not thirty. The large number, 34 accounts and $29,377 a month, is customers who are doing fine and are missing out on part of what they pay for. That is a quarterly email, not a phone call, and it is where most of the money is.</p>
 
     <h3>Two things that jump the queue</h3>
     <p><strong>Anything with a billing problem goes to Matthew first, no matter how the customer is using the product.</strong> If an account has an unpaid or written-off invoice in its last three, adoption is not the conversation.</p>
@@ -485,17 +485,17 @@
 <pre>Pays          $931/mo on the last closed invoice
 Drivers       115 on the books
 Direction     FLAT. 115 in July, 115 now
-Roster        FROZEN 55 days. Nobody marked as joining or leaving
+Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
 
   quiet  35 days   nobody there has sent a message
   quiet  51 days   no driver paperwork uploaded
   quiet  51 days   no driver schedule built
-  quiet  55 days   nobody marked as joining or leaving</pre>
+  quiet  50 days   the billed driver count has not moved</pre>
 
       <p class="eyebrow" style="color:var(--ink-3)">The thing to notice</p>
       <p><strong>Everything stopped in the same week.</strong> Their last new driver was added on 06-15. The last person marked as leaving was 06-10. Schedules and paperwork both stopped on 06-14. This is not a gradual decline, it is a cliff, and something specific happened in mid-June.</p>
 
-      <p><strong>And the frozen roster is the part that matters most.</strong> TPE lost an average of 15 drivers a month for eleven months straight, never fewer than five. Since 06-10 they have logged <strong>zero</strong>. A 115-driver DSP does not simply stop losing drivers, so the honest reading is that people have left and nobody has taken them off the list.</p>
+      <p><strong>And the frozen roster is the part that matters most.</strong> The number of drivers we bill TPE for changed 132 times in the last year, moving most weeks. On 06-14 it stopped at 115 and has been <strong>exactly 115 every single day since</strong>. A 115-driver DSP does not stop gaining and losing people for fifty days, so the honest reading is that people have left and nobody has taken them off the list.</p>
 
       <p><strong>Which means we are probably billing them for drivers who no longer work there.</strong> We charge per active driver, so a list nobody maintains keeps invoicing. That makes this at least partly a money conversation, and possibly a refund, which is Matthew's. Check the roster before you ask them for anything.</p>
 
@@ -530,25 +530,44 @@ Roster        FROZEN 55 days. Nobody marked as joining or leaving
         <tr><th>Account</th><th>Pays</th><th>Drivers</th><th>Direction</th><th>Roster frozen</th><th>Note</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>TPE Logistics</strong></td><td class="num">$931</td><td class="num">115</td><td>Flat</td><td class="num">55 days</td><td>Call this one first. Biggest, most people, and still early enough that no comparable account has ever left this soon</td></tr>
-        <tr><td>Probyn Inc</td><td class="num">$357</td><td class="num">41</td><td><strong>Down 69% from peak</strong></td><td class="num">120 days</td><td>Had 127 drivers in February, has 41 now. Lost two thirds of their operation before going quiet</td></tr>
-        <tr><td>Divine Package</td><td class="num">$221</td><td class="num">43</td><td>Flat</td><td class="num">138 days</td><td><strong>Cannot use scheduling at all.</strong> Never raise driver schedules with them</td></tr>
+        <tr><td><strong>TPE Logistics</strong></td><td class="num">$931</td><td class="num">115</td><td>Flat 30 days</td><td class="num">50 days</td><td><strong>Over-billing likely.</strong> Call this one first: biggest, most people, and still early enough that no comparable account has ever left this soon</td></tr>
+        <tr><td>Probyn Inc</td><td class="num">$357</td><td class="num">41</td><td><strong>Down 80% from 200</strong></td><td class="num">90 days</td><td><strong>Over-billing likely.</strong> Had 200 drivers in November, has 41. Lost four fifths of their operation before going quiet</td></tr>
+        <tr><td>Divine Package</td><td class="num">$221</td><td class="num">43</td><td>Flat</td><td class="num">110 days</td><td><strong>Flat monthly fee, so NOT over-billed.</strong> Also cannot use scheduling at all, so never raise driver schedules</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="col">
-    <p><strong>All three have frozen rosters</strong>, between 55 and 138 days. So all three are probably being over-billed, and every one of these calls should start by checking whether the driver list is real.</p>
+    <p><strong>All three have frozen rosters</strong>, between 50 and 110 days, but only two of them are being over-billed. <strong>Divine Package pays a flat monthly fee</strong>, so their driver count does not affect what they owe and telling them otherwise would be wrong. The task says which is which. Read it.</p>
+
+    <p><strong>Probyn is the sadder story.</strong> They had 200 drivers in November and have 41 now. Four fifths of the operation is gone, and it went before they stopped using Hera. Do not open that call as though the product were the problem.</p>
 
     <p><strong>Divine Package is on an older plan that does not include scheduling.</strong> They physically cannot build a schedule. Only 4 accounts out of 241 are in this position, and the task says so, but raising it would cost you the call in the first minute. Check the task before you dial.</p>
 
     <p>It is three calls. Do them in one day.</p>
 
+    <h3>And one that is not on the urgent list but should be</h3>
+
+    <div class="sheet">
+      <div class="sheet-h">
+        <span class="chip c-eng">Engage</span>
+        <span class="mono">Last Mile Logistics</span>
+        <span class="mono">$1,219 / month</span>
+        <span class="mono">140 drivers</span>
+      </div>
+      <div class="sheet-b">
+        <p><strong>This is the largest likely over-billing in the book, and it is bigger than any of the three above.</strong> 140 drivers, $1,219 a month, and the count has not moved in 34 days after changing 75 times in the previous year.</p>
+        <p>It is not urgent by the rules, and the rules are right: they message their drivers daily and uploaded paperwork today. This is a live, healthy customer. <strong>What they have not done is build a driver schedule in 294 days</strong>, and now their roster has stopped moving too.</p>
+        <p>So it stays a quarterly email rather than a call, but the frozen roster should be raised in it, because they may be paying for people who left.</p>
+      </div>
+    </div>
+
     <div class="note">
       <p class="eyebrow">How this section got fixed, and why it is in here</p>
-      <p>An earlier version of this page said TPE was <em>growing 17%</em> and that their invoice was rising while they ignored Hera. <strong>John read it and asked how that was possible</strong>, given billing is per driver and their driver list had not changed in 55 days.</p>
-      <p>It was not possible. The measure compared this month against one <strong>four months earlier</strong>, so it reported growth that had already stopped. On Probyn it was worse: it printed <em>growing 55%</em> for an account that had fallen from 127 drivers to 41, because the four-month window happened to start at the bottom of the crash.</p>
-      <p><strong>Both are fixed, and the fix found the frozen rosters.</strong> Please do this to us. If a task tells you something that does not square with what you know about a customer, say so, because the numbers are new and not all of them are right yet.</p>
+      <p>An earlier version of this page said TPE was <em>growing 17%</em> and that their invoice was rising while they ignored Hera. <strong>John read it and asked how that was possible</strong>, given billing is per driver and their driver list had not changed in weeks.</p>
+      <p>It was not possible. The measure compared this month against one <strong>four months earlier</strong>, so it reported growth that had already stopped. On Probyn it was worse: it printed <em>growing 55%</em> for an account that had fallen from 200 drivers to 41, because the four-month window happened to start at the bottom of the crash.</p>
+      <p><strong>Both are fixed, and chasing it down found the frozen rosters, the over-billing, and a second broken signal that had produced 8 false tasks.</strong> One question did all of that.</p>
+      <p>Please do this to us. If a task tells you something that does not square with what you know about a customer, say so. <strong>Two of the four measures behind this system turned out to be wrong on the day it was written</strong>, and both were caught by somebody asking how the numbers could both be true, not by more analysis.</p>
     </div>
   </div>
 </section>
@@ -656,8 +675,8 @@ Roster        FROZEN 55 days. Nobody marked as joining or leaving
   <h2>The 41 healthy accounts, and why they are the real prize</h2>
 
   <div class="col">
-    <p>These customers are in Hera every day. Every single one of the 41 sent a message within the last eleven days, and 30 of them within the last three. <strong>They are not at risk and they must never be contacted as though they were.</strong></p>
-    <p>What they have is one capability they have never used or have stopped using. Between them that is $35,617 a month, more than twenty times the urgent list. It collapses into three gaps.</p>
+    <p>These customers are in Hera every day. Every one sent a message within the last eleven days, and most within the last three. <strong>They are not at risk and they must never be contacted as though they were.</strong></p>
+    <p>What they have is one capability they have never used or have stopped using. Between them that is $29,377 a month, close to twenty times the urgent list. It collapses into two gaps we can act on.</p>
   </div>
 
   <div class="tw">
@@ -666,15 +685,22 @@ Roster        FROZEN 55 days. Nobody marked as joining or leaving
       <tbody>
         <tr><td>Never build a driver schedule in Hera</td><td class="num">14</td><td class="num">$15,374</td></tr>
         <tr><td>Never upload driver paperwork</td><td class="num">12</td><td class="num">$8,728</td></tr>
-        <tr><td>Never update their driver list</td><td class="num">7</td><td class="num">$6,240</td></tr>
+        <tr><td><em>Never update their driver list</em> &mdash; <strong>withdrawn, see below</strong></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="col">
-    <p><strong>This is one email a quarter, not a phone campaign.</strong> One outreach each. If they do not reply, it closes at the end of the quarter and comes round again. Chasing 41 accounts four times each would be 164 touches a quarter and it would crowd out the urgent work.</p>
+    <p><strong>This is one email a quarter, not a phone campaign.</strong> One outreach each. If they do not reply, it closes at the end of the quarter and comes round again. Chasing 34 accounts four times each would be 136 touches a quarter and it would crowd out the urgent work.</p>
 
     <p>The email asks a genuine question rather than pitching the feature, because the likeliest answers are "we do it in a spreadsheet," "never knew that existed," and "it doesn't fit how we run." Only the middle one leads anywhere, and an email that sells teaches us nothing about the other two.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">Why the third gap was withdrawn on the day it was written</p>
+    <p>A third email was drafted for 7 accounts, telling them their driver list looked out of date. <strong>It was wrong about all seven.</strong></p>
+    <p>The signal behind it came from a table that logs a driver being <em>marked</em> as joining or leaving. Some customers never do that: they add and remove driver records directly, so the log stays empty while the roster changes constantly. <strong>Town and Country Couriers has 201 drivers, that log had been silent 179 days, and their billed driver count changed two days ago.</strong></p>
+    <p>Across the book it was wrong half the time: of 30 accounts it called stale, 15 had a driver count that moved within 30 days. The measure now comes from the number we actually invoice, which removed 8 false tasks. <strong>Telling an operator their list is stale when they updated it on Sunday would cost us the right to be believed about anything else.</strong></p>
   </div>
 
   <div class="note">

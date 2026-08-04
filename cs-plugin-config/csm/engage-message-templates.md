@@ -2,13 +2,13 @@
 
 **Status: DRAFT, 08-04-2026. Not approved. Nothing here may be sent to a customer yet.**
 
-Six drafts covering 33 of the 41 ENGAGE accounts, $30,342/mo of the tier's $35,617. Written for the tier where the account is **healthy and using Hera daily** but has one feature gap. This is not a save motion and must never read like one.
+**Four live drafts covering 26 of the 41 ENGAGE accounts, $24,102/mo.** A fifth and sixth, gap 3, are WITHDRAWN: 7 accounts and $6,240/mo built on a signal that turned out to be wrong half the time. See gap 3 below. Written for the tier where the account is **healthy and using Hera daily** but has one feature gap. This is not a save motion and must never read like one.
 
 ---
 
 ## What these are for
 
-An ENGAGE account is active: every one of the 33 sent a human message inside the last 11 days, and 30 of them inside the last 3. **They are not at risk and must not be contacted as if they were.** The gap is a single unused capability.
+An ENGAGE account is active: every one of the 33 originally in scope sent a human message inside the last 11 days, and 30 of them inside the last 3. **They are not at risk and must not be contacted as if they were.** The gap is a single unused capability.
 
 **The purpose of the outreach is to find out why, not to sell the feature.** The most likely answers are that they solved it another way, they never knew it existed, or it does not fit how they run. All three are useful, and only the second one leads to a demo. An email that pitches gets a polite no and teaches us nothing.
 
@@ -110,36 +110,33 @@ FKG Logistics $1,195 (39d), Timestamp Logistics $1,161 (130d), Blue Heron $945 (
 
 ---
 
-## Gap 3: driver list not being updated
+## Gap 3: WITHDRAWN 08-04-2026. Do not send.
 
-**7 accounts, $6,240/mo.** All seven build schedules, upload paperwork, and message daily. What has not happened is adding or deactivating a driver, so the associate list is frozen while the operation has almost certainly changed.
+**7 accounts, $6,240/mo. This template was based on a signal that does not mean what it says, and sending it would be plainly wrong to the customer's face.**
 
-South Islander Xpress $1,068 (never), Town and Country Couriers $1,761 (179d), Josken Solutions $871 (63d), Holy Ship $869 (41d), OTW Delivery $660 (50d), Boxes, Boxes & Boxes $574 (45d), Tokeyi Logistics $436 (83d).
+The gap came from `StaffStatus`, a transition log. It said nobody had been marked as joining or leaving for 41 to 179 days. The **billed driver count from `InvoiceLineItem.activeStaff` says otherwise**, and it is the number we actually invoice:
 
-**This one has a commercial edge the other two do not, and it needs a decision before use. See the open question at the bottom.**
+| Account | Drivers | `StaffStatus` said | Count actually last changed |
+|---|---|---|---|
+| Town and Country Couriers | 201 | 179 days stale | **2 days ago** |
+| South Islander Xpress | 118 | never | **1 day ago** |
+| Holy Ship | 105 | 41 days stale | **5 days ago** |
+| Josken Solutions | 101 | 63 days stale | **8 days ago** |
+| OTW Delivery | 78 | 50 days stale | **6 days ago** |
+| Boxes, Boxes & Boxes | 69 | 45 days stale | **6 days ago** |
+| Tokeyi Logistics | 66 | 83 days stale | **3 days ago** |
 
-**Signal meaning, corrected 08-04-2026.** This gap measures **status transitions**, not additions. A driver created directly as Active writes no transition at all, so "no driver added" was the wrong reading. What it really means is that nobody's status has changed, which on a DSP roster is itself unusual and is the basis of the over-billing point below.
+**All seven are maintaining their rosters.** They do it in a way that writes no status transition, most likely creating and removing staff records directly rather than moving anyone through the Onboarding to Active path. Telling an operator with 201 drivers that their list looks stale, when they updated it on Sunday, destroys the credibility of every other thing we say.
 
-> **Subject: Is your Hera driver list still accurate?**
->
-> Hi [First name],
->
-> You are using Hera daily, schedules and paperwork both, so this is a housekeeping question rather than a concern.
->
-> Nobody has been marked as joining or leaving on your account since [MM-DD-YYYY]. In a DSP that usually means one of two things: either the roster genuinely has not changed, or drivers have come and gone without the list catching up. If it is the second one, you are paying for people who are not there anymore.
->
-> Worth 15 minutes to walk through it together? If the list is right, we are done in five.
->
-> [Sender name]
-> Hera Solutions
+**Across the book the signal is wrong half the time:** of 30 accounts it calls stale, 15 had a driver count move within 30 days and 10 within 8 days.
 
----
+**Replacement, if this conversation is still wanted:** trigger on the billed driver count being unchanged 30+ days AND the account being billed per driver. On 08-04-2026 that is a completely different and much smaller list, and the honest subject line is about over-billing rather than housekeeping. See `../adoption-conversation.md`, "All three rosters are frozen."
 
 ## Text variant
 
 Use only where a mobile number exists on the Zoho contact. One message, no follow-up text.
 
-> Hi [First name], [Sender name] at Hera. Quick question, not a support issue: you use Hera daily but handle [driver schedules / driver paperwork / your driver list] somewhere else. I want to understand why rather than assume. Any chance you have 15 minutes this week?
+> Hi [First name], [Sender name] at Hera. Quick question, not a support issue: you use Hera daily but handle [driver schedules / driver paperwork] somewhere else. I want to understand why rather than assume. Any chance you have 15 minutes this week?
 
 ---
 
@@ -159,10 +156,14 @@ Use only where a mobile number exists on the Zoho contact. One message, no follo
 
 ## 8 accounts these do not cover
 
-**No fourth template is needed.** All eight have two of these same three gaps at once, not a gap outside them: four are schedules plus driver list, three are schedules plus paperwork, one is paperwork plus driver list. Open with the higher-weighted gap and mention the second only if the call goes well. **Two gaps is the boundary of this tier.** A third gap makes it 3-of-4 heartbeats dark, which is RISK, and it would not be in this list.
+All eight have two gaps at once rather than a gap outside the set: four are schedules plus the withdrawn driver-list signal, three are schedules plus paperwork, one is paperwork plus driver list.
 
-## Open question before any of this is used
+**With gap 3 withdrawn, five of the eight collapse into gap 1 or gap 2** and can use those templates directly, since the driver-list half of their flag is unreliable. Open with the schedules or paperwork gap and ignore the other.
 
-**Gap 3 carries a revenue consequence the other two do not.** Telling an operator their driver list is stale invites them to deactivate drivers who have left, and billing is $9 per active associate per month. That conversation is likely to reduce their invoice.
+**Two gaps is the boundary of this tier.** A third would make it 3-of-4 dark, which is RISK, and it would not be in this list.
 
-It is still the right thing to say, and it buys more trust than the revenue is worth. But it is a commercial decision rather than a CS one, so **Matthew should see the gap 3 template before it goes out.** The other two templates carry no such consequence and need only writing approval.
+## Open question, replacing the one gap 3 raised
+
+The withdrawn gap 3 needed a commercial decision, because telling a customer their roster was stale invited them to deactivate drivers and cut their own invoice. **That question is now moot in this file** and has moved to the RISK call, where the frozen-roster finding lives and where it is a real over-billing issue rather than housekeeping.
+
+**What remains open here is smaller:** gaps 1 and 2 need a writing approval only. Neither has a revenue consequence, neither depends on an unratified outcome catalog, and both can be sent as soon as the wording is agreed.

@@ -93,6 +93,26 @@ def live_status():
     return {r["group"]: r for r in rows if r.get("group")}
 
 
+def load_history(as_of):
+    """
+    Daily activeStaff per tenant from InvoiceLineItem, built by staff_history.py.
+
+    Required by decision 08-04-2026: driver counts come from
+    InvoiceLineItem.activeStaff, never Invoice.averageActiveDriverCount (a monthly
+    average that cannot show a change inside a month) and no longer from the Staff
+    table (current state only, no history).
+    """
+    f = os.path.join(DATA, f"staff-history-{as_of}.json")
+    if not os.path.exists(f):
+        cands = sorted(glob.glob(os.path.join(DATA, "staff-history-*.json")))
+        if not cands:
+            sys.exit("no staff-history-*.json found. Run: python3 staff_history.py")
+        f = cands[-1]
+    h = json.load(open(f))
+    print(f"driver counts from {os.path.basename(f)} (InvoiceLineItem.activeStaff)")
+    return {t["companyName"]: t for t in h["tenants"]}
+
+
 def load(as_of):
     u = os.path.join(DATA, f"usage-{as_of}.json")
     if not os.path.exists(u):
@@ -108,60 +128,71 @@ def billing_problem(series):
             out.append((x.get("createdAt","")[:10], x.get("status"), float(x.get("invoiceTotal") or 0)))
     return out
 
-def revenue_direction(series):
+def driver_direction(h):
     """
-    BUG FOUND 08-04-2026 by John, from the briefing deck: TPE Logistics read
-    "growing +17%" while its driver list had not been touched in 55 days. Those
-    two cannot both be true, because billing is per active associate.
+    Change in DRIVER COUNT from the daily series, replacing revenue_direction().
 
     The old version compared the newest closed invoice against one FOUR MONTHS
-    OLDER, so it reported two different lies:
+    OLDER and read Invoice.averageActiveDriverCount. It produced two false
+    readings, both found by John on 08-04-2026:
 
-      TPE     98 -> 103 -> 111 -> 115 drivers. Real, but the growth ENDED
-              06-15-2026, the same week they stopped using Hera. Flat at 115
-              for two months. "Growing" was a four-month-old fact in the
-              present tense.
-      Probyn  126 -> 121 -> 26 -> 40 -> 41 -> 40. Read "+55% growing". They
-              COLLAPSED 79% in April and partially rebounded. The window
-              started at the bottom of the crash, so a 67% revenue loss
-              ($1,094 -> $357) printed as growth.
+      TPE     "growing +17%" while the driver list had not moved in 55 days. The
+              growth was real but ENDED 06-15-2026. A four-month-old fact stated
+              in the present tense.
+      Probyn  "growing +55%" for an account that fell 127 -> 26 drivers in April
+              and partially rebounded. The window began at the bottom of the
+              crash, so a 67% revenue loss printed as growth.
 
-    So: direction is month over month, and a fall from peak is reported
-    separately. A rebound from a crash is never "growing".
+    A daily series fixes both: 30 days is recent enough to be true now, and the
+    90-day peak catches a collapse the 30-day window would miss.
     """
-    a = [float(x.get("associates") or 0) for x in (series or [])[:6]]
-    if len(a) < 2 or not a[1]: return "unknown"
-    mom = (a[0] - a[1]) / a[1] * 100
-    word = "growing" if mom > 5 else ("declining" if mom < -5 else "flat")
-    out = f"{word} {mom:+.0f}% month over month ({a[1]:.0f} -> {a[0]:.0f} drivers)"
-    peak = max(a)
-    if peak and (peak - a[0]) / peak * 100 >= 20:
-        out += (f". WAS {peak:.0f} drivers {a.index(peak)} months ago, "
-                f"DOWN {(peak - a[0]) / peak * 100:.0f}% from that peak")
+    if not h or h.get("latest") is None:
+        return "driver count unknown, no billing line items"
+    cur = h["latest"]
+    c30 = (h.get("change") or {}).get("30")
+    if not c30:
+        out = f"{cur} drivers, no history 30 days back"
+    else:
+        pct = c30["pct"] or 0
+        word = "growing" if pct > 5 else ("declining" if pct < -5 else "flat")
+        out = f"{word}, {c30['then']} -> {cur} drivers in 30 days ({pct:+.0f}%)"
+    peak = h.get("peak")
+    if peak and cur and (peak - cur) / peak * 100 >= 20:
+        out += (f". PEAKED at {peak} drivers on {h.get('peak_date')}, "
+                f"down {(peak - cur) / peak * 100:.0f}% since")
     return out
 
-def frozen_roster(m, series):
-    """
-    A roster nobody maintains keeps billing. TPE averaged 14.8 departures a
-    month for 11 consecutive months, never below 5, then logged ZERO in the 50
-    days after 06-10-2026 while still showing 115 active drivers. Turnover did
-    not stop; maintenance did.
 
-    That means we are probably invoicing for drivers who have left, which is the
-    same shape as JDW ("they have been overpaying and we cannot reach them").
-    Say it on the task, because a CSM who does not know this walks into a call
-    that is really about a refund.
+def frozen_roster(h):
     """
-    v = (m.get("days") or {}).get("staff_status")
-    if v is None or v <= 45 or (m.get("active_staff") or 0) < 20:
+    A roster nobody maintains flatlines, and we keep billing it.
+
+    Direct evidence, not inference: activeStaff is recorded daily, so a run of
+    identical values means the number literally did not move. TPE changed 28 times
+    in 90 days and then sat at EXACTLY 115 for 50 days.
+
+    Two guards, both learned the hard way:
+      - Under 10 drivers this is just a dead account, already caught by the value
+        floor. Flagging it adds noise.
+      - NOT BILLED PER DRIVER means a frozen roster costs the customer nothing.
+        Divine Package (43 drivers) and Double Iron (18) are flat-fee, so calling
+        them over-billed would be false. This also resolves the "18 drivers at
+        $25" figure flagged as impossible on 08-03-2026: it was always correct.
+    """
+    if not h or not h.get("frozen") or (h.get("latest") or 0) < 10:
         return None
-    return (f"  ROSTER FROZEN {v} DAYS at {m['active_staff']} drivers. Nobody has been "
-            f"marked as joining or leaving.\n"
-            f"     Expect this account to be OVER-BILLED. Check the roster before "
-            f"asking for anything, and\n"
-            f"     route it to Matthew if drivers have left without being deactivated.")
+    if not h.get("per_driver_billing"):
+        return (f"  Roster unchanged {h['days_frozen']} days at {h['latest']} drivers, but this "
+                f"account is NOT billed per driver, so\n"
+                f"     there is no over-billing. Treat the frozen list as an adoption signal only.")
+    return (f"  ROSTER FROZEN {h['days_frozen']} DAYS at {h['latest']} drivers, after "
+            f"{h['changes_in_window']} changes in the prior {h.get('window_days')} days.\n"
+            f"     They are billed per driver, so EXPECT OVER-BILLING. Check the roster before "
+            f"asking for anything,\n"
+            f"     and route it to Matthew if drivers have left without being deactivated.")
 
-def describe(kind, members, sigmap, as_of):
+
+def describe(kind, members, sigmap, as_of, hist=None):
     """Gaps are ordered by WEIGHT, not by days dark. Sorting by days put
     'no odometer reading in 1016 days' at the top of a brief when odometer has a
     weight of zero, burying the heartbeats the conversation actually turns on."""
@@ -176,9 +207,13 @@ def describe(kind, members, sigmap, as_of):
         series = s_.get("invoice_series") or []
         d = m["days"]
         lines.append(f"--- {m['companyName']}")
-        lines.append(f"  Pays: ${m['monthly']:,.0f}/mo on the last closed invoice. {m['active_staff']} active associates now.")
-        lines.append(f"  Revenue direction: {revenue_direction(series)}")
-        fz = frozen_roster(m, series)
+        h = (hist or {}).get(m["companyName"]) or {}
+        cnt = h.get("latest")
+        asof_note = "" if (h.get("days_stale") or 0) <= 1 else f", as of {h.get('latest_date')}"
+        lines.append(f"  Pays: ${m['monthly']:,.0f}/mo on the last closed invoice. "
+                     f"{cnt if cnt is not None else m['active_staff']} drivers billed{asof_note}.")
+        lines.append(f"  Driver count: {driver_direction(h)}")
+        fz = frozen_roster(h)
         if fz:
             lines.append(fz)
         if not m.get("can_roster"):
@@ -239,6 +274,7 @@ def main():
     a = ap.parse_args()
     as_of = dt.date.fromisoformat(a.as_of) if a.as_of else dt.date.today()
     usage, sigmap, src = load(as_of)
+    hist = load_history(as_of)
 
     live = live_status()
     dropped = []
@@ -267,7 +303,12 @@ def main():
         if not (tiers & {"RISK", "ENGAGE"}): continue
         lead = max(members, key=lambda m: m["monthly"])
         total_monthly = sum(m["monthly"] for m in members)
-        total_staff = sum(m["active_staff"] or 0 for m in members)
+        # Billed driver count, not the Staff table. They agree on 212 of 241
+        # accounts and differ only by the 1-day feed lag, but the billed figure is
+        # the one we charge on, so it is the one the value floor should use.
+        total_staff = sum((hist.get(m["companyName"], {}) or {}).get("latest")
+                          if (hist.get(m["companyName"], {}) or {}).get("latest") is not None
+                          else (m["active_staff"] or 0) for m in members)
         bp = [b for m in members for b in billing_problem(sigmap.get(m["companyName"],{}).get("invoice_series"))]
         if bp:
             kind, owner, why = "CONFIRM_OR_CLOSE", MATTHEW, f"billing unresolved ${sum(b[2] for b in bp):,.0f}"
@@ -285,7 +326,7 @@ def main():
                                       "CONFIRM_OR_CLOSE":"Confirm or close"}[kind],
                          due=add_bdays(as_of, LADDER_BDAYS[0]) if kind=="RISK" else add_bdays(as_of, 5),
                          priority="High" if kind=="RISK" else "Normal",
-                         description=describe(kind, members, sigmap, as_of)))
+                         description=describe(kind, members, sigmap, as_of, hist)))
 
     from collections import Counter
     c = Counter(p["kind"] for p in plan)
