@@ -1,0 +1,748 @@
+<title>How we manage accounts from here</title>
+
+<style>
+  :root {
+    --ground:      #F6F7F9;
+    --surface:     #FFFFFF;
+    --surface-2:   #EDF0F4;
+    --ink:         #16202B;
+    --ink-2:       #57636F;
+    --ink-3:       #7C8894;
+    --rule:        #DBE1E8;
+    --rule-strong: #B9C3CE;
+    --accent:      #B8730B;
+    --accent-soft: #FBF1DF;
+    --risk:        #A8352A;
+    --risk-soft:   #FAEDEB;
+    --engage:      #0F5F6A;
+    --engage-soft: #E6F2F3;
+    --hold:        #55606C;
+    --hold-soft:   #EAEEF2;
+
+    --display: "Avenir Next Condensed", "HelveticaNeue-CondensedBold", "Arial Narrow", "Helvetica Neue", Helvetica, sans-serif;
+    --body: Charter, "Bitstream Charter", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:      #101720;
+      --surface:     #17202B;
+      --surface-2:   #1E2833;
+      --ink:         #E7ECF1;
+      --ink-2:       #9BA8B5;
+      --ink-3:       #7A8794;
+      --rule:        #2A3644;
+      --rule-strong: #3C4A5A;
+      --accent:      #F0B45A;
+      --accent-soft: #2A2317;
+      --risk:        #E8796A;
+      --risk-soft:   #2C1C1A;
+      --engage:      #5BC3D2;
+      --engage-soft: #14262A;
+      --hold:        #98A5B2;
+      --hold-soft:   #1D262F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#101720; --surface:#17202B; --surface-2:#1E2833;
+    --ink:#E7ECF1; --ink-2:#9BA8B5; --ink-3:#7A8794;
+    --rule:#2A3644; --rule-strong:#3C4A5A;
+    --accent:#F0B45A; --accent-soft:#2A2317;
+    --risk:#E8796A; --risk-soft:#2C1C1A;
+    --engage:#5BC3D2; --engage-soft:#14262A;
+    --hold:#98A5B2; --hold-soft:#1D262F;
+  }
+  :root[data-theme="light"] {
+    --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EDF0F4;
+    --ink:#16202B; --ink-2:#57636F; --ink-3:#7C8894;
+    --rule:#DBE1E8; --rule-strong:#B9C3CE;
+    --accent:#B8730B; --accent-soft:#FBF1DF;
+    --risk:#A8352A; --risk-soft:#FAEDEB;
+    --engage:#0F5F6A; --engage-soft:#E6F2F3;
+    --hold:#55606C; --hold-soft:#EAEEF2;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px 96px; }
+  .col { max-width: 64ch; }
+
+  h1, h2, h3, .eyebrow, .stat-n, .chip, th { font-family: var(--display); }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+    line-height: 1.08;
+    text-transform: uppercase;
+    letter-spacing: 0.005em;
+    font-weight: 700;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.22rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 700;
+    margin: 34px 0 10px;
+    text-wrap: balance;
+  }
+  p, ul, ol { margin: 0 0 18px; }
+  ul, ol { padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 700; color: var(--ink); }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  code, .mono { font-family: var(--mono); font-size: 0.88em; }
+  code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* ---- masthead ---- */
+  header.mast {
+    border-top: 5px solid var(--accent);
+    padding: 44px 0 34px;
+    margin-bottom: 8px;
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-bottom: 26px;
+  }
+  .lede { font-size: 1.2rem; color: var(--ink-2); max-width: 58ch; }
+
+  .banner {
+    border: 1px solid var(--risk);
+    background: var(--risk-soft);
+    border-left-width: 5px;
+    padding: 18px 22px;
+    margin: 30px 0 0;
+    border-radius: 2px;
+  }
+  .banner .eyebrow { color: var(--risk); }
+  .banner p { margin: 0; max-width: 62ch; }
+
+  /* ---- stat strip ---- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 40px 0 8px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .stat { background: var(--surface); padding: 20px 18px; }
+  .stat-n {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stat-l {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+
+  /* ---- sections ---- */
+  section { border-top: 1px solid var(--rule-strong); padding-top: 34px; margin-top: 56px; }
+
+  /* ---- tables ---- */
+  .tw { overflow-x: auto; margin: 0 0 22px; border: 1px solid var(--rule); border-radius: 2px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.94rem; }
+  th, td { text-align: left; padding: 11px 15px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---- tier chips ---- */
+  .chip {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .c-risk   { background: var(--risk-soft);   color: var(--risk);   border: 1px solid var(--risk); }
+  .c-eng    { background: var(--engage-soft); color: var(--engage); border: 1px solid var(--engage); }
+  .c-hold   { background: var(--hold-soft);   color: var(--hold);   border: 1px solid var(--hold); }
+
+  /* ---- call sheet (worked example) ---- */
+  .sheet {
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    border-radius: 2px;
+    margin: 24px 0;
+    overflow: hidden;
+  }
+  .sheet-h {
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 11px 18px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+  }
+  .sheet-b { padding: 20px 18px 4px; }
+  .sheet-b > :last-child { margin-bottom: 16px; }
+  .sheet-b pre {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    background: var(--surface-2);
+    padding: 14px 16px;
+    border-radius: 2px;
+    overflow-x: auto;
+    margin: 0 0 18px;
+    color: var(--ink);
+  }
+  .said {
+    border-left: 3px solid var(--accent);
+    padding: 2px 0 2px 16px;
+    margin: 0 0 18px;
+    font-size: 1.06rem;
+  }
+  .said .who {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 2px;
+  }
+  .note p:last-child, .note ul:last-child { margin-bottom: 0; }
+  .note .eyebrow { margin-bottom: 6px; }
+
+  .never { list-style: none; padding: 0; }
+  .never li {
+    border-left: 4px solid var(--risk);
+    background: var(--surface);
+    padding: 13px 18px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    border-top: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  footer.foot {
+    border-top: 5px solid var(--accent);
+    margin-top: 72px;
+    padding-top: 26px;
+    font-size: 0.94rem;
+    color: var(--ink-2);
+  }
+  @media (max-width: 620px) {
+    body { font-size: 16px; }
+    .stat-n { font-size: 2rem; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">
+    <span>Hera Solutions</span>
+    <span>Customer Success</span>
+    <span>08-04-2026</span>
+    <span>For Abram and Lizz</span>
+  </div>
+  <h1>How we manage accounts from here</h1>
+  <p class="lede">We have 241 paying customers and no way to tell, on any given morning, which of them quietly stopped using Hera. This is the system that answers that, what it puts in front of you, and what you do with it.</p>
+
+  <div class="banner">
+    <p class="eyebrow">Read this first</p>
+    <p><strong>None of this is live yet, and nobody is calling anyone.</strong> The system runs in preview mode: it works out what it would do and prints it, and writes nothing into Zoho. Two things still have to happen before it goes live, both listed at the end. Please do not contact a customer off the back of this document.</p>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><span class="stat-n">241</span><span class="stat-l">Paying customers</span></div>
+  <div class="stat"><span class="stat-n">61</span><span class="stat-l">Need something done</span></div>
+  <div class="stat"><span class="stat-n">3</span><span class="stat-l">Genuinely urgent</span></div>
+  <div class="stat"><span class="stat-n">180</span><span class="stat-l">Fine, leave alone</span></div>
+</div>
+<p class="col" style="font-size:0.94rem;color:var(--ink-2)">Three quarters of the book needs nothing from us. That is the point of the whole exercise: to stop spreading attention evenly across 241 accounts and put it on the ones where it changes an outcome.</p>
+
+<!-- =============== PART 1 =============== -->
+<section>
+  <p class="eyebrow">Part 01</p>
+  <h2>Why we are changing how this works</h2>
+
+  <div class="col">
+    <p>Zoho has been creating customer success tasks for over a year, using five automated rules that watch a date field called <code>Last_Active1</code>. The idea was reasonable: if a customer has not been active recently, someone should call them.</p>
+
+    <p><strong>The problem is what counts as "active."</strong> That date refreshes when anything at all happens on the account. A driver opening a notification counts. A background process ticking over counts. So the date almost never goes stale, and when it does, it is often for a customer who is perfectly healthy.</p>
+
+    <p>Two things followed from that:</p>
+
+    <ul>
+      <li><strong>It found almost nothing.</strong> Eighteen tasks in fourteen months, across a book of 241 customers.</li>
+      <li><strong>What it did find was mostly wrong.</strong> On the morning of 08-04-2026 those rules produced six tasks. Not one was for a paying customer who was actually at risk.</li>
+    </ul>
+
+    <p>Meanwhile the task queue had grown to <strong>217 overdue items</strong> that nobody could realistically work through. Those have now been closed and audited, with a record of what was in them.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">The lesson we took from it</p>
+    <p>The old system measured <strong>whether anything happened</strong>. What we actually need to know is <strong>whether a person there is doing the work Hera is for</strong>. Those are very different questions, and only the second one predicts anything.</p>
+  </div>
+</section>
+
+<!-- =============== PART 2 =============== -->
+<section>
+  <p class="eyebrow">Part 02</p>
+  <h2>How we tell if a customer is really using Hera</h2>
+
+  <div class="col">
+    <p>We looked at every customer who left in the last twelve months and asked which activity stopped first. Four things stood out. We call them <strong>signs of life</strong>, and they are the only four that decide whether an account needs a call.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Sign of life</th><th>In plain terms</th><th>How strongly it predicts leaving</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>A message was sent</strong></td><td>Somebody there texted their drivers</td><td class="num">Strongest of the four</td></tr>
+        <tr><td><strong>Paperwork was uploaded</strong></td><td>A licence, insurance, any driver document</td><td class="num">Second</td></tr>
+        <tr><td><strong>A schedule was built</strong></td><td>Tomorrow's drivers assigned to routes and vans</td><td class="num">Third</td></tr>
+        <tr><td><strong>A driver was added or removed</strong></td><td>The driver list was brought up to date</td><td class="num">Fourth</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>The rule: if three of those four have been silent for 30 days or more, the account needs a call.</strong></p>
+
+    <p>Three rather than one, because plenty of healthy customers skip one of them permanently. Some never upload paperwork and never will. Judging on a single missing sign would flag a third of the book and you would stop trusting it inside a week.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">The most useful thing to remember</p>
+    <p><strong>Getting an account out of trouble takes only one sign coming back.</strong> Every measure is "days since it last happened," so the moment somebody there sends a single message, that clock resets to zero and the account drops off the list.</p>
+    <p>So when you ask a customer to do something, <strong>ask for whichever one is easiest for them, not the one you think matters most.</strong> One text to their drivers is usually the shortest route back.</p>
+  </div>
+
+  <h3>Why we do not judge on one number</h3>
+
+  <div class="sheet">
+    <div class="sheet-h"><span>Worked example</span><span class="mono">DBE Logistics</span></div>
+    <div class="sheet-b">
+      <p>By one measure, DBE looked like one of the fourteen least engaged customers in the entire book. Almost nobody there clicks anything.</p>
+      <p>They are the opposite of disengaged. <strong>They upload Amazon scorecards, and Hera turns those into 9,400 coaching records.</strong> One deliberate action a week produces more coaching than most of the book manages in a year.</p>
+      <p>The reason they looked dead is that our activity log only records things a <em>person</em> clicks. Everything Hera generates on the customer's behalf is invisible to it. <strong>If you ever see a task that contradicts what you know about a customer, trust what you know and say so.</strong> That is how we found this one.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <p style="font-size:0.94rem;color:var(--ink-2)"><strong>One honest caveat.</strong> These four signs and the 30-day line come from 66 customers who left. That is enough to be useful and not enough to be certain. Expect it to be adjusted once we have a quarter of real call notes, which is exactly what the logging in Part 06 is for.</p>
+  </div>
+</section>
+
+<!-- =============== PART 3 =============== -->
+<section>
+  <p class="eyebrow">Part 03</p>
+  <h2>The three kinds of task you will see</h2>
+
+  <div class="col">
+    <p>Every morning, Monday to Friday, the system checks all 241 customers and creates tasks. Weekend activity counts toward Monday, so nothing is missed by not running at weekends.</p>
+    <p>As of 08-04-2026 that produces 61 tasks. They are not all the same job.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Task</th><th>Count</th><th>Monthly value</th><th>What it means</th><th>Goes to</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="chip c-risk">Risk</span></td>
+          <td class="num">3</td><td class="num">$1,509</td>
+          <td>Three or more signs of life gone quiet. <strong>Call them.</strong></td>
+          <td>John</td>
+        </tr>
+        <tr>
+          <td><span class="chip c-eng">Engage</span></td>
+          <td class="num">41</td><td class="num">$35,617</td>
+          <td>Healthy, in Hera daily, but <strong>one feature they never touch.</strong> Email once a quarter.</td>
+          <td>John</td>
+        </tr>
+        <tr>
+          <td><span class="chip c-hold">Confirm or close</span></td>
+          <td class="num">17</td><td class="num">$3,749</td>
+          <td>Bills almost nothing, or has no drivers at all. <strong>Not a CS call.</strong></td>
+          <td>Matthew</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>Notice the shape of that.</strong> The urgent list is three accounts, not thirty. The large number, 41 accounts and $35,617 a month, is customers who are doing fine and are missing out on part of what they pay for. That is a quarterly email, not a phone call, and it is where most of the money is.</p>
+
+    <h3>Two things that jump the queue</h3>
+    <p><strong>Anything with a billing problem goes to Matthew first, no matter how the customer is using the product.</strong> If an account has an unpaid or written-off invoice in its last three, adoption is not the conversation.</p>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-h"><span>Worked example</span><span class="mono">Why that rule exists</span></div>
+    <div class="sheet-b">
+      <p>JDW Logistics is the largest account in the book: $2,937 a month, 338 drivers. It was queued to receive a friendly note about document features it was not using.</p>
+      <p>At the same time, Matthew was chasing <strong>$8,449 written off across three months</strong> on the same account.</p>
+      <p>Sending that cheerful email would have been embarrassing. So the rule is enforced by the system rather than left to whoever reads the task.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <p><strong>AMP accounts are different and must never be contacted about billing.</strong> 46 customers sit on Trial status as a workaround, because rollup billing does not exist yet. They receive Hera through their AMP membership. They have no invoice, so there is nothing to discuss and any mention of it will cause confusion.</p>
+  </div>
+</section>
+
+<!-- =============== PART 4 =============== -->
+<section>
+  <p class="eyebrow">Part 04</p>
+  <h2>A real urgent call, start to finish</h2>
+
+  <div class="col">
+    <p>All three of the current urgent accounts have gone quiet on <strong>all four</strong> signs of life. Not three. Four. Here is the largest of them.</p>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-h">
+      <span class="chip c-risk">Risk</span>
+      <span class="mono">TPE Logistics Solutions</span>
+      <span class="mono">$931 / month</span>
+      <span class="mono">115 drivers</span>
+    </div>
+    <div class="sheet-b">
+      <p class="eyebrow" style="color:var(--ink-3)">What the task tells you</p>
+<pre>Pays          $931/mo on the last closed invoice
+Drivers       115 active right now
+Direction     GROWING, up 17% over the last 4 invoices
+
+  quiet  35 days   nobody there has sent a message
+  quiet  51 days   no driver paperwork uploaded
+  quiet  51 days   no driver schedule built
+  quiet  55 days   no driver added or removed</pre>
+
+      <p class="eyebrow" style="color:var(--ink-3)">The thing to notice</p>
+      <p><strong>They are hiring.</strong> Their driver count is up and their invoice is rising, while nobody has touched Hera in nearly two months. That single fact tells you the business has not closed, which is the most common reason accounts go dark.</p>
+      <p>So this is not a customer winding down. Something replaced us, or the one person who used Hera left, or nobody was ever properly shown. All three are fixable, which is why this call is worth making.</p>
+
+      <p class="eyebrow" style="color:var(--ink-3)">How to open it</p>
+      <div class="said">
+        <span class="who">You</span>
+        How's the operation running right now, are you still on 115 drivers? I ask because you've added people since spring and I wanted to make sure what you're paying for actually matches what you're getting.
+      </div>
+      <p>That opens on their business, states something true you can verify, and gives an honest reason for the call that sits on their side of the table.</p>
+
+      <p class="eyebrow" style="color:var(--ink-3)">Then name it once, and stop talking</p>
+      <div class="said">
+        <span class="who">You</span>
+        The reason I'm calling is that as far as I can see nothing has happened in Hera on your side since about June. No messages, no schedules, nothing. That's usually a sign something changed at your end, and I'd rather ask than guess.
+      </div>
+      <p><strong>"I'd rather ask than guess" is the whole posture.</strong> Then be quiet and let them fill the silence.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">Do not ask this</p>
+    <p><strong>Never ask "are you still using Hera at all?"</strong> Put that to a growing customer paying $931 a month and a fair number will say "no, cancel it." You would have talked a healthy account into leaving. An earlier version of our own script said to ask exactly that. It has been removed.</p>
+  </div>
+
+  <div class="col">
+    <h3>The other two, and why order matters a little</h3>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Account</th><th>Pays</th><th>Drivers</th><th>Direction</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>TPE Logistics</strong></td><td class="num">$931</td><td class="num">115</td><td>Growing 17%</td><td>Call this one first. Biggest, most people, and still early enough that no comparable account has ever left this soon</td></tr>
+        <tr><td>Probyn Inc</td><td class="num">$357</td><td class="num">41</td><td>Growing 55%</td><td>Quiet the longest. Most urgent, and also the most likely to have already decided</td></tr>
+        <tr><td>Divine Package</td><td class="num">$221</td><td class="num">43</td><td>Flat</td><td><strong>Cannot use scheduling at all.</strong> Never raise driver schedules with them</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>That last point is worth its own sentence.</strong> Divine Package is on an older plan that does not include scheduling. They physically cannot build a schedule. Only 4 accounts out of 241 are in this position, and the task will say so, but raising it would cost you the call in the first minute. Check the task before you dial.</p>
+    <p>It is three calls. Do them in one day.</p>
+  </div>
+</section>
+
+<!-- =============== PART 5 =============== -->
+<section>
+  <p class="eyebrow">Part 05</p>
+  <h2>When they do not pick up, and when they do</h2>
+
+  <div class="col">
+    <p>Owner-operators are hard to reach. That is normal and it is planned for.</p>
+    <h3>If there is silence</h3>
+    <p>Four attempts across different channels, then it leaves you. These are <strong>working days</strong>, so a Friday trigger means the first attempt is Monday.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Working day</th><th>What you do</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Call the owner, leave a voicemail</td></tr>
+        <tr><td class="num">3</td><td>Text the owner</td></tr>
+        <tr><td class="num">5</td><td>Email, <strong>and try a second person at the company</strong></td></tr>
+        <tr><td class="num">8</td><td>Last attempt, to that second person</td></tr>
+        <tr><td class="num">10</td><td>Still nothing and nothing has changed: <strong>hand to Matthew</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>Day 5 is the important one, and it is the second contact rather than the change of channel.</strong> One of the most common reasons an account goes quiet is that the person who used Hera left the company. No amount of texting will reach them.</p>
+
+    <p>Ten working days is about two calendar weeks. Of customers in this situation, <strong>none has ever left within the first 30 days</strong> of going quiet, so the ladder finishes comfortably inside the window where a call can still work. By day 60, though, 38% are gone. That is the actual deadline.</p>
+
+    <h3>The moment they say anything, stop the ladder</h3>
+    <p><strong>The schedule above is for silence only.</strong> A text back is contact. "Can't talk, try Thursday" is contact. Do not fire attempt three at somebody who already replied. Work the information instead, and what they tell you decides who owns it next, which is often not us.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>What they tell you</th><th>What you do</th></tr></thead>
+      <tbody>
+        <tr><td>Nobody ever showed us how</td><td>Book a 20 minute walkthrough with a <strong>named</strong> person, this week</td></tr>
+        <tr><td>The person who did it left</td><td>Find their replacement, get them added and trained. <strong>Stop chasing the old one</strong></td></tr>
+        <tr><td>It broke, or it was slow</td><td><strong>Raise a ticket. Engineering owns it.</strong> You go back with a date, not a promise</td></tr>
+        <tr><td>We use something else for that now</td><td>Ask what the other tool does better. <strong>Do not argue.</strong> This is product feedback</td></tr>
+        <tr><td>I forgot it was there</td><td>Cheapest fix there is. Show them on the call</td></tr>
+        <tr><td>The drivers won't use it</td><td>Get the driver's actual complaint, <strong>word for word</strong></td></tr>
+        <tr><td>We only want the texting part</td><td><strong>Pricing question. Goes to Matthew.</strong> Do not try to sell them the rest</td></tr>
+        <tr><td>Hera doesn't do what we need</td><td><strong>Write it down and stop selling.</strong> Worth more to us than saving the account</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-h"><span>Worked example</span><span class="mono">The most common one</span></div>
+    <div class="sheet-b">
+      <div class="said">
+        <span class="who">Owner</span>
+        Honestly, Steph handled all that and she left in May. I've been doing the schedule on paper since.
+      </div>
+      <p>That is a complete, successful call. You now know the account is fine, the business is running, and there is one specific fixable thing.</p>
+      <p><strong>Stop the ladder.</strong> Do not send the day 5 email. Ask who took over from Steph, get them added, and book twenty minutes to show them. Log the blocker as <em>the person who did it left</em>, and put the owner's sentence in the quote field exactly as they said it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =============== PART 6 =============== -->
+<section>
+  <p class="eyebrow">Part 06</p>
+  <h2>Where you write it down</h2>
+
+  <div class="col">
+    <p>Seven fields on the task in Zoho. The system fills the last one; you fill the other six. This matters more than it looks: across enough calls, the pattern in these fields is worth more than the outcome of any single one, and it is how we find out whether the 30-day rule is right.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th>What goes in it</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Contact Outcome</td><td>Connected, left message, no answer, wrong number, declined to talk</td></tr>
+        <tr><td class="mono">Job Named</td><td>Which part of their day they told you was hardest</td></tr>
+        <tr><td class="mono">Blocker</td><td>Why they stopped. <strong>The most valuable field on the task</strong></td></tr>
+        <tr><td class="mono">Ask Made</td><td>What you asked for, who owns it, by when</td></tr>
+        <tr><td class="mono">Outcome Evidence</td><td>Whether what they said matched what we assumed they wanted</td></tr>
+        <tr><td class="mono">Customer Quote</td><td>Their words, not your summary</td></tr>
+        <tr><td class="mono">Next Action</td><td>Set automatically. Where they are on the ladder</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="banner">
+    <p class="eyebrow">Hard rule, no exceptions</p>
+    <p><strong>Nothing automated will ever write, edit or delete a Note. Ever.</strong> Notes are the human record, written by you three, and you already have a convention for them. The seven fields above are the structured record. Two records, two jobs, no overlap. If a script started writing notes alongside people, nobody could trust the customer history again.</p>
+  </div>
+
+  <div class="col">
+    <h3>Nobody marks their own homework</h3>
+    <p>There is no "did it work?" box, deliberately. <strong>The next morning's run is the answer.</strong> If the account has come back to life, it worked, or they recovered on their own, and either way it drops off your list. If it is still quiet and you reached them, the ask did not stick and you need a different one, not the same one again. If it is still quiet and you never reached them, it counts toward the handover on day 10.</p>
+  </div>
+</section>
+
+<!-- =============== PART 7 =============== -->
+<section>
+  <p class="eyebrow">Part 07</p>
+  <h2>The 41 healthy accounts, and why they are the real prize</h2>
+
+  <div class="col">
+    <p>These customers are in Hera every day. Every single one of the 41 sent a message within the last eleven days, and 30 of them within the last three. <strong>They are not at risk and they must never be contacted as though they were.</strong></p>
+    <p>What they have is one capability they have never used or have stopped using. Between them that is $35,617 a month, more than twenty times the urgent list. It collapses into three gaps.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>What they are missing</th><th>Accounts</th><th>Monthly value</th></tr></thead>
+      <tbody>
+        <tr><td>Never build a driver schedule in Hera</td><td class="num">14</td><td class="num">$15,374</td></tr>
+        <tr><td>Never upload driver paperwork</td><td class="num">12</td><td class="num">$8,728</td></tr>
+        <tr><td>Never update their driver list</td><td class="num">7</td><td class="num">$6,240</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>This is one email a quarter, not a phone campaign.</strong> One outreach each. If they do not reply, it closes at the end of the quarter and comes round again. Chasing 41 accounts four times each would be 164 touches a quarter and it would crowd out the urgent work.</p>
+
+    <p>The email asks a genuine question rather than pitching the feature, because the likeliest answers are "we do it in a spreadsheet," "never knew that existed," and "it doesn't fit how we run." Only the middle one leads anywhere, and an email that sells teaches us nothing about the other two.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">What counts as success here</p>
+    <p><strong>"We do it in a spreadsheet and it works fine" is a complete and successful outcome.</strong> Write it down, close the task, do not push a second time. Knowing that is genuinely useful to us and pushing it is how you lose the right to ask next quarter.</p>
+  </div>
+</section>
+
+<!-- =============== PART 8 =============== -->
+<section>
+  <p class="eyebrow">Part 08</p>
+  <h2>Things we never do</h2>
+
+  <ul class="never">
+    <li><strong>Never offer money off because someone is not using the product.</strong> This has already cost us. One account was given a 100% credit, roughly $1,040 a month, labelled "not using it," and no adoption conversation was ever had. That turned a fixable problem into permanent lost revenue and hid it from our own data. Any pricing question goes to Matthew and you say you will come back to them.</li>
+    <li><strong>Never open with "we noticed you're not using..."</strong> It is an accusation about something they pay for, and they will spend the rest of the call defending themselves.</li>
+    <li><strong>Never mention renewal.</strong> There is no renewal at Hera. Month to month, no contract, no term. Implying one is not true.</li>
+    <li><strong>Never invent a time-saved figure.</strong> Do not multiply anything by assumed minutes. If a customer says "this saves me about six hours a week," that is quotable and we will use it with their name on it. Anything we calculate ourselves is not.</li>
+    <li><strong>Never discuss billing with an AMP account.</strong> They do not have an invoice.</li>
+    <li><strong>Never write, edit or delete a Note.</strong></li>
+  </ul>
+</section>
+
+<!-- =============== PART 9 =============== -->
+<section>
+  <p class="eyebrow">Part 09</p>
+  <h2>Who holds what, honestly</h2>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Person</th><th>Holds</th></tr></thead>
+      <tbody>
+        <tr><td><strong>John</strong></td><td>All 44 customer success tasks for now, and reassigns from there</td></tr>
+        <tr><td><strong>Lizz</strong></td><td>Work passed on by John, and assists Matthew on escalations</td></tr>
+        <tr><td><strong>Abram</strong></td><td><strong>No accounts assigned yet.</strong> See below</td></tr>
+        <tr><td><strong>Matthew</strong></td><td>The 17 confirm-or-close accounts, all billing questions, and anything handed over on day 10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p><strong>Abram, the reason you have nothing assigned is not an oversight.</strong> Which accounts you hold affects how you are paid, so that gets decided properly and written down before anything lands on you, rather than being backfilled from whatever the system happened to generate. Everything routes to John until then.</p>
+
+    <p><strong>Every task goes to a named person, never to whoever owns the deal in Zoho.</strong> That was how the old automation worked, and it is why a CEO and a system account ended up holding customer relationships.</p>
+  </div>
+</section>
+
+<!-- =============== PART 10 =============== -->
+<section>
+  <p class="eyebrow">Part 10</p>
+  <h2>What is not ready</h2>
+
+  <div class="col">
+    <p>Two things have to happen before any of this goes live.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Blocking</th><th>Owner</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Turn off the five old Zoho rules</strong></td><td>Matthew</td><td>Until they stop, two systems feed the same queue. That is how we got to 217 overdue tasks</td></tr>
+        <tr><td><strong>Sign off the list of customer outcomes</strong></td><td>Matthew</td><td>The call script refers to it, so it cannot be used with customers until it is agreed</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>Also outstanding, but not blocking:</p>
+    <ul>
+      <li><strong>The call script and the quarterly emails are drafts.</strong> They have been written and they need a read, not a rebuild.</li>
+      <li><strong>Onboarding has not been set up in this system at all.</strong> New customers are still handled the way they always were. That is the next piece of work, and Matthew's version of this document waits for it.</li>
+      <li><strong>Abram's accounts</strong>, as in Part 09.</li>
+      <li><strong>Where Matthew's escalations get recorded</strong> is genuinely unclear. If his process lives in email rather than Zoho, an account that hands over on day 10 leaves no trace in the CRM and we lose sight of it.</li>
+    </ul>
+
+    <h3>What we would like from you two</h3>
+    <p>Read Parts 04, 05 and 06 as though you were about to make the call, and tell us where the wording is wrong. <strong>Neither of us has made one of these calls yet</strong>, so the scripts are reasoned rather than tested, and the first ten real conversations will change them more than any amount of further planning.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>Prepared 08-04-2026 for Abram and Lizz. Figures are from the customer data as of that morning and will move. Nothing here is authorised for customer contact. A version for Matthew follows once onboarding is built.</p>
+</footer>
+
+</div>
