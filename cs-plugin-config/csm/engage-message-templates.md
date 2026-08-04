@@ -118,13 +118,15 @@ South Islander Xpress $1,068 (never), Town and Country Couriers $1,761 (179d), J
 
 **This one has a commercial edge the other two do not, and it needs a decision before use. See the open question at the bottom.**
 
+**Signal meaning, corrected 08-04-2026.** This gap measures **status transitions**, not additions. A driver created directly as Active writes no transition at all, so "no driver added" was the wrong reading. What it really means is that nobody's status has changed, which on a DSP roster is itself unusual and is the basis of the over-billing point below.
+
 > **Subject: Is your Hera driver list still accurate?**
 >
 > Hi [First name],
 >
 > You are using Hera daily, schedules and paperwork both, so this is a housekeeping question rather than a concern.
 >
-> Nobody has added or removed a driver on your account since [MM-DD-YYYY]. In a DSP that usually means one of two things: either the roster genuinely has not changed, or drivers have come and gone without the list catching up. If it is the second one, your schedules are working off names that are not there anymore.
+> Nobody has been marked as joining or leaving on your account since [MM-DD-YYYY]. In a DSP that usually means one of two things: either the roster genuinely has not changed, or drivers have come and gone without the list catching up. If it is the second one, you are paying for people who are not there anymore.
 >
 > Worth 15 minutes to walk through it together? If the list is right, we are done in five.
 >

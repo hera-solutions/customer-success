@@ -14,17 +14,29 @@ Replaces the 08-03-2026 draft, which was written for a 62-account cohort (adopti
 
 That breaks the central rule of the previous draft, "open with what they are doing," because **there is nothing they are doing.** No messages, no paperwork, no schedules, no driver changes. Do not manufacture an opener out of a weak signal like an odometer reading. It is transparent and it wastes the goodwill you get in the first minute.
 
-### The fact that makes these calls winnable
+### All three rosters are frozen, and that is the opener
 
-| Account | Pays | Associates | Revenue direction | Days since trigger fired |
-|---|---|---|---|---|
-| **TPE Logistics Solutions** | $931 | 115 | **growing +17%** | 21 |
-| Probyn Inc | $357 | 41 | **growing +55%** | 58 |
-| Divine Package | $221 | 43 | flat +1% | 46 |
+**Correction, 08-04-2026.** An earlier version of this table read "growing +17%" for TPE and "growing +55%" for Probyn, and told the caller to say the growth out loud. **Both figures were wrong** and the instruction is withdrawn. John caught it by asking how an invoice can rise while the driver list has not been touched in 55 days. It cannot.
 
-**All three are growing or flat while touching nothing.** They are hiring drivers and their invoice is rising, so **the business has not closed.** That rules out the single most common reason accounts go dark, and it is why these three are worth calling: something replaced Hera, or nobody was ever trained, or the one person who used it left. All three of those are fixable. A closed DSP is not.
+The measure compared the newest closed invoice against one **four months older**, which reported growth that had already stopped and, on Probyn, turned a collapse into growth because the window began at the bottom of the crash. Fixed in `revenue_direction()`.
 
-**Say the growth out loud.** "You've added drivers since March and your invoice has gone up" is true, verifiable, and it is the honest reason for the call.
+| Account | Pays | Drivers | Real direction | Roster frozen | Days since trigger |
+|---|---|---|---|---|---|
+| **TPE Logistics Solutions** | $931 | 115 | flat, +3% month over month | **55 days** | 21 |
+| Probyn Inc | $357 | 41 | flat month over month, **down 69% from 127 drivers in February** | **120 days** | 58 |
+| Divine Package | $221 | 43 | flat, +0% | **138 days** | 46 |
+
+**Every one of the three has a frozen roster, so every one is probably being over-billed.** Billing is per active driver, and a list nobody maintains keeps invoicing.
+
+**TPE is the clearest case.** It lost an average of 14.8 drivers a month for eleven consecutive months, never fewer than five, and has logged **zero** departures since 06-10-2026. A 115-driver DSP does not stop losing drivers. At its own historical rate roughly 24 people have left without being deactivated, which is about **$195 a month** being invoiced for nobody. That figure is an estimate from their own turnover, not a measurement, so present it as a question rather than a number.
+
+**This is the same shape as JDW**, which John described as "overpaying and we cannot reach them." Treat it as at least partly a billing conversation, and hand it to Matthew if the roster turns out to be wrong.
+
+**So the opener is money in the customer's favour**, which is a far better position than asking about adoption:
+
+> "Are you still on 115 drivers? I ask because your list hasn't changed since the middle of June, and I want to make sure you're not paying for people who've already moved on."
+
+**Everything stopped in the same week, which tells you it was one event.** For TPE: last driver added 06-15, last departure logged 06-10, schedules and paperwork both stopped 06-14. A cliff, not a decline. Something specific happened in mid-June, and finding out what it was is the point of the call.
 
 ### Call order
 

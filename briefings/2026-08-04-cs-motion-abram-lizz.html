@@ -372,7 +372,7 @@
         <tr><td><strong>A message was sent</strong></td><td>Somebody there texted their drivers</td><td class="num">Strongest of the four</td></tr>
         <tr><td><strong>Paperwork was uploaded</strong></td><td>A licence, insurance, any driver document</td><td class="num">Second</td></tr>
         <tr><td><strong>A schedule was built</strong></td><td>Tomorrow's drivers assigned to routes and vans</td><td class="num">Third</td></tr>
-        <tr><td><strong>A driver was added or removed</strong></td><td>The driver list was brought up to date</td><td class="num">Fourth</td></tr>
+        <tr><td><strong>A driver's status changed</strong></td><td>Somebody was marked as joining or leaving</td><td class="num">Fourth</td></tr>
       </tbody>
     </table>
   </div>
@@ -483,24 +483,28 @@
     <div class="sheet-b">
       <p class="eyebrow" style="color:var(--ink-3)">What the task tells you</p>
 <pre>Pays          $931/mo on the last closed invoice
-Drivers       115 active right now
-Direction     GROWING, up 17% over the last 4 invoices
+Drivers       115 on the books
+Direction     FLAT. 115 in July, 115 now
+Roster        FROZEN 55 days. Nobody marked as joining or leaving
 
   quiet  35 days   nobody there has sent a message
   quiet  51 days   no driver paperwork uploaded
   quiet  51 days   no driver schedule built
-  quiet  55 days   no driver added or removed</pre>
+  quiet  55 days   nobody marked as joining or leaving</pre>
 
       <p class="eyebrow" style="color:var(--ink-3)">The thing to notice</p>
-      <p><strong>They are hiring.</strong> Their driver count is up and their invoice is rising, while nobody has touched Hera in nearly two months. That single fact tells you the business has not closed, which is the most common reason accounts go dark.</p>
-      <p>So this is not a customer winding down. Something replaced us, or the one person who used Hera left, or nobody was ever properly shown. All three are fixable, which is why this call is worth making.</p>
+      <p><strong>Everything stopped in the same week.</strong> Their last new driver was added on 06-15. The last person marked as leaving was 06-10. Schedules and paperwork both stopped on 06-14. This is not a gradual decline, it is a cliff, and something specific happened in mid-June.</p>
+
+      <p><strong>And the frozen roster is the part that matters most.</strong> TPE lost an average of 15 drivers a month for eleven months straight, never fewer than five. Since 06-10 they have logged <strong>zero</strong>. A 115-driver DSP does not simply stop losing drivers, so the honest reading is that people have left and nobody has taken them off the list.</p>
+
+      <p><strong>Which means we are probably billing them for drivers who no longer work there.</strong> We charge per active driver, so a list nobody maintains keeps invoicing. That makes this at least partly a money conversation, and possibly a refund, which is Matthew's. Check the roster before you ask them for anything.</p>
 
       <p class="eyebrow" style="color:var(--ink-3)">How to open it</p>
       <div class="said">
         <span class="who">You</span>
-        How's the operation running right now, are you still on 115 drivers? I ask because you've added people since spring and I wanted to make sure what you're paying for actually matches what you're getting.
+        How's the operation running right now, are you still on 115 drivers? I ask because your list hasn't changed since the middle of June, and I want to make sure you're not paying for people who've already moved on.
       </div>
-      <p>That opens on their business, states something true you can verify, and gives an honest reason for the call that sits on their side of the table.</p>
+      <p>That opens on their business, states something true you can verify, and puts money back in their pocket as the reason for the call. It is very hard to be annoyed at somebody opening that way.</p>
 
       <p class="eyebrow" style="color:var(--ink-3)">Then name it once, and stop talking</p>
       <div class="said">
@@ -523,19 +527,29 @@ Direction     GROWING, up 17% over the last 4 invoices
   <div class="tw">
     <table>
       <thead>
-        <tr><th>Account</th><th>Pays</th><th>Drivers</th><th>Direction</th><th>Note</th></tr>
+        <tr><th>Account</th><th>Pays</th><th>Drivers</th><th>Direction</th><th>Roster frozen</th><th>Note</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>TPE Logistics</strong></td><td class="num">$931</td><td class="num">115</td><td>Growing 17%</td><td>Call this one first. Biggest, most people, and still early enough that no comparable account has ever left this soon</td></tr>
-        <tr><td>Probyn Inc</td><td class="num">$357</td><td class="num">41</td><td>Growing 55%</td><td>Quiet the longest. Most urgent, and also the most likely to have already decided</td></tr>
-        <tr><td>Divine Package</td><td class="num">$221</td><td class="num">43</td><td>Flat</td><td><strong>Cannot use scheduling at all.</strong> Never raise driver schedules with them</td></tr>
+        <tr><td><strong>TPE Logistics</strong></td><td class="num">$931</td><td class="num">115</td><td>Flat</td><td class="num">55 days</td><td>Call this one first. Biggest, most people, and still early enough that no comparable account has ever left this soon</td></tr>
+        <tr><td>Probyn Inc</td><td class="num">$357</td><td class="num">41</td><td><strong>Down 69% from peak</strong></td><td class="num">120 days</td><td>Had 127 drivers in February, has 41 now. Lost two thirds of their operation before going quiet</td></tr>
+        <tr><td>Divine Package</td><td class="num">$221</td><td class="num">43</td><td>Flat</td><td class="num">138 days</td><td><strong>Cannot use scheduling at all.</strong> Never raise driver schedules with them</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="col">
-    <p><strong>That last point is worth its own sentence.</strong> Divine Package is on an older plan that does not include scheduling. They physically cannot build a schedule. Only 4 accounts out of 241 are in this position, and the task will say so, but raising it would cost you the call in the first minute. Check the task before you dial.</p>
+    <p><strong>All three have frozen rosters</strong>, between 55 and 138 days. So all three are probably being over-billed, and every one of these calls should start by checking whether the driver list is real.</p>
+
+    <p><strong>Divine Package is on an older plan that does not include scheduling.</strong> They physically cannot build a schedule. Only 4 accounts out of 241 are in this position, and the task says so, but raising it would cost you the call in the first minute. Check the task before you dial.</p>
+
     <p>It is three calls. Do them in one day.</p>
+
+    <div class="note">
+      <p class="eyebrow">How this section got fixed, and why it is in here</p>
+      <p>An earlier version of this page said TPE was <em>growing 17%</em> and that their invoice was rising while they ignored Hera. <strong>John read it and asked how that was possible</strong>, given billing is per driver and their driver list had not changed in 55 days.</p>
+      <p>It was not possible. The measure compared this month against one <strong>four months earlier</strong>, so it reported growth that had already stopped. On Probyn it was worse: it printed <em>growing 55%</em> for an account that had fallen from 127 drivers to 41, because the four-month window happened to start at the bottom of the crash.</p>
+      <p><strong>Both are fixed, and the fix found the frozen rosters.</strong> Please do this to us. If a task tells you something that does not square with what you know about a customer, say so, because the numbers are new and not all of them are right yet.</p>
+    </div>
   </div>
 </section>
 

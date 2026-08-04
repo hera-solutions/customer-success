@@ -46,7 +46,13 @@ LABEL = {
     "last_message_sent_by_user": ("messages being sent",          "nobody there has sent a message"),
     "document":                  ("driver paperwork uploaded",    "no driver paperwork uploaded"),
     "last_staffed_roster":       ("driver schedules being built", "no driver schedule built"),
-    "staff_status":              ("drivers added and deactivated","no driver added or deactivated"),
+    # TRAP, 08-04-2026: StaffStatus is a TRANSITION log (previousStatus ->
+    # currentStatus). It catches somebody going live (Onboarding -> Active) and
+    # somebody leaving (Active -> Inactive), but a driver created directly as
+    # Active writes NO row: all 15 of TPE's June hires are invisible to it, and
+    # 0 of 1,081 transitions across 12 busy tenants had an absent previousStatus.
+    # So this signal means "nobody's status changed", NOT "no driver was added".
+    "staff_status":              ("drivers joining and leaving", "nobody marked as joining or leaving"),
     "last_scorecard":            ("Amazon scorecards uploaded",   "no Amazon scorecard uploaded"),
     "counseling":                ("counselings logged",           "no counseling logged"),
     "infraction":                ("infractions logged",           "no infraction logged"),
@@ -103,11 +109,57 @@ def billing_problem(series):
     return out
 
 def revenue_direction(series):
-    a = [float(x.get("associates") or 0) for x in (series or [])[:4]]
-    if len(a) < 2 or not a[-1]: return "unknown"
-    pct = (a[0] - a[-1]) / a[-1] * 100
-    word = "growing" if pct > 5 else ("declining" if pct < -5 else "flat")
-    return f"{word} {pct:+.0f}% across the last {len(a)} closed invoices"
+    """
+    BUG FOUND 08-04-2026 by John, from the briefing deck: TPE Logistics read
+    "growing +17%" while its driver list had not been touched in 55 days. Those
+    two cannot both be true, because billing is per active associate.
+
+    The old version compared the newest closed invoice against one FOUR MONTHS
+    OLDER, so it reported two different lies:
+
+      TPE     98 -> 103 -> 111 -> 115 drivers. Real, but the growth ENDED
+              06-15-2026, the same week they stopped using Hera. Flat at 115
+              for two months. "Growing" was a four-month-old fact in the
+              present tense.
+      Probyn  126 -> 121 -> 26 -> 40 -> 41 -> 40. Read "+55% growing". They
+              COLLAPSED 79% in April and partially rebounded. The window
+              started at the bottom of the crash, so a 67% revenue loss
+              ($1,094 -> $357) printed as growth.
+
+    So: direction is month over month, and a fall from peak is reported
+    separately. A rebound from a crash is never "growing".
+    """
+    a = [float(x.get("associates") or 0) for x in (series or [])[:6]]
+    if len(a) < 2 or not a[1]: return "unknown"
+    mom = (a[0] - a[1]) / a[1] * 100
+    word = "growing" if mom > 5 else ("declining" if mom < -5 else "flat")
+    out = f"{word} {mom:+.0f}% month over month ({a[1]:.0f} -> {a[0]:.0f} drivers)"
+    peak = max(a)
+    if peak and (peak - a[0]) / peak * 100 >= 20:
+        out += (f". WAS {peak:.0f} drivers {a.index(peak)} months ago, "
+                f"DOWN {(peak - a[0]) / peak * 100:.0f}% from that peak")
+    return out
+
+def frozen_roster(m, series):
+    """
+    A roster nobody maintains keeps billing. TPE averaged 14.8 departures a
+    month for 11 consecutive months, never below 5, then logged ZERO in the 50
+    days after 06-10-2026 while still showing 115 active drivers. Turnover did
+    not stop; maintenance did.
+
+    That means we are probably invoicing for drivers who have left, which is the
+    same shape as JDW ("they have been overpaying and we cannot reach them").
+    Say it on the task, because a CSM who does not know this walks into a call
+    that is really about a refund.
+    """
+    v = (m.get("days") or {}).get("staff_status")
+    if v is None or v <= 45 or (m.get("active_staff") or 0) < 20:
+        return None
+    return (f"  ROSTER FROZEN {v} DAYS at {m['active_staff']} drivers. Nobody has been "
+            f"marked as joining or leaving.\n"
+            f"     Expect this account to be OVER-BILLED. Check the roster before "
+            f"asking for anything, and\n"
+            f"     route it to Matthew if drivers have left without being deactivated.")
 
 def describe(kind, members, sigmap, as_of):
     """Gaps are ordered by WEIGHT, not by days dark. Sorting by days put
@@ -126,6 +178,9 @@ def describe(kind, members, sigmap, as_of):
         lines.append(f"--- {m['companyName']}")
         lines.append(f"  Pays: ${m['monthly']:,.0f}/mo on the last closed invoice. {m['active_staff']} active associates now.")
         lines.append(f"  Revenue direction: {revenue_direction(series)}")
+        fz = frozen_roster(m, series)
+        if fz:
+            lines.append(fz)
         if not m.get("can_roster"):
             lines.append("  NOT ENTITLED TO ROSTERING. Do not raise driver schedules.")
         # heartbeats first, always, both states named
@@ -155,9 +210,11 @@ def describe(kind, members, sigmap, as_of):
                          ", ".join(lbl(k, True) for k in alive) + ".")
         else:
             lines.append("ALL FOUR SIGNALS ARE DARK. There is nothing to open with, so do not")
-            lines.append("pretend otherwise. Ask straight out whether they are still using Hera")
-            lines.append("at all, and whether anything changed on their side.")
-        lines += ["DO NOT open with 'we noticed you are not using...'",
+            lines.append("pretend otherwise. Open on their OPERATION: how it is running, how many")
+            lines.append("routes, whether anything changed. Then name the silence once and stop talking.")
+        lines += ["DO NOT ask 'are you still using Hera at all'. On a paying account that",
+                  "  invites a cancellation, and it caused the outcome it was meant to prevent.",
+                  "DO NOT open with 'we noticed you are not using...'",
                   "DO NOT offer a discount. Route any pricing question to Matthew.",
                   "Getting out of RISK takes only ONE signal coming back. Ask for the easiest one.",
                   "", "LOG: Job Named, Blocker, Ask Made, Outcome Evidence, Customer Quote, Contact Outcome."]
