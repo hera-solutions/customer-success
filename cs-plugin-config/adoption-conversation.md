@@ -177,6 +177,8 @@ Write it **verbatim**, with the name and the date. From a 4-of-4 dark account th
 | `Customer Quote` | Verbatim, with name and date |
 | `Next Action` | Ladder position, set by the generator |
 
+**WHERE THESE FIELDS ARE, and it is not obvious.** They are in the **full task record view only**. The popup that opens when you click a task from a list is Zoho's Business Card layout, and it carries just six fields: Subject, Priority, Due Date, Status, Related To, Owner. **None of the seven CS fields appear in it.** John looked for Contact Outcome and Next Action in the popup on 08-04-2026 and concluded they had not been created. Open the full record, and scroll past `Customer Quote`, which is a tall textarea with the last two picklists below it.
+
 **Never write, edit or delete a Zoho Note.** Hard rule. The structured record lives in these fields; the narrative lives in Notes, written by people. Two records, two jobs, no overlap.
 
 **An attempted call counts toward coverage.** Record the attempt. Coverage is the Q1 target, not outcome.

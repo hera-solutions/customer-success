@@ -150,6 +150,8 @@ Use only where a mobile number exists on the Zoho contact. One message, no follo
 | `Ask Made` | The 15 minutes, and whether they took it |
 | `Next Action` | Almost always "None, close" or "Book demo" |
 
+**These fields are in the FULL task record, not the popup.** The popup carries only Subject, Priority, Due Date, Status, Related To and Owner. Open the record itself.
+
 **Do not touch Notes.** Standing rule.
 
 ---
