@@ -108,7 +108,7 @@ Map whatever comes back to one of the six jobs in `outcome-catalog.md`:
 
 | They describe | Job | Likely gap |
 |---|---|---|
-| Staffing tomorrow, callouts, texting people at night | Job 1, get routes staffed | Rostering, replacements, checklists |
+| Staffing tomorrow, callouts, texting people at night | Job 1, get routes staffed | Assigning drivers to routes on the daily roster, replacements, checklists |
 | Amazon reviews, tier, scores, being blindsided | Job 2, survive the scorecard | Scorecard upload stopped |
 | Firing someone, warnings, paperwork | Job 3, coach defensibly | Counselings, infractions, kudos |
 | Telling everyone something, drivers not reading | Job 4, reach the team | Messenger, recurring messages |
@@ -141,6 +141,8 @@ Classify the answer. This is the field that will eventually tell you what actual
 ## Step 5: One ask, one owner, one date
 
 **One change per call.** Two is a to-do list, and a to-do list gets ignored.
+
+**The four heartbeats, in the words the task uses:** a message was sent to drivers, VPL photos came back from drivers, a route was assigned on the daily roster, the billed driver count changed. **A VPL is a request from a user to a driver to photograph a van**, tied to a rostered day, answered by the driver without logging in. It is not paperwork.
 
 **Getting out of RISK takes exactly one heartbeat coming back.** Every signal is days-since against a 30-day threshold, so the moment they send one message or build one schedule, that signal resets to zero and a 4-of-4 account drops below the line. **Ask for whichever one is easiest for them, not the most important one.** For most accounts that is sending a single message to the team.
 

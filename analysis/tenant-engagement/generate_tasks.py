@@ -50,28 +50,42 @@ ESCALATE_BDAY = 10
 # Two labels per signal: how it reads when the customer IS doing it, and when they
 # are not. Reusing the gap wording for both produced "ok, 5d nobody there has sent
 # a message", which says the opposite of what it means, on the first line a CSM reads.
+# Two labels per signal: how it reads when the customer IS doing it, and when they
+# are not. Reusing the gap wording for both produced "ok, 5d nobody there has sent
+# a message", which says the opposite of what it means, on the first line a CSM reads.
+#
+# WORDING SET BY JOHN 08-05-2026. Every label names the ACTUAL OPERATION, not a
+# summary of it. "A schedule was built" was rejected because it does not say what
+# was actually done. See the heartbeat section in the CSM config for the mechanics.
 LABEL = {
-    "last_message_sent_by_user": ("messages being sent",          "nobody there has sent a message"),
-    # TRAP, 08-05-2026, raised by John: this is NOT driver paperwork. It is the
-    # newest row on Document, a single table holding every file in the product
-    # (20.3M rows). Measured over 90 days across all 241 tenants:
-    #   94.4% daily-log vehicle photos, 4.7% counseling images, 0.7% real paperwork.
-    # So it overwhelmingly measures the DAILY VEHICLE CHECK, not filing a licence.
-    # Kept as a heartbeat because it is independent of rostering (Jaccard 0.34, and
-    # only 56% of document-dark accounts are also roster-dark), but relabelled so no
-    # CSM opens a call believing it means paperwork. Real paperwork cannot be a
-    # heartbeat: 164 of 241 accounts are dark on it at 30 days, so absence is normal.
-    # See findings-document-signal.md.
-    "document":                  ("vehicle photo logs and file uploads",
-                                  "no vehicle photo log or file upload"),
-    "last_staffed_roster":       ("driver schedules being built", "no driver schedule built"),
-    # TRAP, 08-04-2026: StaffStatus is a TRANSITION log (previousStatus ->
-    # currentStatus). It catches somebody going live (Onboarding -> Active) and
-    # somebody leaving (Active -> Inactive), but a driver created directly as
-    # Active writes NO row: all 15 of TPE's June hires are invisible to it, and
-    # 0 of 1,081 transitions across 12 busy tenants had an absent previousStatus.
-    # So this signal means "nobody's status changed", NOT "no driver was added".
-    "staff_status":              ("drivers joining and leaving", "nobody marked as joining or leaving"),
+    "last_message_sent_by_user": ("messages being sent to drivers",
+                                  "no message sent to drivers"),
+
+    # This is the VEHICLE PHOTO LOG loop, not paperwork. Verified 08-05-2026 across
+    # all 241 tenants: 100% of DailyLog rows are type "Vehicle Photo Log", 100% are
+    # tied to a rostered day, and 90.3% were requested by a user sending a link to a
+    # driver. 94.4% of Document rows are the photos that come back. So this signal
+    # measures a USER asking and a DRIVER answering, the only signal in the model
+    # that proves both sides of that loop are alive.
+    "document":                  ("VPL photos coming back from drivers",
+                                  "no VPL photos returned by drivers"),
+
+    # NOT "a schedule was built". It is specifically a DailyRoster carrying at least
+    # one Route with a routeStaffId, i.e. somebody was actually put on a route. A
+    # roster can exist with no routes on it, and 80 of 82 rosters across the 22
+    # accounts dark here are exactly that: empty shells.
+    "last_staffed_roster":       ("routes being assigned on the daily roster",
+                                  "no route assigned on the daily roster"),
+
+    # From InvoiceLineItem.activeStaff, the number we invoice, so this is the
+    # billed roster moving rather than a status transition being logged.
+    "roster_maintained":         ("the billed driver count is moving",
+                                  "the billed driver count has not changed"),
+
+    # The VPL REQUEST, as opposed to the photos coming back above.
+    "daily_log":                 ("VPL requests being sent to drivers",
+                                  "no VPL request sent to drivers"),
+
     "last_scorecard":            ("Amazon scorecards uploaded",   "no Amazon scorecard uploaded"),
     "counseling":                ("counselings logged",           "no counseling logged"),
     "infraction":                ("infractions logged",           "no infraction logged"),
@@ -79,8 +93,15 @@ LABEL = {
     "textract":                  ("documents sent for scanning",  "no document sent for scanning"),
     "attachment":                ("attachments added",            "no attachment added"),
     "vehicle_history":           ("vehicle records logged",       "no vehicle record logged"),
-    "daily_log":                 ("daily log entries",            "no daily log entry"),
     "odometer":                  ("odometer readings",            "no odometer reading"),
+    # TRAP, 08-04-2026: StaffStatus is a TRANSITION log (previousStatus ->
+    # currentStatus). It catches somebody going live (Onboarding -> Active) and
+    # somebody leaving (Active -> Inactive), but a driver created directly as
+    # Active writes NO row: all 15 of TPE's June hires are invisible to it, and
+    # 0 of 1,081 transitions across 12 busy tenants had an absent previousStatus.
+    # Replaced as the 4th heartbeat by roster_maintained above; kept for context.
+    "staff_status":              ("driver statuses being changed",
+                                  "no driver status changed"),
 }
 def lbl(k, ok):
     return LABEL.get(k, (k, k))[0 if ok else 1]

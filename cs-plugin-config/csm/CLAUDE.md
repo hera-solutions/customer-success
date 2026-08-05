@@ -202,6 +202,53 @@ The owner, dispatchers, operations managers, HR, fleet managers. **They log in a
 
 **In customer-facing writing, say "drivers".** Operators call them drivers or associates, never "staff" and certainly never "users".
 
+## What the four heartbeats actually are. Wording set by John 08-05-2026.
+
+**Every label names the real operation. Summaries were rejected**, because a CSM reading "a schedule was built" cannot tell what the customer did or did not do, and opens the call on the wrong subject.
+
+| Heartbeat | The label | What literally happened |
+|---|---|---|
+| 1 | **A message was sent to drivers** | A user sent a message from Hera to their drivers |
+| 2 | **VPL photos came back from drivers** | A driver returned photos against a Vehicle Photo Log request |
+| 3 | **A route was assigned on the daily roster** | A `DailyRoster` carries at least one `Route` with a `routeStaffId` |
+| 4 | **The billed driver count changed** | `InvoiceLineItem.activeStaff` moved, so the roster we invoice is being maintained |
+
+### Heartbeat 2 in full, because it is the most misunderstood
+
+**A Vehicle Photo Log is a request from a USER to a DRIVER to photograph a vehicle.** It is not paperwork, and the earlier label "driver paperwork uploaded" was wrong.
+
+The sequence:
+
+1. **A user sends a VPL link to a specific driver.** `DailyLog.dailyLogCreationLinkSentByUserId` and `creationLinkSentDateTime`. **90.3% of VPLs are created this way.**
+2. **The VPL is tied to a rostered day.** `dailyLogRosteredDayId`. **100% of them are, verified across all 241 tenants**, which is why VPLs effectively require the customer to be using the daily roster.
+3. **The driver opens the link and adds the requested photos without logging in.** `specificPhotos` lists what was asked for, "Front of Vehicle" and so on. This is the staff interaction model: no account, no authentication.
+4. **Each photo becomes a `Document` row** carrying `documentDailyLogId`. That is what the signal reads.
+
+**So heartbeat 2 is the only signal in the model that proves BOTH sides of the user-to-driver loop are alive.** A user asked, and a driver answered. That is why it carries the second-highest churn weight at 4.5, and it is a better reason than the one originally recorded.
+
+### Why heartbeats 2 and 3 are not the same signal
+
+They look like they should be, since VPLs require the daily roster. **They are not, and the reason is precise: a daily roster can exist with no routes assigned on it.**
+
+**22 accounts have VPL photos arriving but no route assigned in 30 days. Across them, 80 of 82 rosters in the window are empty shells, 98%.** So those customers create the roster, which is enough for VPLs to work, and never put anyone on a route.
+
+That is two different depths of the same workflow:
+
+- **The roster exists** and enables the VPL loop.
+- **A route is assigned on it**, which is the deeper adoption.
+
+Measured overlap between the two is Jaccard 0.34, so the 3-of-4 rule is not double-counting.
+
+### Traps in this area
+
+**`DailyLog.type` accumulates " (Expired)" suffixes.** Live values include `Vehicle Photo Log`, `Vehicle Photo Log (Expired)`, and even `Vehicle Photo Log (Expired) (Expired)`. **Matching `type == "Vehicle Photo Log"` exactly silently drops 2,297 rows.** Match on the prefix.
+
+**`status` is not a completion measure.** 92.7% of VPLs sit at `IN_PROGRESS` and are never marked done. Use whether photos came back, not the status field.
+
+**There is no other kind of DailyLog.** 100% are Vehicle Photo Logs, so "daily log" and "VPL" are the same thing in this product. Do not read the table name as a general activity log.
+
+**The VPL request and the photos coming back are different signals.** `daily_log` is the request, weight 1.3. `document` is the photos returned, weight 4.5. **The driver answering predicts churn far better than the user asking**, which is worth remembering when choosing what to ask a customer to do.
+
 ## Billing model (drives everything else)
 
 **$9.00 per ACTIVE associate per month, charged as $0.30 per associate per day, billed one month in arrears.** July usage invoices August 1 after the July invoice closes.

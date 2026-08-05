@@ -25,9 +25,11 @@ Each template asks one question and requests 15 minutes. **Log the answer in `Bl
 
 ---
 
-## Gap 1: no driver schedule built
+## Gap 1: no route assigned on the daily roster
 
-**14 accounts, $15,374/mo.** These operators run Hera daily but never build the day's roster in it, so route and van assignments live somewhere else.
+**14 accounts, $15,374/mo.** These operators run Hera daily but never put a driver on a route in it, so route and van assignments live somewhere else.
+
+**Precision matters in the wording here.** The signal is a `DailyRoster` carrying at least one `Route` with a driver on it. **Several of these accounts DO create rosters and leave them empty**, so "you never build a schedule" would be factually wrong to their face. Say "assigning drivers to routes", not "building a schedule".
 
 ### 1a. Never used it (3 accounts, $3,915/mo)
 
@@ -68,7 +70,7 @@ Lapsed over 180 days: Sinaro Logistics $1,384 (478d), DC1 Transport $1,275 (862d
 
 ---
 
-## Gap 2: no driver paperwork uploaded
+## Gap 2: no driver paperwork on file
 
 **13 accounts. All thirteen build schedules and message drivers daily.**
 

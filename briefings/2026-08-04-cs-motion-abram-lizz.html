@@ -448,15 +448,39 @@
   <div class="tw">
     <table>
       <thead>
-        <tr><th>Sign of life</th><th>In plain terms</th><th>How strongly it predicts leaving</th></tr>
+        <tr><th></th><th>Sign of life</th><th>What literally happened</th><th>Predicts leaving</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>A message was sent</strong></td><td>Somebody there texted their drivers</td><td class="num">Strongest of the four</td></tr>
-        <tr><td><strong>A file went in</strong></td><td>Almost always a vehicle photo from the daily check. See the note below</td><td class="num">Second</td></tr>
-        <tr><td><strong>A schedule was built</strong></td><td>Tomorrow's drivers assigned to routes and vans</td><td class="num">Third</td></tr>
-        <tr><td><strong>The driver count moved</strong></td><td>The number of drivers we bill for went up or down</td><td class="num">Fourth</td></tr>
+        <tr><td class="num">1</td><td><strong>A message was sent to drivers</strong></td><td>A user sent a message out of Hera to their drivers</td><td class="num">Strongest</td></tr>
+        <tr><td class="num">2</td><td><strong>VPL photos came back from drivers</strong></td><td>A driver returned the photos a user asked them for. See below</td><td class="num">Second</td></tr>
+        <tr><td class="num">3</td><td><strong>A route was assigned on the daily roster</strong></td><td>Somebody was actually put on a route for a given day</td><td class="num">Third</td></tr>
+        <tr><td class="num">4</td><td><strong>The billed driver count changed</strong></td><td>The number of drivers we invoice went up or down</td><td class="num">Fourth</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="col">
+    <p><strong>Each of those names the actual operation on purpose.</strong> An earlier version said "a schedule was built", which sounds clearer and is worse: it does not tell you whether the customer made an empty roster or genuinely put drivers on routes, and those are different conversations. Every label here is the thing you can say out loud to a customer without being wrong.</p>
+  </div>
+
+  <h3>Sign 2 in full, because it is the one people get wrong</h3>
+
+  <div class="col">
+    <p><strong>A Vehicle Photo Log, or VPL, is a request from a user to a driver to photograph a van.</strong> It has nothing to do with paperwork. Here is the whole sequence:</p>
+    <ol>
+      <li><strong>A user sends a VPL link to a specific driver</strong>, naming the photos they want: front of vehicle, and so on. <strong>90% of VPLs start this way.</strong></li>
+      <li><strong>The VPL is attached to a rostered day.</strong> Every single one, so a customer effectively has to be using the daily roster for VPLs to work at all.</li>
+      <li><strong>The driver opens the link on their phone and adds the photos, without logging in.</strong> This is the whole staff model from Part 02: no account, no password.</li>
+      <li><strong>Each photo lands in Hera</strong>, and that is what the signal reads.</li>
+    </ol>
+    <p><strong>So sign 2 is the only one that proves both halves of the loop are alive: a user asked, and a driver answered.</strong> That is why it predicts churn second-strongest of the four. When it goes quiet, either the office stopped asking or the drivers stopped responding, and both are worth a call.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">Signs 2 and 3 look like the same thing. They are not</p>
+    <p>VPLs need the daily roster, so you would expect an account with no roster to have no VPLs. <strong>The gap is that a daily roster can exist with nobody assigned to it.</strong></p>
+    <p><strong>22 accounts have VPL photos coming back but have not assigned a route in 30 days, and 80 of their 82 rosters are completely empty.</strong> They create the roster, which is enough to make VPLs work, and then never put anyone on a route.</p>
+    <p>That is two different depths of the same job, which is why both earn a place: the roster existing, and someone actually being put on a route.</p>
   </div>
 
   <div class="col">
@@ -466,11 +490,9 @@
   </div>
 
   <div class="note">
-    <p class="eyebrow">The second sign is not what it says on the tin</p>
-    <p>It was written down as "driver paperwork uploaded". <strong>John asked what that actually included, and it turned out to be 94% vehicle photos.</strong></p>
-    <p>Hera keeps every file in one place, 20 million of them, and the signal just looked at the newest one. Over 90 days across the whole book: <strong>94.4% are photos drivers take of vans during the daily check</strong>, 4.7% are coaching evidence, and <strong>0.7% is actual driver paperwork</strong> like a licence.</p>
-    <p><strong>The signal stays, because it earns its place.</strong> It flags a genuinely different set of accounts from the schedule signal, so it is not just saying the same thing twice. But it is now labelled honestly, and <strong>you should never open a call believing a customer has stopped filing paperwork when what stopped was the vehicle check.</strong></p>
-    <p>Real paperwork cannot be one of the four: <strong>164 of 241 accounts have filed nothing against a person in 30 days</strong>, so absence is completely normal and flagging it would flood the queue.</p>
+    <p class="eyebrow">How we found this out</p>
+    <p>Sign 2 was originally written down as "driver paperwork uploaded". <strong>John asked what that actually included</strong>, and it turned out Hera keeps every file in one place, 20 million of them, and the signal just read the newest one. Across the whole book over 90 days: <strong>94% are VPL photos</strong>, 5% are coaching evidence, and <strong>0.7% is real paperwork</strong> like a licence.</p>
+    <p><strong>Real paperwork could never be one of the four:</strong> 164 of 241 accounts have filed nothing against a person in 30 days, so absence is completely normal and flagging it would flood the queue.</p>
   </div>
 
   <div class="note">
@@ -577,10 +599,10 @@ Drivers       115 on the books
 Direction     FLAT. 115 in July, 115 now
 Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
 
-  quiet  35 days   nobody there has sent a message
-  quiet  51 days   no driver paperwork uploaded
-  quiet  51 days   no driver schedule built
-  quiet  50 days   the billed driver count has not moved</pre>
+  quiet  35 days   no message sent to drivers
+  quiet  51 days   no VPL photos returned by drivers
+  quiet  51 days   no route assigned on the daily roster
+  quiet  50 days   the billed driver count has not changed</pre>
 
       <p class="eyebrow" style="color:var(--ink-3)">The thing to notice</p>
       <p><strong>Everything stopped in the same week.</strong> Their last new driver was added on 06-15. The last person marked as leaving was 06-10. Schedules and paperwork both stopped on 06-14. This is not a gradual decline, it is a cliff, and something specific happened in mid-June.</p>
