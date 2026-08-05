@@ -202,6 +202,49 @@ The owner, dispatchers, operations managers, HR, fleet managers. **They log in a
 
 **In customer-facing writing, say "drivers".** Operators call them drivers or associates, never "staff" and certainly never "users".
 
+## Rate of change, not just days-since. Added 08-05-2026 at John's request.
+
+**"Those tenants that are not using daily roster, we need to know sooner. Especially if they were using it heavily before."**
+
+**The heartbeat model structurally cannot do this.** Every heartbeat is days-since-last-event against a 30-day line, so a customer who assigned 50 routes a day for months and stopped last Tuesday reads exactly the same as one who assigns a route every three weeks. Both look fine on day 20. That is not a threshold to tune, it is the wrong shape of measurement for a collapse.
+
+### The drop-off detector
+
+`analysis/tenant-engagement/roster_dropoff.py`. Routes assigned per week against **the tenant's own baseline**:
+
+- **Recent:** last 7 days. **Baseline:** 60 days ending 10 days ago, so a drop cannot contaminate its own baseline.
+- **Floor:** baseline under 5 routes a week is ignored. They were never a roster user, so no new false positives.
+- **Severity is the volume lost.** 367 routes a week going to zero is not the same event as 6 going to zero, and the old model could not tell them apart.
+
+### It found 19 accounts, and 9 were invisible to the existing model
+
+**Adoption cases still inside the 30-day line: 9 accounts, $10,259/mo, all currently classified ACTIVE.**
+
+**Tala Logistics is the case that proves it.** 45 to 56 routes assigned every single day through July, then **exactly zero from 07-29**. Seven days old, 132 drivers still on the books, and the heartbeat calls it healthy. Derby Deliveries and Orad Logistics have both **grown their driver count** while stopping rostering entirely, which means they are dispatching somewhere else.
+
+### The cross-reference that makes the list usable
+
+**A roster drop is only an adoption problem if the drivers are still there.** Always check the billed driver count alongside it:
+
+| Driver count | Meaning | Owner |
+|---|---|---|
+| Flat or growing | **Adoption.** They moved dispatch elsewhere, or the person who did it left | CS call |
+| Collapsed 25%+ or under 5 drivers | **The business is shrinking.** Not a CS failure | Matthew, confirm or close |
+
+Five of the nineteen were the second kind, including **GNC Transportation at 105 drivers down to 1**. Calling them about rostering would be tone deaf.
+
+### The trap this nearly fell into
+
+**Tenants build rosters days ahead, so an account can look stopped while actually assigning routes for next week.** Future-dated rosters are excluded from the count, and the top 10 alerts were checked against future rosters directly: **0 of 10 had any future route assigned.** Always run that check before believing a drop-off.
+
+### Status and limits
+
+**Not wired into the generator, and that is a decision rather than an oversight:** it would take the call list from 3 to 17.
+
+**The 7-day window and the 5-per-week floor are chosen, not derived from churn** the way the heartbeat weights were. Defensible but not fitted, so expect them to move once real outcomes are logged.
+
+**The same approach applies to messaging and VPL volume**, which have the identical blind spot. Rostering was built first because it is what was asked for.
+
 ## What the four heartbeats actually are. Wording set by John 08-05-2026.
 
 **Every label names the real operation. Summaries were rejected**, because a CSM reading "a schedule was built" cannot tell what the customer did or did not do, and opens the call on the wrong subject.
