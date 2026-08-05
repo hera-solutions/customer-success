@@ -202,6 +202,59 @@ The owner, dispatchers, operations managers, HR, fleet managers. **They log in a
 
 **In customer-facing writing, say "drivers".** Operators call them drivers or associates, never "staff" and certainly never "users".
 
+## THE TWO CRITICAL DAILY SIGNALS. Classified by John 08-05-2026.
+
+**Both are churn events in progress, not risk scores. "That could mean real change that they are potentially going to churn."**
+
+Run them every day with `analysis/tenant-engagement/run_daily.py`, which chains the whole pipeline in dependency order and calls out a failure in either critical step rather than burying it.
+
+| | Signal | Catches | Script |
+|---|---|---|---|
+| **1** | **Roster drop-off** | They stopped assigning routes, weighted by how heavily they used to | `roster_dropoff.py` |
+| **2** | **Driver cliff** | A sustained roster collapsing to unsustainable numbers in days | `driver_cliff.py` |
+
+**Why these are daily and the heartbeats are not.** The heartbeats are days-since against a 30-day line, so running them daily changes little: an account crossing 30 days today was at 29 yesterday. **These two measure rate, and rate is only visible if you look often.**
+
+### Signal 2: the driver cliff, and the case that proves the point
+
+**GNC Transportation held 92 to 100 drivers every day through 07-26, then 19 on 07-27, then 7, then 1 by 08-03.**
+
+**Its last closed invoice, dated 07-02, still reads 80.5 average drivers and $745.84.** Billing will not show this until the September invoice, about **37 days after the event.** The daily count showed it on 07-27. That gap is the whole argument.
+
+**15 events found, 8 of them in a single day, 14 never recovered.**
+
+**A cliff must STICK: 3 consecutive days down, and no recovery to half the prior level.** Three events were excluded by that guard, and two would have fired a false critical alert:
+
+- **Cazar Logistics read 113 drivers, then 0 on 07-04, then 113 again.** Independence Day, and the billing job evidently wrote a zero.
+- **Elite OnPoint read 0 for 16 days and is back at 117.**
+
+**A fall that does not persist is a data artifact, not a cliff.** Always check the raw daily series before acting on either signal.
+
+### The cross-reference both signals need
+
+**A collapse is only a CS problem if the drivers are still there.**
+
+| Driver count | Meaning | Owner |
+|---|---|---|
+| Flat or growing | **Adoption.** They moved dispatch elsewhere, or the person who did it left | CS call |
+| Collapsed 25%+ or under 5 | **The business is shrinking or gone.** Not a CS failure | Matthew, confirm or close |
+
+Five of the nineteen roster drop-offs were the second kind, including **GNC at 105 drivers down to 1.** Calling them about rostering would be tone deaf.
+
+### HARD RULE: never run the pipeline with a back-dated as-of unless you mean to
+
+**Running `--as-of` a day in the past silently inflates darkness across the entire book.** Doing it on 08-05 with `--as-of 2026-08-04` took ENGAGE from 34 tasks to **102** and `document` dark from 34 accounts to **114**.
+
+Nothing was broken. `to_date()` clamps any date **after** `as_of` to None, deliberately, because several source fields are user-entered and hold typos like `8610-07-17`. **So every customer who did something today was scored as having done nothing, ever.** A guard now warns on any back-dated run.
+
+### Limits, stated plainly
+
+**Neither critical detector creates tasks yet**, and wiring the roster drop-off in would take the call list from 3 to 17. That is a decision.
+
+**The thresholds are chosen, not derived from churn** the way the heartbeat weights were: 20 drivers as the floor, under 5 as unsustainable, 7 days as fast, 3 days to persist.
+
+**`InvoiceLineItem` is generated overnight, so the driver series runs 1 to 3 days behind.** A cliff today surfaces tomorrow at the earliest. Still 35 days ahead of the invoice.
+
 ## Rate of change, not just days-since. Added 08-05-2026 at John's request.
 
 **"Those tenants that are not using daily roster, we need to know sooner. Especially if they were using it heavily before."**

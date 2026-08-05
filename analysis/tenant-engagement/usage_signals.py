@@ -105,10 +105,37 @@ def to_date(v, ceiling):
     except Exception: return None
     return None if d > ceiling else d
 
+def warn_if_backdated(as_of):
+    """
+    Refuse to run quietly against a past date.
+
+    TRAP, hit 08-05-2026 and it produced a wildly wrong answer. Running the chain
+    with --as-of 2026-08-04 on 08-05 made ENGAGE jump from 34 tasks to 102 and
+    'document' dark from 34 accounts to 114. Nothing was broken: to_date() correctly
+    clamps any date AFTER as_of to None, because several source fields are
+    user-entered and hold typos like 8610-07-17. So every customer who did something
+    TODAY was scored as having done nothing, ever.
+
+    Back-dating is legitimate for reproducing an old run, but it must be deliberate,
+    because the failure is silent and it inflates darkness across the whole book.
+    """
+    today = dt.date.today()
+    if as_of < today:
+        print("*" * 78)
+        print(f"  WARNING: --as-of {as_of} is BEFORE today ({today}).")
+        print("  Every signal dated after {} is clamped away, so accounts active".format(as_of))
+        print("  since then will read as DARK. Task counts will be inflated.")
+        print("  This is only correct if you are deliberately reproducing an old run.")
+        print("*" * 78)
+        return True
+    return False
+
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--as-of")
     a = ap.parse_args()
     as_of = dt.date.fromisoformat(a.as_of) if a.as_of else dt.date.today()
+    warn_if_backdated(as_of)
 
     try:
         hf = H.newest_dated(DATA, "staff-history")
