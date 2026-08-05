@@ -277,6 +277,43 @@
   .note p:last-child, .note ul:last-child { margin-bottom: 0; }
   .note .eyebrow { margin-bottom: 6px; }
 
+  /* ---- field cards (Part 06) ---- */
+  .field {
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+    background: var(--surface);
+    border-radius: 2px;
+    padding: 18px 20px 4px;
+    margin: 0 0 14px;
+  }
+  .field-h {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .field-h .fn {
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .field-h .fm {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .field p { margin: 0 0 14px; }
+  .field ul { margin: 0 0 14px; }
+  .ex { font-family: var(--mono); font-size: 0.82rem; line-height: 1.55; }
+  .ex-y { color: var(--engage); }
+  .ex-n { color: var(--risk); }
+  .gate { border-left-color: var(--risk); }
+  .opt  { border-left-color: var(--rule-strong); }
+
   .never { list-style: none; padding: 0; }
   .never li {
     border-left: 4px solid var(--risk);
@@ -640,22 +677,134 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
   <h2>Where you write it down</h2>
 
   <div class="col">
-    <p>Seven fields on the task in Zoho. The system fills the last one; you fill the other six. This matters more than it looks: across enough calls, the pattern in these fields is worth more than the outcome of any single one, and it is how we find out whether the 30-day rule is right.</p>
+    <p>Seven fields on the task, plus two ordinary ones you also touch. The system fills <span class="mono">Next Action</span> and <span class="mono">Description</span>; you fill the rest. Across enough calls the pattern in these is worth more than the outcome of any single call, and it is how we find out whether the 30-day rule is right.</p>
   </div>
+
+  <div class="note">
+    <p class="eyebrow">The rule that matters more than any single field</p>
+    <p><strong>An empty field is a fact. A guessed field is a lie that gets averaged into a decision.</strong></p>
+    <p>If you did not reach the customer, only two fields get filled. If you reached them and they never mentioned something, leave that field alone. A blank is visibly missing and someone can go and get it; a guess looks like data forever.</p>
+  </div>
+
+  <h3>Start with Contact Outcome. It decides everything else</h3>
 
   <div class="tw">
     <table>
-      <thead><tr><th>Field</th><th>What goes in it</th></tr></thead>
+      <thead><tr><th>If Contact Outcome is</th><th>Fill these</th><th>Leave empty</th></tr></thead>
       <tbody>
-        <tr><td class="mono">Contact Outcome</td><td>Reached, left message, no answer, declined to talk, or rescheduled</td></tr>
-        <tr><td class="mono">Job Named</td><td>Which part of their day they told you was hardest</td></tr>
-        <tr><td class="mono">Blocker</td><td>Why they stopped. <strong>The most valuable field on the task</strong></td></tr>
-        <tr><td class="mono">Ask Made</td><td>What you asked for, who owns it, by when</td></tr>
-        <tr><td class="mono">Outcome Evidence</td><td>Whether what they said matched what we assumed they wanted</td></tr>
-        <tr><td class="mono">Customer Quote</td><td>Their words, not your summary</td></tr>
-        <tr><td class="mono">Next Action</td><td>Set automatically. Where they are on the ladder</td></tr>
+        <tr><td><strong>Reached</strong></td><td>Job Named, Blocker, Ask Made, Customer Quote, Next Action</td><td>Outcome Evidence if unsure</td></tr>
+        <tr><td>Left message</td><td>Next Action only</td><td>Everything else</td></tr>
+        <tr><td>No answer</td><td>Next Action only</td><td>Everything else</td></tr>
+        <tr><td>Rescheduled</td><td>Next Action, and Customer Quote if they said why</td><td>Everything else</td></tr>
+        <tr><td>Declined to talk</td><td>Next Action = <em>Escalate to Matthew</em>, and Customer Quote verbatim</td><td>Everything else</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <h3>Every field, one at a time</h3>
+
+  <div class="field gate">
+    <div class="field-h"><span class="fn">Contact Outcome</span><span class="fm">pick one &middot; always &middot; fill first</span></div>
+    <p>Did you get to a human who can act? A receptionist is not <em>Reached</em>. Neither is a driver who says they will pass it on.</p>
+    <p><strong>Rescheduled counts as contact and stops the chase.</strong> So does a text back. Do not keep working the calendar at somebody who already answered.</p>
+    <p><strong>There is no "wrong number" option.</strong> If the line is dead, use <em>No answer</em> and put the detail in Ask Made.</p>
+    <p class="ex"><span class="ex-y">Why it matters:</span> this is the only field the old automation never fills, so it is how we count who actually got contacted. Blank means the call never happened as far as any report is concerned, even if you made it.</p>
+  </div>
+
+  <div class="field gate">
+    <div class="field-h"><span class="fn">Next Action</span><span class="fm">pick one &middot; always &middot; pre-set for you</span></div>
+    <p><strong>This field is the ladder position, and there is no counter anywhere else.</strong> If you do not move it, the next person cannot tell which attempt they are on.</p>
+    <p>It arrives at <em>1 Call and voicemail</em> for an urgent task, or <em>Single outreach</em> for a quarterly one. Advance it as you go: text, then email plus a second person, then a final attempt, then <em>Escalate to Matthew</em>.</p>
+    <p><strong>Stop advancing it the moment you reach someone.</strong> Set what genuinely happens next, or leave it and close the task.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-h"><span class="fn">Job Named</span><span class="fm">pick one &middot; only if Reached</span></div>
+    <p><strong>The part of their day they told you was hardest.</strong> Not the feature they are missing, and not what you think their problem is.</p>
+    <p>Six choices matching the six jobs, plus two that matter more than the six: <em>Wants only part of it</em> and <em>Hera does not do it</em>.</p>
+    <p><strong>Those last two are not failures.</strong> "Wants only part of it" is a pricing conversation for Matthew. "Hera does not do it" is product feedback and is worth more to the company than saving the account.</p>
+    <p class="ex"><span class="ex-n">If they never named a hardest part, leave it empty.</span> Do not infer it from whichever feature went quiet.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-h"><span class="fn">Blocker</span><span class="fm">pick one &middot; only if Reached &middot; most valuable field here</span></div>
+    <p><strong>Why they stopped, in their explanation rather than yours.</strong> Six options, all of which came out of real churn analysis: nobody was shown how, the person who did it left, it broke or was slow, they do it elsewhere now, they forgot it existed, the drivers will not use it.</p>
+    <p>One account's blocker is an anecdote. <strong>Forty accounts' blockers are a roadmap</strong>, which is the whole reason this field exists.</p>
+    <p class="ex"><span class="ex-n">Do not reach for "Other" to avoid choosing.</span> If you do use it, writing the reason in the Description is not optional.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-h"><span class="fn">Ask Made</span><span class="fm">text, 255 max &middot; only if Reached</span></div>
+    <p><strong>The one change you asked for, who owns it, and by when.</strong> All three, or it is not an ask.</p>
+    <p class="ex"><span class="ex-y">Good&nbsp;&nbsp;</span> Maria to send one message to drivers by Fri 08-08. I check back Mon 08-11.<br>
+       <span class="ex-y">Good&nbsp;&nbsp;</span> Owner to add Steph's replacement and book 20min walkthrough w/e 08-11.<br>
+       <span class="ex-n">Bad&nbsp;&nbsp;&nbsp;</span> Discussed getting back on Hera &mdash; no owner, no date, no change<br>
+       <span class="ex-n">Bad&nbsp;&nbsp;&nbsp;</span> Will follow up &mdash; that is your action, not theirs</p>
+    <p><strong>One ask per call.</strong> Two is a to-do list and a to-do list gets ignored. Getting an account off the urgent list takes only <strong>one</strong> sign of life coming back, so ask for whichever is easiest for them. Usually that is a single message to their drivers.</p>
+    <p><strong>Never offer money off, and never ask for it on their behalf.</strong> Pricing goes to Matthew and you say you will come back to them.</p>
+  </div>
+
+  <div class="field">
+    <div class="field-h"><span class="fn">Customer Quote</span><span class="fm">long text &middot; whenever they said something worth keeping</span></div>
+    <p><strong>Their exact words, with who said it and the date.</strong> Not your summary. Format: <span class="mono">"words" &mdash; name, role, MM-DD-YYYY</span></p>
+    <p class="ex"><span class="ex-y">Good&nbsp;&nbsp;</span> "Steph handled all that and she left in May. I've been doing the schedule on paper since." &mdash; Dave Kerrigan, owner, 08-05-2026<br>
+       <span class="ex-n">Bad&nbsp;&nbsp;&nbsp;</span> Customer seemed happy with the product &mdash; an impression, not a quote<br>
+       <span class="ex-n">Bad&nbsp;&nbsp;&nbsp;</span> Said they save a lot of time &mdash; paraphrase, unusable</p>
+    <p><strong>"Nothing, we'd be fine without it" is the most valuable sentence you can bring back.</strong> Record it exactly. Do not soften it and do not leave it out because it is bad news.</p>
+    <p><strong>This is the only place a time-saved number can legitimately come from.</strong> If a customer says one, we can quote it with their name on it. We never calculate one ourselves.</p>
+  </div>
+
+  <div class="field opt">
+    <div class="field-h"><span class="fn">Outcome Evidence</span><span class="fm">text, 255 max &middot; optional &middot; blank is fine</span></div>
+    <p>We have a list of 16 things we <em>believe</em> operators want, written from the product and the data. <strong>No customer has ever been asked.</strong> This field is how that stops being guesswork.</p>
+    <p>Format: the outcome ID, then confirmed or contradicted, then a few words.</p>
+    <p class="ex"><span class="ex-y">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> O-1.2 confirmed &mdash; said the 5am callout is the worst part of the week<br>
+       <span class="ex-y">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> O-2.1 contradicted &mdash; does not care about the scorecard, Amazon rep handles it</p>
+    <p><strong>If you do not know the ID, leave it blank and put what they said in Customer Quote instead.</strong> A good quote beats a wrong ID. This is the one field where empty is genuinely fine.</p>
+  </div>
+
+  <div class="field opt">
+    <div class="field-h"><span class="fn">Status</span><span class="fm">ordinary Zoho field &middot; always</span></div>
+    <p><em>In Progress</em> while the chase is running. <em>Waiting for input</em> once you have asked for something. <em>Completed</em> when your part is done. Do not use <em>Deferred</em>.</p>
+    <p><strong>Close a task when your part is done, not when the customer is fixed.</strong> Whether it worked is answered by the next morning's run.</p>
+  </div>
+
+  <div class="field opt">
+    <div class="field-h"><span class="fn">Description</span><span class="fm">written by the system &middot; read it, do not delete it</span></div>
+    <p>Carries the pre-call facts: what they pay, driver count and direction, whether the roster is frozen, which signs of life are quiet and for how long, plus any billing or entitlement warning.</p>
+    <p>Add to the bottom if you need to, especially when Blocker is <em>Other</em>. <strong>Never delete what was there</strong>, because it is the evidence for why the task existed at all.</p>
+  </div>
+
+  <h3>What a finished task looks like</h3>
+
+  <div class="sheet">
+    <div class="sheet-h"><span class="chip c-risk">Risk</span><span class="mono">TPE Logistics</span><span class="mono">call connected</span></div>
+    <div class="sheet-b">
+<pre>Contact Outcome   Reached
+Job Named         1 Staff the routes
+Blocker           Person who did it left
+Ask Made          Owner to name Steph's replacement and add them by Fri 08-08.
+                  20min walkthrough booked w/e 08-11.
+Customer Quote    "Steph handled all that and she left in May. I've been
+                  doing the schedule on paper since."
+                  - Dave Kerrigan, owner, 08-05-2026
+Outcome Evidence  O-1.1 confirmed - building the roster is the job, just
+                  not in Hera
+Next Action       Escalate to Matthew
+Status            Waiting for input</pre>
+      <p><strong>Why escalate a call that went well?</strong> Their roster has been frozen 50 days on per-driver billing, so they are probably paying for people who left. That is a refund question and it is not ours to answer.</p>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-h"><span class="chip c-risk">Risk</span><span class="mono">TPE Logistics</span><span class="mono">nobody picked up</span></div>
+    <div class="sheet-b">
+<pre>Contact Outcome   No answer
+Next Action       2 Text the owner
+Status            In Progress
+everything else   empty</pre>
+      <p>That is a complete, correctly filled task. <strong>Four blanks and no guesses.</strong></p>
+    </div>
   </div>
 
   <div class="note">
@@ -666,7 +815,7 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
 
   <div class="banner">
     <p class="eyebrow">Hard rule, no exceptions</p>
-    <p><strong>Nothing automated will ever write, edit or delete a Note. Ever.</strong> Notes are the human record, written by you three, and you already have a convention for them. The seven fields above are the structured record. Two records, two jobs, no overlap. If a script started writing notes alongside people, nobody could trust the customer history again.</p>
+    <p><strong>Nothing automated will ever write, edit or delete a Note. Ever.</strong> Notes are the human record, written by you three, and you already have a convention for them. The nine fields above are the structured record. Two records, two jobs, no overlap. If a script started writing notes alongside people, nobody could trust the customer history again.</p>
   </div>
 
   <div class="col">
