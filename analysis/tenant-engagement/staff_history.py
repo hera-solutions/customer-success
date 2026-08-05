@@ -169,7 +169,7 @@ def main():
     as_of = dt.date.fromisoformat(a.as_of)
     since = (as_of - dt.timedelta(days=a.days)).isoformat()
 
-    src = sorted(glob.glob(os.path.join(DATA, "signals-*.json")))[-1]
+    src = H.newest_dated(DATA, "signals")
     tenants = json.load(open(src))["tenants"]
     print(f"tenant list from {os.path.basename(src)}: {len(tenants)} tenants")
     print(f"InvoiceLineItem.activeStaff, {a.days} days back to {since}")

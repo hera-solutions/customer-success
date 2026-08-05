@@ -391,9 +391,54 @@
   </div>
 </section>
 
-<!-- =============== PART 2 =============== -->
+<!-- =============== WHO =============== -->
 <section>
   <p class="eyebrow">Part 02</p>
+  <h2>Who the people are</h2>
+
+  <div class="col">
+    <p>Two completely different populations, and mixing them up has already produced statements that were simply wrong. Worth two minutes before anything else.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th></th><th>Users</th><th>Staff</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Who</strong></td><td>The owner, dispatchers, operations managers, HR, fleet managers</td><td>The associates and drivers</td></tr>
+        <tr><td><strong>Do they log in?</strong></td><td><strong>Yes, every day</strong></td><td><strong>No. Never. They have no account</strong></td></tr>
+        <tr><td><strong>How they use Hera</strong></td><td>Directly, in the product</td><td>Indirectly. Route assignments, coaching messages and counseling acknowledgements arrive by SMS or voice on a personal or company phone</td></tr>
+        <tr><td><strong>Do we contact them?</strong></td><td>Always. Every call and email we ever make</td><td><strong>Never</strong></td></tr>
+        <tr><td><strong>Do they affect the invoice?</strong></td><td>No</td><td><strong>Yes. Billing is per active driver</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>A dedicated app for associates is in its final stages of being built. <strong>Until it ships, drivers log into nothing.</strong></p>
+
+    <h3>Three things follow from this</h3>
+    <p><strong>We never contact drivers.</strong> No calls, no texts, no emails. Every conversation is with a user, and "reached" on a task always means a user.</p>
+
+    <p><strong>Anything a driver thinks reaches us second-hand.</strong> When you log the blocker <em>Drivers will not use it</em>, that is an owner or dispatcher telling you what a driver told them. Record it word for word and note whose words they are, because <strong>we have no way to check it.</strong> Driver-side adoption is genuinely unmeasured and it is top of the list of things to instrument.</p>
+
+    <p><strong>Drivers drive the invoice and users do not.</strong> Users and drivers are separate lists with unrelated counts. Deactivating every user but the owner changes the bill by nothing.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">Two places this has already caught us out</p>
+    <p><strong>"Matthew deactivated all the associates" was wrong.</strong> He deactivated <em>users</em>, everyone except the owner. No driver record changed and the invoice was untouched.</p>
+    <p><strong>And the paperwork signal in Part 03 turned out to be 94% vehicle photos.</strong> A driver photographing a van on their pre-trip check and a manager filing a licence were sharing one date. One is a driver action, the other is an office job.</p>
+  </div>
+
+  <div class="col">
+    <h3>What to call them in front of a customer</h3>
+    <p><strong>Say "drivers".</strong> Operators say drivers or associates. They never say "staff" and they certainly never say "users". Say "your team", not "your users".</p>
+  </div>
+</section>
+
+<!-- =============== PART 3, signs of life =============== -->
+<section>
+  <p class="eyebrow">Part 03</p>
   <h2>How we tell if a customer is really using Hera</h2>
 
   <div class="col">
@@ -407,7 +452,7 @@
       </thead>
       <tbody>
         <tr><td><strong>A message was sent</strong></td><td>Somebody there texted their drivers</td><td class="num">Strongest of the four</td></tr>
-        <tr><td><strong>Paperwork was uploaded</strong></td><td>A licence, insurance, any driver document</td><td class="num">Second</td></tr>
+        <tr><td><strong>A file went in</strong></td><td>Almost always a vehicle photo from the daily check. See the note below</td><td class="num">Second</td></tr>
         <tr><td><strong>A schedule was built</strong></td><td>Tomorrow's drivers assigned to routes and vans</td><td class="num">Third</td></tr>
         <tr><td><strong>The driver count moved</strong></td><td>The number of drivers we bill for went up or down</td><td class="num">Fourth</td></tr>
       </tbody>
@@ -418,6 +463,14 @@
     <p><strong>The rule: if three of those four have been silent for 30 days or more, the account needs a call.</strong></p>
 
     <p>Three rather than one, because plenty of healthy customers skip one of them permanently. Some never upload paperwork and never will. Judging on a single missing sign would flag a third of the book and you would stop trusting it inside a week.</p>
+  </div>
+
+  <div class="note">
+    <p class="eyebrow">The second sign is not what it says on the tin</p>
+    <p>It was written down as "driver paperwork uploaded". <strong>John asked what that actually included, and it turned out to be 94% vehicle photos.</strong></p>
+    <p>Hera keeps every file in one place, 20 million of them, and the signal just looked at the newest one. Over 90 days across the whole book: <strong>94.4% are photos drivers take of vans during the daily check</strong>, 4.7% are coaching evidence, and <strong>0.7% is actual driver paperwork</strong> like a licence.</p>
+    <p><strong>The signal stays, because it earns its place.</strong> It flags a genuinely different set of accounts from the schedule signal, so it is not just saying the same thing twice. But it is now labelled honestly, and <strong>you should never open a call believing a customer has stopped filing paperwork when what stopped was the vehicle check.</strong></p>
+    <p>Real paperwork cannot be one of the four: <strong>164 of 241 accounts have filed nothing against a person in 30 days</strong>, so absence is completely normal and flagging it would flood the queue.</p>
   </div>
 
   <div class="note">
@@ -444,7 +497,7 @@
 
 <!-- =============== PART 3 =============== -->
 <section>
-  <p class="eyebrow">Part 03</p>
+  <p class="eyebrow">Part 04</p>
   <h2>The three kinds of task you will see</h2>
 
   <div class="col">
@@ -503,7 +556,7 @@
 
 <!-- =============== PART 4 =============== -->
 <section>
-  <p class="eyebrow">Part 04</p>
+  <p class="eyebrow">Part 05</p>
   <h2>A real urgent call, start to finish</h2>
 
   <div class="col">
@@ -611,7 +664,7 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
 
 <!-- =============== PART 5 =============== -->
 <section>
-  <p class="eyebrow">Part 05</p>
+  <p class="eyebrow">Part 06</p>
   <h2>When they do not pick up, and when they do</h2>
 
   <div class="col">
@@ -673,7 +726,7 @@ Roster        FROZEN 50 days at 115. Billed per driver, so over-billing likely
 
 <!-- =============== PART 6 =============== -->
 <section>
-  <p class="eyebrow">Part 06</p>
+  <p class="eyebrow">Part 07</p>
   <h2>Where you write it down</h2>
 
   <div class="col">
@@ -826,7 +879,7 @@ everything else   empty</pre>
 
 <!-- =============== PART 7 =============== -->
 <section>
-  <p class="eyebrow">Part 07</p>
+  <p class="eyebrow">Part 08</p>
   <h2>The 41 healthy accounts, and why they are the real prize</h2>
 
   <div class="col">
@@ -866,7 +919,7 @@ everything else   empty</pre>
 
 <!-- =============== PART 8 =============== -->
 <section>
-  <p class="eyebrow">Part 08</p>
+  <p class="eyebrow">Part 09</p>
   <h2>Things we never do</h2>
 
   <ul class="never">
@@ -881,7 +934,7 @@ everything else   empty</pre>
 
 <!-- =============== PART 9 =============== -->
 <section>
-  <p class="eyebrow">Part 09</p>
+  <p class="eyebrow">Part 10</p>
   <h2>Who holds what, honestly</h2>
 
   <div class="tw">
@@ -905,7 +958,7 @@ everything else   empty</pre>
 
 <!-- =============== PART 10 =============== -->
 <section>
-  <p class="eyebrow">Part 10</p>
+  <p class="eyebrow">Part 11</p>
   <h2>What is not ready</h2>
 
   <div class="col">

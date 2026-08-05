@@ -159,6 +159,49 @@ Verified by live tool call on 2026-07-28. Re-verified 2026-07-30 after an audit 
 
 ---
 
+## Who the people are: Users versus Staff. Set by John 08-05-2026.
+
+**These are two different populations and conflating them has already produced wrong statements. Get this right before writing anything customer-facing.**
+
+### Users are the people who log into Hera
+
+The owner, dispatchers, operations managers, HR, fleet managers. **They log in and use it every day.** They are the entire audience for customer success: every call, every email, every task, every quote we ever record comes from a user.
+
+### Staff are the associates and drivers, and they never log in
+
+**Staff use Hera indirectly and are not authenticated.** They do not have accounts and they do not sign in to anything. They receive what Hera sends them on a personal or company phone, by SMS or voice:
+
+- coaching messages
+- route assignments
+- counseling acknowledgements
+
+**A dedicated associate app is in its final stages of being built. Until it ships, staff log into nothing.**
+
+### Three rules that follow, and none of them are optional
+
+**1. We never contact staff directly.** No calls, no emails, no messages to drivers. Ever. Every conversation is with a user.
+
+**2. Driver feedback reaches us only through users, so it is always second-hand.** When the `Blocker` field records `Drivers will not use it`, that is an owner or a dispatcher reporting what a driver told them. **Capture it verbatim and label it as reported, because we have no direct channel to check it.** Driver-side adoption remains unmeasured and is top of the instrumentation backlog.
+
+**3. Staff drive the invoice; users do not.** Billing is per **active Staff** record. `User` and `Staff` are separate tables and the counts are unrelated.
+
+### Where this has already gone wrong
+
+**"Matthew deactivated all the associates" was wrong.** He deactivated **users**, everyone except the owner. No staff record changed and the invoice was unaffected. Corrected by John on 08-03-2026.
+
+**The "driver paperwork" heartbeat was 94% vehicle photos.** Those photos are taken during a driver's pre-trip check, a staff interaction, while filing a licence is an office job done by a user. One date covered both, so the signal was unreadable. See `analysis/tenant-engagement/findings-document-signal.md` in the repo.
+
+### Vocabulary to use
+
+| Say | Not |
+|---|---|
+| driver, associate | user, when you mean a driver |
+| the owner, dispatcher, ops manager | staff, when you mean an office person |
+| **drivers billed** or **active associates** | active users |
+| "your team" to a customer | "your users" |
+
+**In customer-facing writing, say "drivers".** Operators call them drivers or associates, never "staff" and certainly never "users".
+
 ## Billing model (drives everything else)
 
 **$9.00 per ACTIVE associate per month, charged as $0.30 per associate per day, billed one month in arrears.** July usage invoices August 1 after the July invoice closes.

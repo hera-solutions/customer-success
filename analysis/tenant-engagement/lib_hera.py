@@ -206,3 +206,24 @@ def base_customer_name(name):
 def days_since(date_value, as_of):
     """Days elapsed, or None."""
     return None if date_value is None else (as_of - date_value).days
+
+
+def newest_dated(data_dir, prefix):
+    """
+    Newest data/<prefix>-YYYY-MM-DD.json, ignoring undated siblings.
+
+    BUG, found 08-05-2026: every caller globbed "<prefix>-*.json" and took the last
+    entry alphabetically. data/usage-clamped.json sorts AFTER usage-2026-08-04.json
+    and is a bare list rather than a dict, so the glob silently selected a working
+    file from an earlier experiment. document_breakdown.py crashed on it; the same
+    fallback path in generate_tasks.py would have loaded it without complaining on
+    any day the dated file was missing.
+    """
+    import glob as _glob, os as _os, re as _re
+    pat = _re.compile(r"%s-\d{4}-\d{2}-\d{2}\.json$" % _re.escape(prefix))
+    hits = sorted(f for f in _glob.glob(_os.path.join(data_dir, prefix + "-*.json"))
+                  if pat.search(_os.path.basename(f)))
+    if not hits:
+        raise FileNotFoundError(
+            "no dated %s-YYYY-MM-DD.json in %s" % (prefix, data_dir))
+    return hits[-1]

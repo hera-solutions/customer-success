@@ -52,7 +52,18 @@ ESCALATE_BDAY = 10
 # a message", which says the opposite of what it means, on the first line a CSM reads.
 LABEL = {
     "last_message_sent_by_user": ("messages being sent",          "nobody there has sent a message"),
-    "document":                  ("driver paperwork uploaded",    "no driver paperwork uploaded"),
+    # TRAP, 08-05-2026, raised by John: this is NOT driver paperwork. It is the
+    # newest row on Document, a single table holding every file in the product
+    # (20.3M rows). Measured over 90 days across all 241 tenants:
+    #   94.4% daily-log vehicle photos, 4.7% counseling images, 0.7% real paperwork.
+    # So it overwhelmingly measures the DAILY VEHICLE CHECK, not filing a licence.
+    # Kept as a heartbeat because it is independent of rostering (Jaccard 0.34, and
+    # only 56% of document-dark accounts are also roster-dark), but relabelled so no
+    # CSM opens a call believing it means paperwork. Real paperwork cannot be a
+    # heartbeat: 164 of 241 accounts are dark on it at 30 days, so absence is normal.
+    # See findings-document-signal.md.
+    "document":                  ("vehicle photo logs and file uploads",
+                                  "no vehicle photo log or file upload"),
     "last_staffed_roster":       ("driver schedules being built", "no driver schedule built"),
     # TRAP, 08-04-2026: StaffStatus is a TRANSITION log (previousStatus ->
     # currentStatus). It catches somebody going live (Onboarding -> Active) and
@@ -112,10 +123,10 @@ def load_history(as_of):
     """
     f = os.path.join(DATA, f"staff-history-{as_of}.json")
     if not os.path.exists(f):
-        cands = sorted(glob.glob(os.path.join(DATA, "staff-history-*.json")))
-        if not cands:
-            sys.exit("no staff-history-*.json found. Run: python3 staff_history.py")
-        f = cands[-1]
+        try:
+            f = H.newest_dated(DATA, "staff-history")
+        except FileNotFoundError:
+            sys.exit("no staff-history-YYYY-MM-DD.json. Run: python3 staff_history.py")
     h = json.load(open(f))
     print(f"driver counts from {os.path.basename(f)} (InvoiceLineItem.activeStaff)")
     return {t["companyName"]: t for t in h["tenants"]}
@@ -124,9 +135,9 @@ def load_history(as_of):
 def load(as_of):
     u = os.path.join(DATA, f"usage-{as_of}.json")
     if not os.path.exists(u):
-        u = sorted(glob.glob(os.path.join(DATA, "usage-*.json")))[-1]
+        u = H.newest_dated(DATA, "usage")
     usage = json.load(open(u))
-    sig = json.load(open(sorted(glob.glob(os.path.join(DATA, "signals-*.json")))[-1]))
+    sig = json.load(open(H.newest_dated(DATA, "signals")))
     return usage, {t.get("companyName") or t["group"]: t for t in sig["tenants"]}, os.path.basename(u)
 
 def billing_problem(series):

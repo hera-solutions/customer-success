@@ -30,7 +30,7 @@ def distinct(group, cap=200):
 
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 import glob
-newest = sorted(glob.glob(os.path.join(DATA, "signals-*.json")))[-1]
+newest = H.newest_dated(DATA, "signals")
 S = json.load(open(newest))
 tenants = [(t.get('companyName') or t['group'], t['group']) for t in S['tenants']]
 print(f"walking {len(tenants)} paying tenants")

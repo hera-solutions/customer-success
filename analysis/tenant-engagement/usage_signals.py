@@ -110,15 +110,15 @@ def main():
     a = ap.parse_args()
     as_of = dt.date.fromisoformat(a.as_of) if a.as_of else dt.date.today()
 
-    hist_files = sorted(glob.glob(os.path.join(DATA, "staff-history-*.json")))
-    if not hist_files:
-        sys.exit("no staff-history-*.json. Run staff_history.py FIRST, it feeds the "
-                 "4th heartbeat.")
-    hist = {t["companyName"]: t for t in json.load(open(hist_files[-1]))["tenants"]}
-    print(f"roster heartbeat from {os.path.basename(hist_files[-1])} "
-          f"(InvoiceLineItem.activeStaff)")
+    try:
+        hf = H.newest_dated(DATA, "staff-history")
+    except FileNotFoundError:
+        sys.exit("no staff-history-YYYY-MM-DD.json. Run staff_history.py FIRST, it "
+                 "feeds the 4th heartbeat.")
+    hist = {t["companyName"]: t for t in json.load(open(hf))["tenants"]}
+    print(f"roster heartbeat from {os.path.basename(hf)} (InvoiceLineItem.activeStaff)")
 
-    sig_file = sorted(glob.glob(os.path.join(DATA, "signals-*.json")))[-1]
+    sig_file = H.newest_dated(DATA, "signals")
     base = json.load(open(sig_file))
     print(f"reusing roster/message/scorecard from {os.path.basename(sig_file)}")
     tenants = base["tenants"]

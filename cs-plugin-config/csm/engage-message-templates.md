@@ -70,11 +70,19 @@ Lapsed over 180 days: Sinaro Logistics $1,384 (478d), DC1 Transport $1,275 (862d
 
 ## Gap 2: no driver paperwork uploaded
 
-**12 accounts, $8,728/mo.** All twelve build schedules and message drivers daily. None have uploaded a driver document recently, so licences, insurance, and expirations are tracked elsewhere or not at all.
+**13 accounts. All thirteen build schedules and message drivers daily.**
 
-### 2a. Never used it (2 accounts, $1,518/mo)
+**Signal correction, 08-05-2026, and it changes which template each account gets.** The gap came from the `document` signal, which turned out to be **94% vehicle photos from the daily check** rather than paperwork. Checked against the real measure (`documentStaffId`, a file filed against a person):
 
-Haskins Premier Logistics $1,217, Prime Pace Logistics $300.
+- **All 13 genuinely have filed nothing against a person in 90 days**, so the claim in the email is true.
+- **But 5 were flagged because their VEHICLE PHOTO LOG lapsed, not their paperwork**: FKG 39 days, Blue Heron 78, OneLove 49, KJ 32, Rapid Pace 41.
+- For those five the date is a photo date. **They never filed paperwork at all, so they get template 2a, "never used it", not 2b.**
+
+**Never quote a date taken from the combined signal.** Only quote a date if it came from a real paperwork upload. This is the same error that got gap 3 withdrawn, caught before sending this time.
+
+### 2a. Never used it
+
+Haskins Premier Logistics $1,217, Prime Pace Logistics $300, **plus the five reassigned above**: FKG Logistics $1,195, Blue Heron $945, OneLove Logistics $943, Rapid Pace Delivery $639, KJ Logistics $324.
 
 > **Subject: Where do you keep driver licences and expiration dates?**
 >
@@ -89,9 +97,11 @@ Haskins Premier Logistics $1,217, Prime Pace Logistics $300.
 > [Sender name]
 > Hera Solutions
 
-### 2b. Used it and stopped (10 accounts, $7,210/mo)
+### 2b. Used it and stopped
 
-FKG Logistics $1,195 (39d), Timestamp Logistics $1,161 (130d), Blue Heron $945 (78d), OneLove Logistics $943 (49d), Rapid Pace Delivery $639 (41d), Waymaker Enterprises $553 (133d), Aquino Logistics $495 (840d), Elite OnPoint $484 (182d), RBHJAX Consulting $469 (129d), KJ Logistics $324 (32d).
+**Use this ONLY where the lapse is real paperwork, and do not name a date otherwise.** Timestamp Logistics (130d), Waymaker Enterprises (133d), Aquino Logistics (840d), Elite OnPoint (182d), RBHJAX Consulting (129d), The Pierce Group (382d).
+
+**FKG, Blue Heron, OneLove, Rapid Pace and KJ move to 2a.** Their flag was a lapsed vehicle photo log; they have never filed paperwork.
 
 > **Subject: Driver paperwork stopped coming into Hera around [MM-DD-YYYY]**
 >

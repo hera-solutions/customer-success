@@ -74,6 +74,8 @@ So: if you did not reach the customer, only two fields get filled. If you reache
 
 **Picklist. Fill only if `Contact Outcome = Reached`.**
 
+**Reached always means a USER**, somebody who logs into Hera: the owner, a dispatcher, a manager, HR, fleet. **We never contact drivers.** They are not authenticated, do not log in, and receive route assignments and coaching by SMS on their own phones. Anything a driver thinks reaches us through a user.
+
 **What it captures: the part of their day the customer told you was hardest.** Not the feature they are missing, and not what you think their problem is. Their words, mapped to the nearest job.
 
 | They talk about | Pick |
@@ -106,7 +108,7 @@ So: if you did not reach the customer, only two fields get filled. If you reache
 | `It broke or was slow` | A product problem. **Get specifics, raise a ticket, and come back with a date** |
 | `They do it elsewhere now` | Another tool or a spreadsheet replaced it. **Ask what it does better. Do not argue** |
 | `They forgot it existed` | Awareness only. The cheapest fix there is: show them on the call |
-| `Drivers will not use it` | Driver-side resistance. **Get the driver's actual complaint word for word** |
+| `Drivers will not use it` | Driver-side resistance. **Always second-hand:** drivers do not log into Hera and we never contact them, so this is a user relaying what a driver told them. Get the complaint word for word and record whose words they are |
 | `Other, see Description` | None of the six fit. **You must then write the reason in Description** |
 
 **Why it matters more than the outcome of any single call:** across enough calls the pattern here tells us what to build and what to fix. One account's blocker is an anecdote. Forty accounts' blockers are a roadmap.
