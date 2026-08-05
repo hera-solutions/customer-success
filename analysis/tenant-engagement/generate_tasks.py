@@ -41,6 +41,11 @@ MATTHEW = "5936992000000434001"
 MIN_ASSOCIATES = 1
 MIN_MONTHLY = 100.0
 COOLDOWN_DAYS = 30
+# A cliff only earns an urgent task while it is NEWS. Probyn Inc collapsed on
+# 04-01-2026 and has since recovered to 41 drivers; without this bound it was still
+# generating a "driver cliff, find out what happened" task four months later, and it
+# stole 11 accounts from Matthew's confirm-or-close queue where they belong.
+CLIFF_ALERT_DAYS = 14
 BAD_INVOICE = {"Written Off", "Payment Error"}
 LADDER = ["1 Call and voicemail", "2 Text the owner",
           "3 Email plus 2nd contact", "4 Final, 2nd contact"]
@@ -153,6 +158,38 @@ def load_history(as_of):
     return {t["companyName"]: t for t in h["tenants"]}
 
 
+def load_critical(as_of):
+    """
+    The two CRITICAL DAILY signals, classified by John 08-05-2026. Both are churn
+    events in progress rather than risk scores, so they outrank every usage tier.
+
+    Missing files are FATAL rather than skipped. A silent empty critical feed would
+    produce a clean-looking run that had simply stopped watching for collapses,
+    which is the worst failure this script could have.
+    """
+    out = {}
+    for key, prefix, script in (("dropoff", "roster-dropoff", "roster_dropoff.py"),
+                                ("cliff", "driver-cliff", "driver_cliff.py")):
+        try:
+            f = H.newest_dated(DATA, prefix)
+        except FileNotFoundError:
+            sys.exit(f"no {prefix}-YYYY-MM-DD.json. Run: python3 {script}\n"
+                     f"This is a CRITICAL signal, so the run is refused rather than "
+                     f"quietly skipping it.")
+        d = json.load(open(f))
+        stale = (as_of - dt.date.fromisoformat(d["as_of"])).days
+        if stale > 1:
+            print(f"  WARNING: {os.path.basename(f)} is {stale} days old. "
+                  f"Re-run {script}.")
+        out[key] = {t["companyName"]: t for t in d["tenants"]}
+        # roster_dropoff writes EVERY tenant with alert=None for most, so counting
+        # rows would have reported "241 flagged" and looked like the whole book was
+        # collapsing.
+        n = sum(1 for t in d["tenants"] if t.get("alert") or t.get("event"))
+        print(f"{key} from {os.path.basename(f)}: {n} flagged of {len(out[key])}")
+    return out
+
+
 def load(as_of):
     u = os.path.join(DATA, f"usage-{as_of}.json")
     if not os.path.exists(u):
@@ -230,6 +267,71 @@ def frozen_roster(h):
             f"     They are billed per driver, so EXPECT OVER-BILLING. Check the roster before "
             f"asking for anything,\n"
             f"     and route it to Matthew if drivers have left without being deactivated.")
+
+
+def describe_cliff(members, crit):
+    """The driver count collapsed. Lead with the numbers and the date."""
+    lines = ["DRIVER CLIFF. The billed driver count collapsed.", ""]
+    for m in members:
+        e = ((crit["cliff"].get(m["companyName"]) or {}).get("event")) or {}
+        if not e:
+            continue
+        lines += [
+            f"--- {m['companyName']}",
+            f"  {e['from']} drivers -> {e['to']} in {e['took_days']} day(s), "
+            f"on {fmt_us(dt.date.fromisoformat(e['date']))}. Lost {e['lost']} ({e['pct']:.0f}%).",
+            f"  Still at {(crit['cliff'][m['companyName']] or {}).get('drivers_now')} today, "
+            f"{e['days_ago']} days later.",
+            "",
+            "THE INVOICE WILL NOT SHOW THIS FOR ABOUT A MONTH. It bills a monthly",
+            "average one month in arrears, so the last closed invoice still reads the",
+            "old headcount. Do not reconcile against it and conclude nothing happened.",
+            "",
+            "This is a BUSINESS event, not an adoption problem. Something ended: a",
+            "contract, a station, or the company. Find out which before anything else.",
+            "DO NOT open with product or adoption. DO NOT offer a discount.",
+            "",
+            "CHECK THE DAILY NUMBERS BEFORE CALLING. A drop that bounces straight back",
+            "is a billing-feed artifact: one account read 113 -> 0 -> 113 across 07-04.",
+            "The detector filters those, but look before you dial.",
+            "",
+            "LOG: Contact Outcome, Customer Quote verbatim, and what actually happened.",
+        ]
+    return "\n".join(lines)
+
+
+def describe_roster_stop(members, crit, hist):
+    """They stopped assigning routes. Weighted by how heavily they used to."""
+    lines = ["ROSTER STOPPED. They were assigning routes and stopped.", ""]
+    for m in members:
+        r = crit["dropoff"].get(m["companyName"]) or {}
+        a = r.get("alert") or {}
+        if not a:
+            continue
+        h = (hist or {}).get(m["companyName"]) or {}
+        lines += [
+            f"--- {m['companyName']}",
+            f"  Was assigning {a['baseline_weekly']:.0f} routes a week. "
+            f"Last 7 days: {a['routes_last_7d']}.",
+            f"  Last route assigned {a['days_since_assigned']} days ago "
+            f"({a['last_assigned']}).",
+            f"  Drivers still on the books: {a.get('drivers_now')}"
+            + (f", {a['drivers_30d_pct']:+.0f}% over 30 days" if a.get("drivers_30d_pct") is not None else ""),
+            "",
+            "THEY STILL HAVE THE DRIVERS, so this is an adoption problem, not a",
+            "business one. The likeliest causes are that dispatch moved to another",
+            "tool, or the person who built the roster left.",
+            "",
+            "The 30-day heartbeat would not flag this yet. That is the point of it:",
+            "a heavy user stopping is invisible to a days-since measure for a month.",
+            "",
+            "ASK ABOUT THE OPERATION FIRST, not the product. 'Are you still running",
+            "routes out of Hera, or has that moved?' Then find out what changed.",
+            "DO NOT offer a discount. Route any pricing question to Matthew.",
+            "",
+            "LOG: Job Named, Blocker, Ask Made, Customer Quote, Contact Outcome.",
+        ]
+    return "\n".join(lines)
 
 
 def describe(kind, members, sigmap, as_of, hist=None):
@@ -315,6 +417,7 @@ def main():
     as_of = dt.date.fromisoformat(a.as_of) if a.as_of else dt.date.today()
     usage, sigmap, src = load(as_of)
     hist = load_history(as_of)
+    crit = load_critical(as_of)
 
     live = live_status()
     dropped = []
@@ -340,7 +443,18 @@ def main():
     plan = []
     for op, members in groups.items():
         tiers = {m["tier"] for m in members}
-        if not (tiers & {"RISK", "ENGAGE"}): continue
+        # A CRITICAL event admits an account regardless of tier. Most collapse cases
+        # are tier ACTIVE, because every heartbeat is days-since and a fall that
+        # happened last week has not crossed 30 days yet. Without this the two
+        # critical signals would generate nothing at all.
+        cliff_ev = next((crit["cliff"][m["companyName"]]["event"] for m in members
+                         if (crit["cliff"].get(m["companyName"]) or {}).get("event")
+                         and crit["cliff"][m["companyName"]]["event"]["days_ago"]
+                             <= CLIFF_ALERT_DAYS), None)
+        stop_ev = next((crit["dropoff"][m["companyName"]]["alert"] for m in members
+                        if (crit["dropoff"].get(m["companyName"]) or {}).get("alert")), None)
+        if not (tiers & {"RISK", "ENGAGE"}) and not cliff_ev and not stop_ev:
+            continue
         lead = max(members, key=lambda m: m["monthly"])
         total_monthly = sum(m["monthly"] for m in members)
         # Billed driver count, not the Staff table. They agree on 212 of 241
@@ -350,23 +464,70 @@ def main():
                           if (hist.get(m["companyName"], {}) or {}).get("latest") is not None
                           else (m["active_staff"] or 0) for m in members)
         bp = [b for m in members for b in billing_problem(sigmap.get(m["companyName"],{}).get("invoice_series"))]
+        # PRECEDENCE, most severe first. One account, one task, and the task says the
+        # single most useful thing about it today. Several accounts qualify on more
+        # than one row: TPE, Probyn, Leary and Spears are all both RISK and roster-
+        # stopped, and without an order they would get two or three tasks each.
+        event_key = None
         if bp:
             kind, owner, why = "CONFIRM_OR_CLOSE", MATTHEW, f"billing unresolved ${sum(b[2] for b in bp):,.0f}"
+        elif cliff_ev:
+            kind, owner = "DRIVER_CLIFF", MATTHEW
+            why = (f"driver cliff: {cliff_ev['from']} -> {cliff_ev['to']} drivers in "
+                   f"{cliff_ev['took_days']}d on {cliff_ev['date']}")
+            event_key = f"cliff:{cliff_ev['date']}"
         elif total_staff < MIN_ASSOCIATES or total_monthly < MIN_MONTHLY:
+            # THE VALUE FLOOR MUST STAY ABOVE RISK. Moving RISK above it took the RISK
+            # list from 3 accounts to 14 while adding only $97/mo, because every
+            # long-dead account is dark on everything and would earn a four-attempt
+            # ladder plus a CEO escalation for $8 a month. The floor exists precisely
+            # to stop that.
             kind, owner, why = "CONFIRM_OR_CLOSE", MATTHEW, f"below floor: {total_staff} associates, ${total_monthly:,.0f}/mo"
         elif "RISK" in tiers:
+            # RISK outranks a roster stop: dark on 3 of 4 heartbeats is strictly worse
+            # than one workflow stopping, and TPE is both.
             kind, owner, why = "RISK", JOHN, f"dark on {len(lead['heartbeats_dark'])} of 4 heartbeats"
+        elif stop_ev and stop_ev["cause"] == "adoption":
+            kind, owner = "ROSTER_STOPPED", JOHN
+            why = (f"stopped assigning routes: was {stop_ev['baseline_weekly']:.0f}/wk, "
+                   f"now {stop_ev['routes_last_7d']}, quiet {stop_ev['days_since_assigned']}d")
+            event_key = f"roster_stopped:{stop_ev['last_assigned']}"
+        elif stop_ev:
+            kind, owner = "CONFIRM_OR_CLOSE", MATTHEW
+            why = (f"roster stopped AND drivers gone: {stop_ev.get('drivers_now')} left, "
+                   f"was {stop_ev['baseline_weekly']:.0f} routes/wk")
+            event_key = f"roster_shrink:{stop_ev['last_assigned']}"
         else:
             kind, owner, why = "ENGAGE", JOHN, f"active, gap: {', '.join(lead['heartbeats_dark'])}"
+        SUBJ = {"RISK": "Adoption call", "ENGAGE": "Value conversation",
+                "CONFIRM_OR_CLOSE": "Confirm or close",
+                "DRIVER_CLIFF": "Driver cliff, find out what happened",
+                "ROSTER_STOPPED": "Stopped assigning routes"}
+        NEXT = {"RISK": LADDER[0], "ENGAGE": "Single outreach",
+                "CONFIRM_OR_CLOSE": "Confirm or close",
+                # A cliff is a business event, so it is Matthew's confirm-or-close
+                # flow rather than an adoption ladder.
+                "DRIVER_CLIFF": "Confirm or close",
+                # A roster stop IS an adoption problem, so it runs the normal ladder.
+                "ROSTER_STOPPED": LADDER[0]}
+        URGENT = {"RISK", "DRIVER_CLIFF", "ROSTER_STOPPED"}
+        if kind == "DRIVER_CLIFF":
+            desc = describe_cliff(members, crit)
+        elif kind == "ROSTER_STOPPED":
+            desc = describe_roster_stop(members, crit, hist)
+        else:
+            desc = describe(kind, members, sigmap, as_of, hist)
         plan.append(dict(operator=op, kind=kind, owner=owner, why=why, members=members,
                          monthly=total_monthly, staff=total_staff,
-                         subject={"RISK":"Adoption call","ENGAGE":"Value conversation",
-                                  "CONFIRM_OR_CLOSE":"Confirm or close"}[kind],
-                         next_action={"RISK":LADDER[0],"ENGAGE":"Single outreach",
-                                      "CONFIRM_OR_CLOSE":"Confirm or close"}[kind],
-                         due=add_bdays(as_of, LADDER_BDAYS[0]) if kind=="RISK" else add_bdays(as_of, 5),
-                         priority="High" if kind=="RISK" else "Normal",
-                         description=describe(kind, members, sigmap, as_of, hist)))
+                         # Stable identity for the event, so a future writer can tell
+                         # "the same collapse, seen again today" from a new one. The
+                         # 30-day cooldown still is not built, so today this is only
+                         # recorded, not enforced.
+                         event_key=event_key,
+                         subject=SUBJ[kind], next_action=NEXT[kind],
+                         due=add_bdays(as_of, LADDER_BDAYS[0]) if kind in URGENT else add_bdays(as_of, 5),
+                         priority="High" if kind in URGENT else "Normal",
+                         description=desc))
 
     from collections import Counter
     c = Counter(p["kind"] for p in plan)
@@ -379,7 +540,7 @@ def main():
                  "need to read existing tasks. Without\nthe cooldown, a task closed "
                  "today regenerates tomorrow morning.")
     print("MODE: DRY RUN, nothing will be created\n")
-    for k in ("RISK","ENGAGE","CONFIRM_OR_CLOSE"):
+    for k in ("DRIVER_CLIFF","ROSTER_STOPPED","RISK","ENGAGE","CONFIRM_OR_CLOSE"):
         sub=[p for p in plan if p["kind"]==k]
         print(f"{k:18s} {len(sub):3d} tasks  ${sum(p['monthly'] for p in sub):9,.0f}/mo  -> {'John' if sub and sub[0]['owner']==JOHN else 'Matthew' if sub else '-'}")
     print(f"{'TOTAL':18s} {len(plan):3d} tasks")

@@ -202,6 +202,46 @@ The owner, dispatchers, operations managers, HR, fleet managers. **They log in a
 
 **In customer-facing writing, say "drivers".** Operators call them drivers or associates, never "staff" and certainly never "users".
 
+## Task types and PRECEDENCE. Critical signals wired in 08-05-2026.
+
+**One account gets one task, and it says the single most useful thing about that account today.** Several accounts qualify on more than one row: TPE is both RISK and roster-stopped, GNC is both a cliff and below the floor. Without a strict order they would each get two or three tasks, which is how the old queue reached 217 items.
+
+Evaluated top to bottom, first match wins:
+
+| | Condition | Task | Owner |
+|---|---|---|---|
+| 1 | Written-off or payment-error invoice in the last three | `CONFIRM_OR_CLOSE` | Matthew |
+| 2 | **Driver cliff within 14 days** | **`DRIVER_CLIFF`** | Matthew |
+| 3 | Below the value floor: under 1 driver or under $100/mo | `CONFIRM_OR_CLOSE` | Matthew |
+| 4 | Dark on 3+ of 4 heartbeats | `RISK` | John |
+| 5 | **Stopped assigning routes, drivers still there** | **`ROSTER_STOPPED`** | John |
+| 6 | Stopped assigning routes, drivers gone too | `CONFIRM_OR_CLOSE` | Matthew |
+| 7 | Active, dark on 1 or 2 heartbeats | `ENGAGE` | John |
+
+**Output on 08-05-2026: 1 cliff, 10 roster-stopped, 3 RISK, 32 ENGAGE, 18 confirm-or-close. 64 tasks, 11 of them new from the critical signals.**
+
+### Three ordering rules that were each got wrong once
+
+**THE VALUE FLOOR MUST STAY ABOVE RISK.** Putting RISK first took the RISK list from 3 accounts to **14 while adding only $97/mo**, because every long-dead account is dark on everything. A four-attempt ladder plus a CEO escalation for an $8 account is exactly what the floor exists to prevent.
+
+**RISK OUTRANKS A ROSTER STOP.** Dark on 3 of 4 heartbeats is strictly worse than one workflow stopping, and TPE is both.
+
+**A CLIFF ONLY COUNTS FOR 14 DAYS.** Probyn collapsed on 04-01-2026 and has recovered to 41 drivers. Unbounded, it was still generating a "find out what happened" task four months later, and it **stole 11 accounts from Matthew's confirm-or-close queue** where they belong. Older cliffs are history; the account's current state already routes it correctly.
+
+### A cliff goes to Matthew, a roster stop goes to John
+
+**`DRIVER_CLIFF` is a business event, not an adoption problem.** A contract, a station or the company ended. `Next Action = Confirm or close`, and the task says explicitly: do not open on product, do not offer a discount, and **do not reconcile against the invoice**, which will not show the collapse for about a month.
+
+**`ROSTER_STOPPED` is an adoption problem and runs the normal ladder.** They still have the drivers, so the likeliest causes are that dispatch moved elsewhere or the person who built the roster left. Opener is about the operation, not the product.
+
+### Both critical feeds are mandatory
+
+**A missing `roster-dropoff-*.json` or `driver-cliff-*.json` aborts the run rather than skipping it.** A silently empty critical feed would produce a clean-looking task list that had simply stopped watching for collapses, which is the worst failure this script could have. A feed more than a day old prints a warning.
+
+### Recurrence is recorded but NOT yet enforced
+
+Each critical task carries an `event_key`, for example `cliff:2026-07-29` or `roster_stopped:2026-07-23`, so a future writer can tell the same collapse seen again from a new one. **The 30-day cooldown is still unbuilt**, so once a writer exists these would regenerate daily until it is. Build the cooldown before the writer.
+
 ## THE TWO CRITICAL DAILY SIGNALS. Classified by John 08-05-2026.
 
 **Both are churn events in progress, not risk scores. "That could mean real change that they are potentially going to churn."**
