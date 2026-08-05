@@ -1,5 +1,25 @@
 # CLAUDE.md
 
+## Customer success motion: START HERE
+
+**Active work as of 08-05-2026. Read the handoff before touching any of it:**
+
+`~/.claude/plugins/config/claude-for-customer-success/rollout-readiness.md`
+
+That file is the single entry point. It carries current status, the resume command, the next four pieces of work in order, what is waiting on Matthew, and the known gaps. **It is not in this repo** because the plugin reads it from the config path, but a mirror is committed at `cs-plugin-config/` (see that folder's README for the sync commands).
+
+**The daily pipeline lives in `analysis/tenant-engagement/`:**
+
+```bash
+cd analysis/tenant-engagement && python3 run_daily.py
+```
+
+Five steps in dependency order. **Never pass a back-dated `--as-of`**: it silently inflates darkness across the whole book, because dates after `as_of` are clamped away by design. Running 08-04 on 08-05 took the task list from 53 to 123.
+
+**Nothing writes to Zoho.** `generate_tasks.py --write` refuses, because no writer exists and the 30-day cooldown is unbuilt. No customer contact is authorised.
+
+**Read the `findings-*.md` files in `analysis/tenant-engagement/` before re-deriving anything.** They document traps that produce confidently wrong answers, several of which have already cost a wrong conclusion: `averageActiveDriverCount` is a monthly average that hid a collapse, `StaffStatus` was wrong half the time, the "driver paperwork" signal was 94% vehicle photos, and `Select="COUNT"` does not paginate.
+
 ## Project purpose
 
 This project is the working repository for Hera Solutions customer success and customer support work. It holds:

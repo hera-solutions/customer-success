@@ -1,92 +1,132 @@
-# Rollout readiness: what is missing before the first customer call
+# START HERE. Where the CS motion stands and how to resume.
 
-**Status 08-04-2026: NOT READY, but the two structural blockers are cleared. No customer contact authorised.**
+**Last updated 08-05-2026. Read this first in any new session before touching the CS work.**
 
-Original assessment set 08-04-2026 after the user said "there is still a substantial amount of setup required before moving and implementing the plan." Updated the same day as work landed.
+**Status: NOT LIVE. No customer contact is authorised. Nothing writes to Zoho.**
 
 ---
 
-## CLEARED
+## Resume in one minute
 
-### ~~Blocker 1: nothing surfaces an at-risk account to a human~~ DONE
+```bash
+cd ~/github/customer-success/analysis/tenant-engagement
+aws sso login --profile hera-readonly      # only if the token has expired
+python3 run_daily.py                        # the whole chain, dry run
+```
 
-The detection, weighting, lifecycle and generation all exist now.
+**Never pass a back-dated `--as-of`.** It silently inflates darkness across the whole book: running 08-04 on 08-05 took ENGAGE from 34 tasks to 102. A guard warns, but do not ignore it.
 
-- **Trigger:** dark 30 days on 3 or more of the four heartbeat signals: human-sent message 6.8, document upload 4.5, staffed roster 4.3, and **roster maintained**, measured as the billed driver count not moving. Weights are churn lift, not judgment.
-- **The 4th heartbeat was replaced on 08-04-2026 and the weight has NOT been re-derived.** It used to be measured with `StaffStatus`, which was wrong half the time: of 30 accounts it called stale, 15 had a billed driver count that moved inside 30 days. It now comes from `InvoiceLineItem.activeStaff`. The 3-of-4 rule counts signals rather than summing weights, so the rule is unaffected, but **re-run `signal_weights.py` before calling the weight evidenced.**
-- **Generator:** `analysis/tenant-engagement/generate_tasks.py`, dry-run by default, `--write` required.
-- **Output on 08-04-2026:** 3 RISK to John, 34 ENGAGE to John, 16 Confirm-or-close to Matthew. 53 tasks, down from 61 once the bad roster signal was removed.
-- **The five Zoho `Last_Active1` rules still need turning off**, which is Matthew's action. They fired six tasks on 08-04-2026 and not one was for a paying at-risk customer.
+`run_daily.py` runs five steps in dependency order and prints the two critical alerts first. Everything it produces lands in `data/`, which is gitignored because it holds per-customer detail.
 
-### ~~Blocker 2: the adoption conversation has nowhere to be recorded~~ DONE
+## The four files that hold the thinking
 
-**Seven** custom fields on Zoho Tasks, not eight. Re-verified live 08-04-2026: `Job_Named`, `Blocker`, `Ask_Made`, `Outcome_Evidence`, `Customer_Quote`, `Contact_Outcome`, `Next_Action`. All writable, and **every picklist value matches the generator's constants exactly**. Coverage is a single query, since automation tasks never populate `Contact_Outcome`.
-
-**BUT NOTHING WRITES TO THEM YET, and this is the real state of Blocker 2.** `generate_tasks.py --write` parses the flag, prints `MODE: WRITE`, and creates nothing. There is no Zoho API call anywhere in the pipeline. Fail-safe for pre-rollout, but the output is misleading: it reads as though 53 tasks were created.
-
-**Two of the seven documented decisions are also unimplemented**, both because they need to read existing Zoho tasks:
-
-| Decision | State |
+| File | What is in it |
 |---|---|
-| 3. 30-day cooldown per account per task type | **NOT BUILT.** `COOLDOWN_DAYS = 30` is defined and never referenced, so a closed task can regenerate the next morning |
-| 5. Recovery auto-closes an open task | **NOT BUILT.** A customer who comes back keeps an open task until somebody notices |
+| **`csm/CLAUDE.md`** | The config the plugin actually reads. Health model, the four heartbeats and what they literally measure, the two critical daily signals, task precedence, the outreach lifecycle, ~25 data traps |
+| **`csm/task-field-guide.md`** | How to fill in each of the nine task fields, with good and bad examples |
+| **`adoption-conversation.md`** | The RISK call script. **DRAFT, unapproved** |
+| **`csm/engage-message-templates.md`** | Four live quarterly email drafts, two withdrawn. **DRAFT, unapproved** |
 
-### ~~Blocker 4: no owner and no cadence~~ MOSTLY DONE
+Analysis and findings live in the repo at `~/github/customer-success/analysis/tenant-engagement/`. **Read the `findings-*.md` files before re-deriving anything**; several document traps that produce confidently wrong answers.
 
-Assignment is John for every generated task, reassigning to Lizz at his discretion. Cadence is a Mon-Fri scheduled routine with weekend activity rolling into Monday. RISK is monthly with a business-day ladder on days 1, 3, 5, 8 and escalation on day 10. ENGAGE is quarterly, single outreach.
+There is also a plain-language briefing for Abram and Lizz at `~/github/customer-success/briefings/2026-08-04-cs-motion-abram-lizz.html`, published as a private artifact.
 
-**Still missing:** Abram's carve-out book is undefined, and no account may be assigned to him until it is, because his compensation depends on which accounts he holds.
+## What the pipeline does today
 
----
+| Step | Script | Purpose |
+|---|---|---|
+| 1 | `staff_history.py` | Daily billed driver count per tenant from `InvoiceLineItem.activeStaff`. **Must run first**, it feeds steps 2 and 3 |
+| 2 | `driver_cliff.py` | **CRITICAL.** A sustained roster collapsing to unsustainable numbers in days |
+| 3 | `usage_signals.py` | The four heartbeats and the tier per tenant |
+| 4 | `roster_dropoff.py` | **CRITICAL.** Stopped assigning routes, weighted by how heavily they used to |
+| 5 | `generate_tasks.py` | The task plan. **Dry run only, there is no writer** |
 
-## STILL OPEN
-
-### Blocker 3: the conversation format is rewritten, awaiting one read
-
-**Rewritten 08-04-2026** against the decisions actually agreed: heartbeat tiers, the business-day ladder, the pivot table, seven Zoho fields, MM-DD-YYYY dates. The superseded 62-account cohort and the scorecard cohort are gone, and the broken `../` links to the catalog and AMP files are fixed.
-
-**Two substantive changes, not just tidying:**
-
-- **All three RISK accounts are dark on all four heartbeats**, so the old rule "open with what they are doing" is impossible. Replaced with an opener on the customer's operation.
-- **The old instruction to "ask straight out whether they are still using Hera" is withdrawn.** Asked of a growing account paying $931/mo, that question invites a cancellation. It would have caused the outcome it was written to prevent.
-
-**Needs one read from John, not a rebuild.** Still marked DRAFT, still referenced by no skill.
-
-### Blocker 5: seven config fields still unset
-
-QBR format, success plan format, renewal conversation style, and the CS playbook, QBR, success plan and stakeholder map template sources. Open by non-decision since 07-30-2026. Nothing is blocked today, but a skill asked for a QBR will print `[NOT SET]` into a customer-facing draft.
-
-### Blocker 6: the outcome catalog cannot be used with customers
-
-`provisional-1.0`, unratified, **barred from customer-facing material until Matthew signs it off** at the weekly management meeting. The adoption conversation depends on it for the six jobs.
-
-### Blocker 7: two plugins have no configuration at all
-
-`onboarding` 1.0.1 and `cs-ops` 1.0.1, no `CLAUDE.md` for either. Roughly 20 skills and three scheduled agents would run with no profile. **Largest remaining gap in the install.** When it is done, take the onboarding milestone framework out of the existing Zoho new-deal sequence (Check In 1 at +27 days, Check In 2 at +37, Comprehensive Follow Up at +40, Mid Trial Review at +47, Product Fruits at +53) rather than the plugin's generic M1-M5 template.
-
-### New, from building the generator
-
-- **ENGAGE message templates, four live and two withdrawn.** No driver schedules (14 accounts, $15,374/mo) and no driver paperwork (12, $8,728) are drafted and need a writing approval only. **The driver-list gap (7 accounts, $6,240/mo) is WITHDRAWN**: all seven had changed their billed driver count within 8 days, so the email would have been wrong to their face.
-- **Two accounts are probably being over-billed, and the largest is not on the urgent list.** Last Mile Logistics, $1,219/mo, 140 drivers, roster frozen 34 days after 75 changes in the prior year. TPE Logistics, $931/mo, 115 drivers, frozen 50 days. Both billed per driver. Needs a decision from Matthew on whether CS raises it or he does.
-- **Where Matthew's escalation flow records anything.** The `Cases` module is permission-denied to the CS connector. Ask him. If his flow lives outside Zoho, escalated accounts have no CRM record at all.
-- ~~**Double Iron Car Care: 18 associates, $25/mo.**~~ **RESOLVED 08-04-2026. Nothing was wrong.** They are on a flat monthly fee: `flatMonthlyBillingAmount` 25, `variableTotal` 0, and every per-driver line charge 0. 11 accounts are not billed per driver, which also means a frozen roster costs them nothing.
+**Output on 08-05-2026: 64 tasks.** 1 driver cliff and 18 confirm-or-close to Matthew, 10 roster-stopped, 3 RISK and 32 ENGAGE to John.
 
 ---
 
-## Not blockers, but they will bite
+## THE FOUR THINGS TO DO NEXT, in order
 
-**Four revenue totals that do not reconcile.** $199,177 invoiced for July, $190,594 collected, $193,080 in the CEO deck, $187,274 in the health report. All defensible, all different populations. **Do not quote any of them externally until reconciled.**
+### 1. Put the owner's name and phone on every task
 
-**Do not quote the signal lift figures outside the team either.** The comparison is structurally biased: survivors measured today, churns at their churn date. The ranking survives it, the magnitudes do not.
+**This blocks the first call and it is a missing join, not missing data.**
 
-**The AMP per-member rate is unknown**, so that opportunity cannot be sized. 807 active associates across ten dark accounts is the only firm number.
+The task says "call the owner." Zoho has 20 to 25 contacts per account, overwhelmingly drivers, with no role field. **Dynamo names the owner for 15 of 15 urgent accounts via `Tenant.ownerUserId` but holds no phone. Zoho has the phone. Match on email.** Lands a number for roughly 10 of 15.
 
-**Nobody has confirmed what happens when a trial lapses.** Extension is manual and monthly, 46 live AMP customers behind it.
+See `findings-who-to-call.md` in the repo. **Caveat: `ownerUserId` may point at whoever administers the account rather than the principal**, so verify against the Zoho contact rather than asserting it on a call.
 
-**~~Debt disappears when an account is churned~~ MITIGATED.** The Confirm-or-close task now carries the last two invoices and any balance, and requires a note before closing. $2,257 already went invisible this way (PacTrack $1,411, Pure Logistics $846) and still needs a chase-or-write-off decision from Matthew.
+### 2. Messaging drop-off
 
-**627 active associates bill nothing** across MBB 321 (deliberate), Outlaw 195 and Spears 111 (credits granted without CS involvement). Worth Matthew seeing the three together.
+**Human-sent message is the strongest signal in the book at 6.8 lift, and it has the exact blind spot already fixed for rostering.** A customer sending 500 messages a week who drops to five is invisible for 30 days. Copy the shape of `roster_dropoff.py`; the `Message` table is the source.
 
-**Two connectors that would help are unauthenticated.** LogRocket, the best adoption diagnostic available since per-company session URLs already sit in Intercom. Google Calendar, for cadence. Stripe is now connected.
+### 3. The 30-day cooldown, BEFORE any Zoho writer ships
+
+`COOLDOWN_DAYS = 30` is defined and never referenced. Every critical task already carries an `event_key` such as `cliff:2026-07-29` so a writer can tell the same collapse from a new one, but **nothing enforces it.** Ship a writer first and the queue regenerates every morning, which is most of how it reached 217 overdue tasks.
+
+### 4. VPL fulfilment ratio
+
+The only driver-side signal that exists. A user sending 50 photo-log requests and getting 5 back means the driver relationship is broken. The request weighs 1.3 and the response weighs 4.5, so **the gap between them is where the information is.**
+
+---
+
+## Waiting on other people
+
+| | Owner | Note |
+|---|---|---|
+| **Turn off the five `Last_Active1` Zoho rules** | **Matthew** | **The only item that actively interferes.** They are still firing: the five most recent tasks in Zoho are all from them, all `Not Started`. Two systems feeding one queue is how it reached 217 |
+| Ratify the outcome catalog | Matthew | `provisional-1.0`, barred from customer-facing use until signed off |
+| Chase or write off $2,257 | Matthew | PacTrack $1,411, Pure Logistics $846 |
+| Does Matthew use the Zoho `Cases` module? | Matthew | `Cases` is permission-denied to the CS connector, so escalations after day 10 may leave no CRM record at all |
+| Read the RISK script and the two email drafts | John | They need a read, not a rebuild |
+| Define Abram's carve-out book | John | No account may be assigned to him until it exists, because his comp depends on it |
+| Tell Lizz her role is written down | John | She has not seen it |
+| Decide on the gap-3 replacement email | John | The original was withdrawn for being wrong to seven customers' faces |
+
+---
+
+## Known gaps, ranked, none of them blocking
+
+**Seasonality will break the new detectors.** Amazon peak runs November to December and January collapses. **A 60-day baseline would read January as the entire book falling off a cliff. Backtest against last January before Q4.**
+
+**Support tickets are absent from the model.** Intercom is connected. Five unresolved tickets is a churn risk no usage signal catches, and it is the only place customers complain in their own words.
+
+**No holdout group**, so coverage can be measured but effectiveness cannot.
+
+**The signal weights need re-deriving.** The 3.9 that put roster maintenance in the top four was derived for the old `StaffStatus` version, which turned out to be wrong half the time. The 3-of-4 rule counts signals rather than summing weights so the rule is unaffected, but whether roster maintenance still ranks fourth is unverified.
+
+**Message and driver-count-moved overlap at Jaccard 0.76**, 13 of 15 shared. Those two are substantially redundant, so 3-of-4 may behave closer to 2-of-3. Small sample; fold it into the weight work.
+
+**Onboarding has no config, and on the evidence that is fine for now.** Only **2.2% of churn happens in the first 90 days and 57% happens after two years**, so the motion is correctly aimed at mature accounts. `cs-ops` is also unconfigured.
+
+**Four revenue totals do not reconcile**: $199,177 invoiced for July, $190,594 collected, $193,080 in the CEO deck, $187,274 in the health report. All defensible, all different populations. **Do not quote any of them externally.**
+
+**Do not quote the churn lift figures outside the team.** Survivors are measured today and churns at their churn date, which inflates every magnitude. The ranking survives; the numbers do not.
+
+**The AMP per-member rate is unknown**, so that opportunity cannot be sized. 46 accounts parked on Trial awaiting rollup billing, extension is manual and monthly.
+
+**627 active drivers bill nothing**: MBB 321 deliberate, Outlaw 195 and Spears 111 from credits granted without CS involvement.
+
+**The 35 stopped-scorecard accounts, $28,268/mo**, were superseded by the heartbeat model and never re-homed.
+
+**LogRocket is unauthenticated**, and it is the best adoption diagnostic available since per-company session URLs already sit in Intercom.
 
 **No customer call recordings exist.** Zoom holds only internal meetings, so there is no baseline for what these conversations sound like.
+
+---
+
+## Cleared, and how
+
+| | Evidence |
+|---|---|
+| Nothing surfaced an at-risk account | Four heartbeats plus two critical daily signals, five task types, precedence order |
+| Nowhere to log a call | Seven custom Zoho fields, verified live, every picklist value matching the generator |
+| No owner or cadence | Everything to John, Mon-Fri run, business-day ladder, escalation on day 10 |
+| Debt vanishing on churn | Confirm-or-close carries the last two invoices and requires a note |
+| "18 drivers at $25 is impossible" | It was always correct. Flat monthly fee. 11 accounts are not billed per driver |
+| 217 overdue tasks | Closed and audited in `zoho-task-cleanup-2026-08-03.md` |
+
+## Two standing rules that outrank convenience
+
+**Never write, edit or delete a Zoho Note.** Notes are the human narrative. The nine task fields are the structured record.
+
+**Verify any production figure three ways before presenting it: input, cross-source, follow-through.** Running the same query twice is not verification. In this work alone that rule caught a stale revenue figure that had changed a routing decision, a signal that was wrong half the time, a heartbeat that was 94% mislabelled, and a back-dated run that inflated the task list from 53 to 123.
